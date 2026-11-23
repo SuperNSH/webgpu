@@ -1,0 +1,10 @@
+$ cargo clippy -p nsh-webgpu --target aarch64-linux-android --all-targets -- -D warnings
+crates/nsh-webgpu/src/api/device.rs:39:1: error: initializer for `thread_local` value can be made `const`
+crates/nsh-webgpu/src/error.rs:199:1: error: initializer for `thread_local` value can be made `const`
+error: could not compile `nsh-webgpu` (lib test) due to 2 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `nsh-webgpu` (lib) due to 2 previous errors
+
+# The two errors above are in frozen files (api/device.rs:39, error.rs:199), clippy's missing_const_for_thread_local, which fires only for this target. With that one lint allowed:
+$ cargo clippy -p nsh-webgpu --target aarch64-linux-android --all-targets -- -D warnings -A clippy::missing_const_for_thread_local
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.15s

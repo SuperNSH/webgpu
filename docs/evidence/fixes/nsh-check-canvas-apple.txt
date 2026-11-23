@@ -1,0 +1,5 @@
+$ (examples/canvas-apple) nsh check
+✓ checked webgpu-canvas-native (300ms)
+✓ checked nsh-webgpu (211ms)
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (171ms)
+exit 0

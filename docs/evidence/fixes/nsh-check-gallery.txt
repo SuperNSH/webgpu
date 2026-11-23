@@ -1,0 +1,5 @@
+$ (examples/gallery) nsh check
+✓ checked webgpu-gallery-native (137ms)
+✓ checked nsh-webgpu (211ms)
+✓ built the Rust crates webgpu-gallery-native, nsh-webgpu (410ms)
+exit 0

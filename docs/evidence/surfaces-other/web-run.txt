@@ -1,0 +1,6 @@
+✓ built App.tsx (8.8 KB js, 23.0 KB bytecode, 4ms)
+→ open in a browser: http://127.0.0.1:8872/
+  on this network: http://192.168.8.126:8872/
+• Web (Chrome) connected, build 1
+• Web (Chrome) disconnected
+• Web (Chrome) connected, build 1

@@ -1,0 +1,53 @@
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (433ms)
+✓ built the headless runner of webgpu-headless-native, nsh-webgpu (763ms)
+✓ bundled react-parity.app.tsx (72945 B in 7.9 ms)
+warn GPUAdapter is not hardware accelerated. This is common on Android emulators. Rendering will be slow. Some features may be unavailable.
+✗ react-parity.test.tsx › hooks › useDevice resolves an adapter and a device; useCanvasRef and useSurface follow the canvas (20.0s)
+    `text:device: hooked` showing never happened in 20000 ms; on screen: ["device: pending", "adapter: pending", "canvas ref: 1", "surface: 7x5"]
+✗ react-parity.test.tsx › hooks › warnIfNotHardwareAccelerated warns for a fallback adapter only (0ms)
+    expected ["GPUAdapter is not hardware accelerated. This is common on Android emulators. Rendering will be slow. Some features may be unavailable."] to equal []
+    at <anonymous> (react-parity.test.tsx:39:22)
+warn GPUAdapter is not hardware accelerated. This is common on Android emulators. Rendering will be slow. Some features may be unavailable.
+✗ react-parity.test.tsx › GPUDeviceProvider › renders its children once the device is ready and shares one device; useMainDevice throws outside (4ms)
+    expected ["outside: no error"] to contain "outside: No DeviceContext found."
+    at <anonymous> (react-parity.test.tsx:53:25)
+    on screen: "outside: no error"
+warn [nsh-webgpu] uncaptured validation error: Validation Error
+     
+     Caused by:
+       In a CommandEncoder
+         Bytes per row does not respect `COPY_BYTES_PER_ROW_ALIGNMENT`
+warn [nsh-webgpu] uncaptured validation error: Validation Error
+     
+     Caused by:
+       In Queue::submit
+         Bytes per row does not respect `COPY_BYTES_PER_ROW_ALIGNMENT`
+✗ react-parity.test.tsx › GPUOffscreenCanvas › renders the reference's triangle and reads it back with getImageData (18ms)
+    expected "offscreen: bgra8unorm 50x50 bytes=10000 center=0,0,0,0 corner=0,0,0,0 red=0" to match /^offscreen: bgra8unorm 50x50 bytes=10000 center=0,0,255,255 corner=0,0,0,0 red=\d+$/
+    at <anonymous> (react-parity.test.tsx:64:19)
+    on screen: "offscreen: bgra8unorm 50x50 bytes=10000 center=0,0,0,0 corner=0,0,0,0 red=0", "frame: failed: ERR_WEBGPU_UNSUPPORTED: writeTexture (phase 2: commands) is not supported by nsh-webgpu (see docs/parity.md)"
+○ react-parity.test.tsx › GPUOffscreenCanvas › a frame of createTestVideoFrame written into it reads back byte for byte skipped
+✗ react-parity.test.tsx › GPUOffscreenCanvas › getContext gives the one context for webgpu and null otherwise; it throws before configure (0ms)
+    expected GPUOffscreenCanvasContext {"canvas":GPUOffscreenCanvas {"width":64,"height":64,"context":[Circular]},"__brand":"GPUCanvasContext","textureFormat":"bgra8unorm","texture":null,"device":null} to be null
+    at <anonymous> (react-parity.test.tsx:84:54)
+✗ react-parity.test.tsx › useNativeBufferSize › reports the first size at once and settles later ones after 150 ms (8ms)
+    expected ["size: 300x90","report 100x50","report 200x80","report 300x90"] to contain "size: 100x50"
+    at <anonymous> (react-parity.test.tsx:102:25)
+    on screen: "size: 300x90", "report 100x50", "report 200x80", "report 300x90"
+✗ react-parity.test.tsx › useNativeBufferSize › NativeBufferView throws ERR_WEBGPU_UNSUPPORTED (5ms)
+    expected ["size: none","report 100x50","report 200x80","report 300x90"] to contain "view: ERR_WEBGPU_UNSUPPORTED"
+    at <anonymous> (react-parity.test.tsx:109:25)
+    on screen: "size: none", "report 100x50", "report 200x80", "report 300x90"
+✗ react-parity.test.tsx › extensions › createTestVideoFrame makes the reference's bgra8 pattern (0ms)
+    expected [221,255,255,255] to equal [220,255,255,255]
+    at <anonymous> (react-parity.test.tsx:127:24)
+✗ react-parity.test.tsx › extensions › createTestVideoFrame makes the reference's nv12 frame: red left, green right (0ms)
+    expected [240,240,240,240,42,26,42,26] to equal [102,240,102,240,42,26,42,26]
+    at <anonymous> (react-parity.test.tsx:137:52)
+✗ react-parity.test.tsx › extensions › the Dawn and platform-buffer extensions throw ERR_WEBGPU_UNSUPPORTED (0ms)
+    expected Error("importDevice is unavailable: it wraps a Dawn WGPUDevice*, and nsh-webgpu runs on wgpu, which cannot adopt a Dawn device") to match object {"code":"ERR_WEBGPU_UNSUPPORTED"}
+    at <anonymous> (react-parity.test.tsx:152:58)
+✗ react-parity.test.tsx › extensions › getPreferredHighBitDepthCanvasFormat, WebGPUModule.install and installWebGPU (0ms)
+    expected "rgb10a2unorm" to be "rgba16float"
+    at <anonymous> (react-parity.test.tsx:161:52)
+error 12 tests: 0 passed, 11 failed, 1 skipped (23.2s)

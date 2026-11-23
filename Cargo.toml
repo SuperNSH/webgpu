@@ -1,0 +1,116 @@
+[package]
+name = "nsh-webgpu"
+description = "WebGPU for Native Shell (NSH) apps: a port of react-native-webgpu on wgpu."
+version = "0.1.0"
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+repository.workspace = true
+keywords = ["nshm", "webgpu", "wgpu", "gpu", "nsh"]
+categories = ["graphics", "rendering::graphics-api", "gui"]
+readme = "README.md"
+homepage = "https://github.com/SuperNSH/webgpu"
+documentation = "https://github.com/SuperNSH/webgpu/tree/master/docs/guide"
+# Not on crates.io yet: the NSH crates are Git dependencies (pinned to a
+# commit), which `cargo package` refuses. Install with `nsh add github:SuperNSH/webgpu`.
+publish = false
+# What a crates.io package carries: the crate, its TSX exports (nsh.json) and its tests.
+# A Git source (`nsh add github:SuperNSH/webgpu`) is read whole at this root.
+include = ["/Cargo.toml", "/nsh.json", "/src", "/tsx", "/tests", "/README.md", "/LICENSE", "/NOTICE.md"]
+
+# The crate is this root, so `nsh add github:SuperNSH/webgpu` (and `--path` on a
+# checkout) reads its nsh.json and Cargo.toml here (docs/architecture.md "Layout").
+[workspace]
+resolver = "3"
+members = ["."]
+# Each example's native crate (examples/*/native) and each upstream repro
+# (docs/upstream/*) is a workspace of its own.
+exclude = ["examples", "docs/upstream"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.97"
+license = "MIT"
+repository = "https://github.com/SuperNSH/webgpu"
+
+[workspace.lints.rust]
+missing_docs = "warn"
+unreachable_pub = "deny"
+
+[workspace.dependencies]
+# NSH from Git at the nightly's commit (AGENTS.md "Toolchain").
+nsh-core = { git = "https://github.com/longbridge/nsh", rev = "f577c51901a2857956f8ba0580da4db9ce3a3311" }
+# The GPU: the wgpu NSH itself uses (its workspace's features: each OS's own API, GL as fallback).
+wgpu = { version = "29", default-features = false, features = ["serde", "std", "parking_lot", "wgsl", "dx12", "metal", "vulkan", "gles"] }
+pollster = "0.4"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+# Tests: a runtime for the async functions, PNGs of what they render.
+tokio = { version = "1", features = ["rt-multi-thread"] }
+image = { version = "0.25", default-features = false, features = ["png"] }
+
+[lints]
+workspace = true
+
+[dependencies]
+nsh-core.workspace = true
+wgpu.workspace = true
+pollster.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
+# The native tests call the module's functions as TSX does; the TSX tests
+# are `nsh test` in examples/headless (docs/architecture.md "Tests").
+[dev-dependencies]
+tokio.workspace = true
+image.workspace = true
+
+# ---- area (b) commands: its own dependencies go between these lines ----
+# `createImageBitmap` decodes PNG, JPEG and WebP bytes (react-native-webgpu
+# uses the platform's decoder). A table of its own: this block follows
+# [dev-dependencies], and `cfg(all())` always holds.
+[target.'cfg(all())'.dependencies]
+image = { version = "0.25", default-features = false, features = ["png", "jpeg", "webp"] }
+# ---- end (b) ----
+
+# ---- area (c) surfaces-apple: [target.'cfg(...)'.dependencies] for macOS/iOS go between these lines ----
+# The canvas view: a CAMetalLayer in an NSView (macOS) or UIView (iOS),
+# registered with `#[native_components]` on the platform crate's
+# `Components` (same Git revision as nsh-core: the CLI checks they match).
+[target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
+objc2 = "0.6.5"
+objc2-foundation = { version = "0.3.2", default-features = false, features = ["std", "NSGeometry", "NSObject"] }
+objc2-core-foundation = { version = "0.3.2", default-features = false, features = ["std", "CFCGTypes", "CFString"] }
+objc2-core-graphics = { version = "0.3.2", default-features = false, features = ["std", "CGColorSpace"] }
+objc2-quartz-core = { version = "0.3.2", default-features = false, features = ["std", "CALayer", "CAMetalLayer", "objc2-core-foundation", "objc2-core-graphics", "objc2-metal"] }
+
+[target.'cfg(target_os = "macos")'.dependencies]
+nsh-platform-macos = { git = "https://github.com/longbridge/nsh", rev = "f577c51901a2857956f8ba0580da4db9ce3a3311", default-features = false }
+objc2-app-kit = { version = "0.3.2", default-features = false, features = ["std", "NSResponder", "NSView", "NSWindow", "NSScreen", "objc2-core-foundation", "objc2-quartz-core"] }
+
+[target.'cfg(target_os = "ios")'.dependencies]
+nsh-platform-ios = { git = "https://github.com/longbridge/nsh", rev = "f577c51901a2857956f8ba0580da4db9ce3a3311", default-features = false }
+objc2-ui-kit = { version = "0.3.2", default-features = false, features = ["std", "UIResponder", "UIView", "UIScreen", "UITraitCollection", "objc2-core-foundation", "objc2-quartz-core"] }
+# ---- end (c) ----
+
+# ---- area (d) surfaces-other: [target.'cfg(...)'.dependencies] for Windows/Linux/Android/wasm go between these lines ----
+# The platform crates whose `Components` the canvas registers on (`src/surface/{windows,linux,android}.rs`),
+# from the same Git revision as nsh-core (the CLI checks they match). Each only on its own target.
+[target.'cfg(windows)'.dependencies]
+nsh-platform-windows = { git = "https://github.com/longbridge/nsh", rev = "f577c51901a2857956f8ba0580da4db9ce3a3311", default-features = false }
+log = "0.4"
+
+[target.'cfg(target_os = "linux")'.dependencies]
+nsh-platform-linux = { git = "https://github.com/longbridge/nsh", rev = "f577c51901a2857956f8ba0580da4db9ce3a3311", default-features = false }
+log = "0.4"
+
+[target.'cfg(target_os = "android")'.dependencies]
+nsh-platform-android = { git = "https://github.com/longbridge/nsh", rev = "f577c51901a2857956f8ba0580da4db9ce3a3311", default-features = false }
+log = "0.4"
+
+# wasm: wgpu's objects are !Send there unless this feature says the build is single-threaded (it is: no atomics),
+# which the registry's `Box<dyn Any + Send>` and `views.rs` need (docs/parity/surfaces-other.md "Web").
+[target.'cfg(target_arch = "wasm32")'.dependencies]
+wgpu = { workspace = true, features = ["fragile-send-sync-non-atomic-wasm"] }
+# ---- end (d) ----

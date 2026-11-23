@@ -1,0 +1,206 @@
+name: CI
+
+# The gates of AGENTS.md on GitHub's runners: format, Clippy and the tests on
+# macOS (Metal), Linux (Mesa's software Vulkan) and Windows (build only), Clippy
+# for the cross targets, and the TSX gates in examples/headless with the NSH
+# nightly the crate is pinned to (f577c51).
+#
+# Actions are pinned by commit; the comment after each SHA names the tag or
+# branch it was resolved from (`gh api repos/<owner>/<repo>/commits/<ref>`).
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    # bash -eo pipefail: a failing command before `| tee` fails the step.
+    shell: bash
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  # The NSH build the crates' `rev` and examples/*/native are pinned to.
+  NSH_COMMIT: f577c51901a2857956f8ba0580da4db9ce3a3311
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
+        with:
+          toolchain: stable
+          components: rustfmt
+      - run: cargo fmt --all -- --check
+
+  rust-macos:
+    # Metal on the runner's paravirtualized GPU: the tests render and read back.
+    runs-on: macos-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace --no-fail-fast
+
+  rust-linux:
+    # No GPU: Mesa's lavapipe (software Vulkan) and llvmpipe (GL) stand in.
+    # GTK 4 for nsh-platform-linux, which the canvas view links on Linux.
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install GTK 4 and Mesa's software drivers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang pkg-config libgtk-4-dev \
+            libvulkan1 mesa-vulkan-drivers libegl1 libgl1-mesa-dri vulkan-tools
+      - name: Show the Vulkan devices
+        run: vulkaninfo --summary || true
+      - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace --no-fail-fast
+
+  rust-windows:
+    # Build and Clippy only: nothing on Windows has been run (README "Status").
+    runs-on: windows-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
+        with:
+          toolchain: stable
+          components: clippy
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo build --workspace --all-targets
+
+  cross:
+    name: clippy (${{ matrix.target }})
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # The tests use tokio's multi-thread runtime, which wasm has not: the library only.
+          - target: wasm32-unknown-unknown
+            os: ubuntu-latest
+            args: -p nsh-webgpu
+          - target: aarch64-linux-android
+            os: ubuntu-latest
+            args: -p nsh-webgpu --all-targets
+          - target: aarch64-apple-ios-sim
+            os: macos-latest
+            args: -p nsh-webgpu --all-targets
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+          components: clippy
+      - name: Use the runner's Android NDK for C build scripts
+        if: matrix.target == 'aarch64-linux-android'
+        run: |
+          bin="$ANDROID_NDK_LATEST_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin"
+          test -x "$bin/aarch64-linux-android26-clang"
+          {
+            echo "CC_aarch64_linux_android=$bin/aarch64-linux-android26-clang"
+            echo "AR_aarch64_linux_android=$bin/llvm-ar"
+            echo "CARGO_TARGET_AARCH64_LINUX_ANDROID_LINKER=$bin/aarch64-linux-android26-clang"
+          } >> "$GITHUB_ENV"
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          key: ${{ matrix.target }}
+      - run: cargo clippy ${{ matrix.args }} --target ${{ matrix.target }} -- -D warnings
+
+  typescript:
+    # macOS: `nsh test` builds a headless runner with the crate, and the tests
+    # render on the GPU (Metal), as on a developer's Mac.
+    runs-on: macos-latest
+    timeout-minutes: 75
+    env:
+      # The nightly asset built from NSH_COMMIT (`.sha256` of the release on 2026-11-23).
+      NSH_ASSET: nsh-macos-arm64.tar.gz
+      NSH_ASSET_SHA256: c243a77a300e673da03fac8db9e4e403fbc93fe5c357f814d32301c12abb9f8f
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: examples/headless/native
+      # nsh's installs and caches, outside the checkout (the `runner` context
+      # is not available in a job's `env`).
+      - run: echo "NSH_HOME=$RUNNER_TEMP/nsh-home" >> "$GITHUB_ENV"
+      - name: Is the nightly release still NSH_COMMIT?
+        id: nightly
+        run: |
+          base=https://github.com/longbridge/nsh/releases/download/nightly
+          commit=$(curl -fsSL "$base/nsh-release.json" | jq -r .commit)
+          echo "commit=$commit" >> "$GITHUB_OUTPUT"
+          if [ "$commit" != "$NSH_COMMIT" ]; then
+            echo "::warning::The nsh nightly release is now $commit, not $NSH_COMMIT: building the CLI from source at $NSH_COMMIT."
+          fi
+      - name: Install the nightly asset of NSH_COMMIT
+        if: steps.nightly.outputs.commit == env.NSH_COMMIT
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -fsSL "https://github.com/longbridge/nsh/releases/download/nightly/$NSH_ASSET" -o "$NSH_ASSET"
+          echo "$NSH_ASSET_SHA256  $NSH_ASSET" | shasum -a 256 -c
+          tar -xzf "$NSH_ASSET"
+          echo "$RUNNER_TEMP/nsh/bin" >> "$GITHUB_PATH"
+      # The nightly tag moves every night main changes and keeps no older
+      # builds: past that, the same commit from source (the CLI finds the
+      # checkout it was built in and builds its hosts from it).
+      - name: Cache the CLI built from source
+        if: steps.nightly.outputs.commit != env.NSH_COMMIT
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/nsh-src
+          key: nsh-src-${{ runner.os }}-${{ env.NSH_COMMIT }}
+      - name: Build the CLI at NSH_COMMIT
+        if: steps.nightly.outputs.commit != env.NSH_COMMIT
+        run: |
+          src="$RUNNER_TEMP/nsh-src"
+          if [ ! -x "$src/target/release/nsh" ]; then
+            rm -rf "$src"
+            git clone --filter=blob:none https://github.com/longbridge/nsh "$src"
+            git -C "$src" checkout --detach "$NSH_COMMIT"
+            cargo build --release --locked -p nsh-cli --manifest-path "$src/Cargo.toml"
+          fi
+          echo "$src/target/release" >> "$GITHUB_PATH"
+      - run: nsh --version
+      - name: Check
+        working-directory: examples/headless
+        run: nsh check
+      - name: Build
+        working-directory: examples/headless
+        run: nsh build 2>&1 | tee "$RUNNER_TEMP/build.log"
+      - name: Fail on build warnings
+        # Quoted: a plain scalar starting with ! is a YAML tag, not text.
+        run: "! grep -i warn \"$RUNNER_TEMP/build.log\""
+      - name: Test
+        working-directory: examples/headless
+        run: nsh test --junit "$RUNNER_TEMP/nsh-test.xml"

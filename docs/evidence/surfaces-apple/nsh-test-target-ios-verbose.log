@@ -1,0 +1,42 @@
+warning: patch `nsh-bundler v0.6.0 (~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-bundler v0.6.0 (~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-bundler)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+warning: profile package spec `nsh-bundler` in profile `dev` did not match any packages
+warning: profile package spec `nsh-platform-gpui` in profile `dev` did not match any packages
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/surfaces-apple/crates/nsh-webgpu)
+   Compiling nsh-app-webgpu-canvas-native-b4cc05e5-describe v0.0.0 (~/os/nsh-webgpu-wt/surfaces-apple/examples/canvas-apple/.nsh/rust/describe)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 3.73s
+[2m2026-11-23T20:32:24.120866Z[0m [33m WARN[0m [2mkache::cargo_proxy[0m[2m:[0m target liveness receipt not recorded [3merror[0m[2m=[0msymlink in evidence tree
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (4.5s)
+warning: patch `nsh-bundler v0.6.0 (~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-bundler v0.6.0 (~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-bundler)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+warning: profile package spec `nsh-bundler` in profile `dev` did not match any packages
+warning: profile package spec `nsh-platform-gpui` in profile `dev` did not match any packages
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/surfaces-apple/crates/nsh-webgpu)
+   Compiling nsh-app-webgpu-canvas-native-b4cc05e5-ios-host v0.0.0 (~/os/nsh-webgpu-wt/surfaces-apple/examples/canvas-apple/.nsh/rust/ios-host)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 5.12s
+[2m2026-11-23T20:32:31.596920Z[0m [33m WARN[0m [2mkache::cargo_proxy[0m[2m:[0m target liveness receipt not recorded [3merror[0m[2m=[0msymlink in evidence tree
+✓ built the development host for the iOS simulator (6.0s)
+ info platform_ios::dev loading build 1
+ warn wgpu_core::instance Missing downlevel flags: DownlevelFlags(INDIRECT_EXECUTION | BASE_VERTEX | CUBE_ARRAY_TEXTURES | COMPARISON_SAMPLERS)
+The underlying API or device in use does not support enough features to be a fully compliant implementation of WebGPU. A subset of the features can still be used. If you are running this program on native and not in a browser and wish to limit the features you use to the supported subset, call Adapter::downlevel_properties or Device::downlevel_properties to get a listing of the features the current platform supports.
+ warn wgpu_core::instance DownlevelCapabilities {
+    flags: DownlevelFlags(
+        COMPUTE_SHADERS | FRAGMENT_WRITABLE_STORAGE | READ_ONLY_DEPTH_STENCIL | NON_POWER_OF_TWO_MIPMAPPED_TEXTURES | INDEPENDENT_BLEND | VERTEX_STORAGE | ANISOTROPIC_FILTERING | FRAGMENT_STORAGE | MULTISAMPLED_SHADING | DEPTH_TEXTURE_AND_BUFFER_COPIES | WEBGPU_TEXTURE_FORMAT_SUPPORT | BUFFER_BINDINGS_NOT_16_BYTE_ALIGNED | UNRESTRICTED_INDEX_BUFFER | FULL_DRAW_INDEX_UINT32 | DEPTH_BIAS_CLAMP | VIEW_FORMATS | UNRESTRICTED_EXTERNAL_TEXTURE_COPIES | SURFACE_VIEW_FORMATS | NONBLOCKING_QUERY_RESOLVE | SHADER_F16_IN_F32,
+    ),
+    limits: DownlevelLimits,
+    shader_model: Sm5,
+}
+ info js PNG triangle-surface iVBORw0KGgoAAAANSUhEUgAAAhkAAAkwCAYAAAApvi2PAAAqK0lEQVR4nOzWAZLkRpAd0bj/pSWjxqjlcHuaXVVIIB14z9KvkPFnAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ... [14302 characters elided to keep the repository small]
+ info js PNG cube-surface iVBORw0KGgoAAAANSUhEUgAAAhkAAAkwCAYAAAApvi2PAAbOdUlEQVR4nOzdVbck22Ft62JmZmZmZmZmZmZmZmZm5tqMkmyf+8N80xFjZoyEVbXKx8eW5N6zfS96UtNW2znayog5ixQhIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIi ... [594662 characters elided to keep the repository small]
+ info js WebGPU canvas: bgra8unorm triangle 537x2352 cube 537x2352 surface attached | cube (self-contained): 72 frames
+debug dev::server dev client disconnected: WebSocket protocol error: Connection reset without closing handshake
+✓ canvas.test.tsx › the Triangle and the Cube draw into their canvases (5.7s)
+✓ 1 test: 1 passed, 0 failed (14.3s)

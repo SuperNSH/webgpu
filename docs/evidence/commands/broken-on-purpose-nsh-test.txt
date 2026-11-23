@@ -1,0 +1,46 @@
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (1.4s)
+✓ built the headless runner of webgpu-headless-native, nsh-webgpu (2.2s)
+✗ commands.test.tsx › GPUCommandEncoder and passes › classes, labels and illegal constructors (16ms)
+    expected "" to be "cb"
+    at <anonymous> (commands.test.tsx:105:28)
+✗ commands.test.tsx › GPUCommandEncoder and passes › [EnforceRange] arguments are TypeErrors outside their range (1ms)
+    expected "ok" to be "TypeError"
+    at <anonymous> (commands.test.tsx:115:80)
+✗ commands.test.tsx › GPUCommandEncoder and passes › a call on a locked encoder fails finish() with a validation error (1ms)
+    expected "" to match /insertDebugMarker was called while a pass was open/
+    at <anonymous> (commands.test.tsx:132:34)
+✗ commands.test.tsx › GPUCommandEncoder and passes › draw, instanced, indexed and indirect draws render the same grid (28ms)
+    expected …0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,… to be …0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,28,0,0,255,28,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,57,0,0,255,57,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,85,0,0,255,85,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,28,0,0,255,28,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,57,0,0,255,57,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,85,0,0,255,85,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,0,0,0,255,28,0,0,255,28,0,0,255,28,0,0,255,28,0,0,255,0,0,0,255,0,0,…
+    at <anonymous> (commands.test.tsx:188:65)
+✗ commands.test.tsx › GPUCommandEncoder and passes › setBindGroup takes a sequence or a Uint32Array range of dynamic offsets (5ms)
+    expected 7 to be 42
+    at <anonymous> (commands.test.tsx:232:92)
+✗ commands.test.tsx › GPUQueue writes › a typed-array view writes its own range, dataOffset and size count elements (5ms)
+    expected [10,20] to equal [20,30]
+    at <anonymous> (commands.test.tsx:254:52)
+✗ commands.test.tsx › GPUQueue writes › look-alike buffer sources and ranges outside the data throw (1ms)
+    expected "ok" to be "TypeError"
+    at <anonymous> (commands.test.tsx:269:92)
+✗ commands.test.tsx › GPUQueue writes › writeTexture respects a view's byteOffset (#328) (3ms)
+    expected [255,0,0,255] to equal [0,255,0,255]
+    at <anonymous> (commands.test.tsx:288:64)
+✗ commands.test.tsx › createImageBitmap and copyExternalImageToTexture › decodes an ArrayBuffer, a view and a sub-view (ImageData.spec.ts); close() zeroes the size, twice (0ms)
+    x
+    at <anonymous> (~/os/nsh-webgpu-wt/commands/crates/nsh-webgpu/tsx/imageBitmap.ts:128:109)
+✗ commands.test.tsx › createImageBitmap and copyExternalImageToTexture › rejects look-alike sources with a TypeError and bad bytes with an InvalidStateError (0ms)
+    expected the promise to reject with a value matching {"name":"TypeError"}; it rejected with {"message":"x","name":"Error"}
+✗ commands.test.tsx › createImageBitmap and copyExternalImageToTexture › the crop overload, resize and an ImageData source (0ms)
+    expected [32,32] to equal [16,24]
+    at <anonymous> (commands.test.tsx:321:45)
+✓ commands.test.tsx › createImageBitmap and copyExternalImageToTexture › premultiplied and straight alpha land as the destination asks (13ms)
+✗ commands.test.tsx › createImageBitmap and copyExternalImageToTexture › an origin outside the bitmap is an OperationError, a closed bitmap an InvalidStateError (1ms)
+    expected "ok" to be "OperationError"
+    at <anonymous> (commands.test.tsx:362:122)
+✗ commands.test.tsx › GPUExternalTexture › imports a GPUTexture; other sources say ERR_WEBGPU_UNSUPPORTED (1ms)
+    ERR_WEBGPU_UNSUPPORTED: importExternalTexture from this source (only a GPUTexture) is not supported by nsh-webgpu (see docs/parity.md)
+    at unsupportedError (~/os/nsh-webgpu-wt/commands/crates/nsh-webgpu/tsx/internal/native.ts:40:54)
+    at unsupported (~/os/nsh-webgpu-wt/commands/crates/nsh-webgpu/tsx/internal/native.ts:47:29)
+    at importExternalTexture (~/os/nsh-webgpu-wt/commands/crates/nsh-webgpu/tsx/api/GPUExternalTexture.ts:34:12)
+    at importExternalTexture (~/os/nsh-webgpu-wt/commands/crates/nsh-webgpu/tsx/api/GPUDevice.ts:129:40)
+    at <anonymous> (commands.test.tsx:379:56)
+error 14 tests: 1 passed, 13 failed (4.6s)

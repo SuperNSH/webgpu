@@ -1,0 +1,12 @@
+{
+  "name": "WebGPU Canvas",
+  "id": "com.example.webgpucanvas",
+  "version": "1.0.0",
+  "build": 1,
+  "dependencies": {
+    "nsh-webgpu": {
+      "path": "../.."
+    }
+  },
+  "rust": "native"
+}

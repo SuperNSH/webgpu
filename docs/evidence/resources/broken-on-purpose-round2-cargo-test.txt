@@ -1,0 +1,129 @@
+$ python3 breaks.py apply   (round 2, broken-on-purpose-round2-breaks.txt)
+$ cargo test -p nsh-webgpu --no-fail-fast --lib --test resources -- --test-threads=1
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+    Blocking waiting for file lock on package cache
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/resources/crates/nsh-webgpu)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 2.47s
+     Running unittests src/lib.rs (target/debug/deps/nsh_webgpu-bb408e26c0fa367e)
+
+running 5 tests
+test api::features::tests::every_webgpu_feature_of_wgpu_has_a_spec_name ... ok
+test api::features::tests::names_round_trip_and_never_include_an_empty_name ... ok
+test api::features::tests::unknown_and_unavailable_names_are_type_errors ... FAILED
+test api::limits::tests::every_spec_limit_has_a_value ... ok
+test api::limits::tests::required_limits_keep_the_better_value ... FAILED
+
+failures:
+
+---- api::features::tests::unknown_and_unavailable_names_are_type_errors stdout ----
+
+thread 'api::features::tests::unknown_and_unavailable_names_are_type_errors' (146492055) panicked at crates/nsh-webgpu/src/api/features.rs:133:51:
+called `Result::unwrap_err()` on an `Ok` value: Features { features_wgpu: FeaturesWGPU(0x0), features_webgpu: FeaturesWebGPU(0x0) }
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- api::limits::tests::required_limits_keep_the_better_value stdout ----
+
+thread 'api::limits::tests::required_limits_keep_the_better_value' (146492057) panicked at crates/nsh-webgpu/src/api/limits.rs:168:9:
+assertion `left == right` failed
+  left: 1
+ right: 4
+
+
+failures:
+    api::features::tests::unknown_and_unavailable_names_are_type_errors
+    api::limits::tests::required_limits_keep_the_better_value
+
+test result: FAILED. 3 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p nsh-webgpu --lib`
+     Running tests/resources/main.rs (target/debug/deps/resources-ac974d30a41c0ebc)
+
+running 26 tests
+test adapter::adapter_features_are_spec_names_and_all_of_them_can_be_required ... FAILED
+test adapter::adapter_info_fields ... ok
+test adapter::limits_have_every_spec_name_and_the_spec_bounds ... FAILED
+test binding::a_compare_sampler_samples_a_depth_texture ... ok
+test binding::a_compute_pipeline_multiplies_matrices ... ok
+test binding::a_null_bind_group_layout_keeps_the_later_indices ... ok
+test binding::bind_group_layouts_take_every_entry_type ... ok
+test binding::compute_pipelines_validate_and_expose_their_layouts ... ok
+test binding::invalid_layouts_and_bind_groups_are_validation_errors ... ok
+test binding::invalid_samplers_are_validation_errors ... ok
+test buffer::an_image_written_into_a_buffer_reads_back_as_the_reference ... ok
+test buffer::created_mapped_buffers ... ok
+test buffer::get_mapped_range_checks_the_mapping_its_alignment_and_bounds ... FAILED
+test buffer::map_async_rejects_what_the_spec_rejects_with_a_validation_error ... ok
+test buffer::map_write_reaches_the_gpu_and_destroy_while_pending_aborts ... ok
+test query::an_occlusion_query_counts_samples ... FAILED
+test query::query_sets_and_their_validation ... FAILED
+test query::timestamp_sets_where_the_adapter_has_the_feature ... FAILED
+test shader::a_parse_error_is_reported_with_a_location ... ok
+test shader::an_error_message_has_its_line_position_offset_and_length ... ok
+test shader::valid_wgsl_has_no_messages ... ok
+test texture::a_rendered_texture_reads_back_as_the_reference ... FAILED
+test texture::create_view_takes_every_descriptor_field ... ok
+test texture::every_spec_format_makes_a_texture_where_its_feature_is_there ... ok
+test texture::texture_descriptors_dimensions_and_destroy ... ok
+test texture::tier1_texture_formats_and_the_newer_vertex_formats ... ok
+
+failures:
+
+---- adapter::adapter_features_are_spec_names_and_all_of_them_can_be_required stdout ----
+adapter features: ["bgra8unorm-storage", "core-features-and-limits", "depth-clip-control", "depth32float-stencil8", "dual-source-blending", "float32-blendable", "float32-filterable", "indirect-first-instance", "primitive-index", "rg11b10ufloat-renderable", "shader-f16", "subgroups", "texture-compression-astc", "texture-compression-astc-sliced-3d", "texture-compression-bc", "texture-compression-bc-sliced-3d", "texture-compression-etc2", "timestamp-query"]
+
+thread 'adapter::adapter_features_are_spec_names_and_all_of_them_can_be_required' (146493351) panicked at crates/nsh-webgpu/tests/resources/adapter.rs:87:9:
+an exception: 6
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- adapter::limits_have_every_spec_name_and_the_spec_bounds stdout ----
+
+thread 'adapter::limits_have_every_spec_name_and_the_spec_bounds' (146493514) panicked at crates/nsh-webgpu/tests/resources/adapter.rs:123:5:
+assertion `left == right` failed
+  left: Number(4194304.0)
+ right: Number(268435456.0)
+
+---- buffer::get_mapped_range_checks_the_mapping_its_alignment_and_bounds stdout ----
+
+thread 'buffer::get_mapped_range_checks_the_mapping_its_alignment_and_bounds' (146493774) panicked at crates/nsh-webgpu/tests/resources/buffer.rs:72:5:
+an exception: []
+
+---- query::an_occlusion_query_counts_samples stdout ----
+
+thread 'query::an_occlusion_query_counts_samples' (146493810) panicked at crates/nsh-webgpu/tests/resources/query.rs:157:5:
+0
+
+---- query::query_sets_and_their_validation stdout ----
+
+thread 'query::query_sets_and_their_validation' (146493830) panicked at crates/nsh-webgpu/tests/resources/query.rs:39:5:
+assertion failed: error.unwrap().contains("timestamp-query")
+
+---- query::timestamp_sets_where_the_adapter_has_the_feature stdout ----
+
+thread 'query::timestamp_sets_where_the_adapter_has_the_feature' (146493841) panicked at crates/nsh-webgpu/tests/resources/query.rs:75:5:
+assertion `left == right` failed
+  left: Some("createQuerySet: \"timestamp\" queries need the \"timestamp-query\" feature")
+ right: None
+
+---- texture::a_rendered_texture_reads_back_as_the_reference stdout ----
+
+thread 'texture::a_rendered_texture_reads_back_as_the_reference' (146493879) panicked at crates/nsh-webgpu/tests/resources/common.rs:110:5:
+131072 pixels differ from texture.png
+
+
+failures:
+    adapter::adapter_features_are_spec_names_and_all_of_them_can_be_required
+    adapter::limits_have_every_spec_name_and_the_spec_bounds
+    buffer::get_mapped_range_checks_the_mapping_its_alignment_and_bounds
+    query::an_occlusion_query_counts_samples
+    query::query_sets_and_their_validation
+    query::timestamp_sets_where_the_adapter_has_the_feature
+    texture::a_rendered_texture_reads_back_as_the_reference
+
+test result: FAILED. 19 passed; 7 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.52s
+
+error: test failed, to rerun pass `-p nsh-webgpu --test resources`
+error: 2 targets failed:
+    `-p nsh-webgpu --lib`
+    `-p nsh-webgpu --test resources`
+exit 101

@@ -1,0 +1,12 @@
+$ nsh check  # tsx/index.tsx without its declare global block (broken on purpose)
+✓ checked webgpu-headless-native (132ms)
+✓ checked nsh-webgpu (214ms)
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (478ms)
+commands.test.tsx(375,65): error TS2353: Object literal may only specify known properties, and 'rotation' does not exist in type 'GPUExternalTextureDescriptor'.
+commands.test.tsx(377,14): error TS2339: Property 'destroy' does not exist on type 'GPUExternalTexture'.
+commands.test.tsx(378,14): error TS2339: Property 'destroy' does not exist on type 'GPUExternalTexture'.
+integration.test.tsx(39,5): error TS2353: Object literal may only specify known properties, and 'dawnToggles' does not exist in type 'GPUDeviceDescriptor'.
+integration.test.tsx(51,28): error TS2339: Property 'importSharedTextureMemory' does not exist on type 'GPUDevice'.
+integration.test.tsx(52,28): error TS2339: Property 'importSharedFence' does not exist on type 'GPUDevice'.
+integration.test.tsx(60,11): error TS2339: Property 'drawElementImageToTexture' does not exist on type 'GPUQueue'.
+error type check failed (exit status: 1)

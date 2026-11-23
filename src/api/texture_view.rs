@@ -1,0 +1,117 @@
+//! `GPUTextureView`: `texture.createView`.
+
+use nsh_core::{JsonValue, prelude::*};
+use serde::Deserialize;
+
+use crate::{
+    api::{
+        device::DeviceEntry,
+        texture::{TextureEntry, spec_format},
+    },
+    convert::parse,
+    error::{GpuErrorKind, NativeError, guard},
+    registry::{self, Id},
+};
+
+/// The usage bits WebGPU defines (`GPUTextureUsage`).
+const SPEC_USAGE: u32 = 0x1f;
+
+/// A texture view in the registry.
+#[derive(Clone)]
+pub struct TextureViewEntry {
+    /// The view.
+    pub view: wgpu::TextureView,
+    /// Its texture's device.
+    pub device: Id,
+}
+
+/// `GPUTextureViewDescriptor`.
+#[derive(Debug, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct TextureViewDescriptor {
+    #[serde(default)]
+    label: String,
+    format: Option<wgpu::TextureFormat>,
+    dimension: Option<wgpu::TextureViewDimension>,
+    #[serde(default)]
+    usage: u32,
+    #[serde(default)]
+    aspect: wgpu::TextureAspect,
+    #[serde(default)]
+    base_mip_level: u32,
+    mip_level_count: Option<u32>,
+    #[serde(default)]
+    base_array_layer: u32,
+    array_layer_count: Option<u32>,
+}
+
+impl TextureViewEntry {
+    /// View `id`'s entry, for Rust callers (`None`: no such view).
+    pub fn lookup(id: u32) -> Option<Self> {
+        registry::get::<TextureViewEntry>(id).ok()
+    }
+
+    /// The default view of texture `texture` (a `GPUTexture` bound where
+    /// a view is expected: the spec's `texture.createView()`).
+    pub(crate) fn default_of(texture: &TextureEntry) -> Self {
+        TextureViewEntry {
+            view: texture
+                .texture
+                .create_view(&wgpu::TextureViewDescriptor::default()),
+            device: texture.device,
+        }
+    }
+}
+
+/// The native half of `GPUTextureView`.
+#[module]
+pub struct WgpuTextureView;
+
+#[module]
+impl WgpuTextureView {
+    /// `texture.createView(descriptor)`: the view's id.
+    pub fn create(texture: u32, descriptor: JsonValue) -> Result<u32, String> {
+        guard(|| {
+            let entry = registry::get::<TextureEntry>(texture)?;
+            let desc: TextureViewDescriptor = parse("GPUTextureViewDescriptor", descriptor)?;
+            let format = desc.format.map(spec_format).transpose()?;
+            if matches!(
+                desc.aspect,
+                wgpu::TextureAspect::Plane0
+                    | wgpu::TextureAspect::Plane1
+                    | wgpu::TextureAspect::Plane2
+            ) {
+                return Err(NativeError::type_error(
+                    "aspect: planes are not a valid GPUTextureAspect",
+                ));
+            }
+            let usage = if desc.usage & !SPEC_USAGE != 0 {
+                DeviceEntry::get(entry.device)?.report(
+                    GpuErrorKind::Validation,
+                    format!(
+                        "createView: usage 0x{:x} has bits WebGPU does not define",
+                        desc.usage
+                    ),
+                );
+                Some(wgpu::TextureUsages::empty())
+            } else {
+                (desc.usage != 0).then(|| wgpu::TextureUsages::from_bits_truncate(desc.usage))
+            };
+            let view = entry.texture.create_view(&wgpu::TextureViewDescriptor {
+                label: Some(desc.label.as_str()).filter(|l| !l.is_empty()),
+                format,
+                dimension: desc.dimension,
+                usage,
+                aspect: desc.aspect,
+                base_mip_level: desc.base_mip_level,
+                mip_level_count: desc.mip_level_count,
+                base_array_layer: desc.base_array_layer,
+                array_layer_count: desc.array_layer_count,
+            });
+            Ok(registry::insert(TextureViewEntry {
+                view,
+                device: entry.device,
+            }))
+        })
+    }
+}

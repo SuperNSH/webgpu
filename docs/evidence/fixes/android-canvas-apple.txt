@@ -1,0 +1,36 @@
+# nsh run --target android --device emulator-5580 (AVD nsh-webgpu-surfaces-other, 1080x2400, density 420), examples/canvas-apple, JAVA_HOME = Android Studio's JBR, ANDROID_NDK_HOME = ndk 28.2.13676358. Log without the PNG lines:
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (1.8s)
+✓ built App.tsx (148.0 KB js, 413.7 KB bytecode, 19ms)
+✓ built libnsh.so of webgpu-canvas-native, nsh-webgpu for arm64-v8a (3.8s)
+✓ built the Android development host (631ms)
+✓ installed the Android development host on emulator-5580 (390ms)
+• Android Emulator (sdk_gphone16k_arm64) connected, build 1
+EGL says it can present to the window but not natively
+warn Android Emulator: [nsh-webgpu] uncaptured validation error: configure: this canvas's surface cannot be used as TextureUsages(COPY_SRC); the canvas renders without it
+warn Android Emulator: [nsh-webgpu] uncaptured validation error: configure: this canvas's surface cannot be used as TextureUsages(COPY_SRC); the canvas renders without it
+
+# The views' bounds (uiautomator dump): the canvases are 482x2038 px; their drawing buffers 482x2167 (sized before the status text grew to four lines).
+text="" bounds="[0,0][1080,2400]"
+text="" bounds="[0,0][1080,2400]"
+text="" bounds="[0,0][1080,2400]"
+text="" bounds="[0,0][1080,2400]"
+text="" bounds="[0,0][1080,2400]"
+text="" bounds="[0,0][1080,2400]"
+text="WebGPU canvas: rgba8unorm triangle 482.00000381469727x2166.999984741211 cube 482.00000381469727x2166.999984741211 surface attached" bounds="[42,42][1038,214]"
+text="cube (reference): 583 frames" bounds="[42,246][1038,289]"
+text="" bounds="[42,320][1038,2358]"
+text="" bounds="[42,320][524,2358]"
+text="" bounds="[42,320][524,2358]"
+text="" bounds="[42,320][524,2358]"
+
+# Looked at android-canvas-apple.png (this run). The triangle (clip y +0.5 to -0.5) spans y 832..1848 px of the
+# canvas view 320..2358 px: 25.2 % to 75.0 % of the view, i.e. the 482x2167 drawing buffer is scaled to the
+# 482x2038 view, not cropped (a 1:1 crop would put it at 26.6 % / 79.7 %). A build that also sized the window's
+# buffers (ANativeWindow_setBuffersGeometry before configure) showed the same pixels, so that change was dropped.
+# What was wrong in docs/evidence/integration/android-canvas-apple.png: (1) the triangle was missing, because the
+# example's capture tap copied out of the surface texture, which Android's GL surface cannot do (no COPY_SRC): the
+# copy made the frame's submit invalid ("Usage flags RENDER_ATTACHMENT ... do not contain COPY_SRC"), so the one
+# triangle frame was never drawn (and the cube's 60th); App.tsx now skips the capture on Android surfaces; (2) the
+# cube "cropped" at the sides is the reference Cube's projection on a 0.22-aspect canvas, as on iOS
+# (docs/evidence/surfaces-apple/ios-simulator-screen.png); (3) the drawing buffer is 6 % taller than the view
+# because the example sizes it before its status text reflows (the image is squeezed by that much); not a crate bug.

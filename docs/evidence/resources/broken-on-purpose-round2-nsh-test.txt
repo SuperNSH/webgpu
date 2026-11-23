@@ -1,0 +1,48 @@
+$ python3 breaks.py apply   (round 2)
+$ nsh test resources.test.tsx   (examples/headless)
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (2.2s)
+✓ built the headless runner of webgpu-headless-native, nsh-webgpu (2.8s)
+✓ resources.test.tsx › Buffer.spec › labels and metadata (16ms)
+✓ resources.test.tsx › Buffer.spec › upload data (1) and (2) (9ms)
+✓ resources.test.tsx › Buffer.spec › read/write buffer (1), (2), (3) (5ms)
+✓ resources.test.tsx › Buffer.spec › writes into a buffer (2) and (3): MAP_WRITE round trip (4ms)
+✓ resources.test.tsx › Buffer.spec › writeBuffer respects TypedArray byteOffset (issue #328) (3ms)
+✓ resources.test.tsx › Buffer.spec › writes an image into a buffer and reads it back (59ms)
+✓ resources.test.tsx › GPUBuffer mapping › mapAsync rejects invalid maps with an OperationError and a validation error (3ms)
+✓ resources.test.tsx › GPUBuffer mapping › getMappedRange: ranges, alignment, overlap, detaching (2ms)
+✓ resources.test.tsx › GPUBuffer mapping › destroy() while mapped or mapping (1ms)
+✓ resources.test.tsx › GPUBuffer mapping › mappedAtCreation needs a multiple of 4 (1ms)
+✓ resources.test.tsx › Texture.spec › usage, descriptor round trip (1ms)
+✗ resources.test.tsx › Texture.spec › write to texture and read it back (52ms)
+    expected [0,0,0,255] to equal [255,0,0,255]
+    at <anonymous> (resources.test.tsx:291:26)
+✓ resources.test.tsx › Texture.spec › every dimension and view (1ms)
+warn [nsh-webgpu] uncaptured validation error: Validation Error
+     
+     Caused by:
+       In Device::create_buffer
+         Invalid usage flags BufferUsages(0x0)
+✗ resources.test.tsx › EnforceRange.spec › TypeError for integers outside their range (1ms)
+    expected ["ok","TypeError","TypeError","ok","ok"] to equal ["TypeError","TypeError","TypeError","TypeError","TypeError"]
+    at <anonymous> (resources.test.tsx:330:8)
+✓ resources.test.tsx › EnforceRange.spec › truncates fractional integers toward zero (1ms)
+✓ resources.test.tsx › Shaders.spec › labels, no messages, pipeline label (1ms)
+✓ resources.test.tsx › Shaders.spec › error messages carry the spec's positions (1ms)
+✓ resources.test.tsx › Constants.spec › flag values and instanceof (1ms)
+✗ resources.test.tsx › Samplers and bind groups › ErrorScope.spec: an invalid maxAnisotropy is a validation error (1ms)
+    expected false to be true
+    at <anonymous> (resources.test.tsx:397:54)
+✓ resources.test.tsx › Samplers and bind groups › Device.spec: createBindGroup accepts a raw GPUBuffer and a GPUBufferBinding (1ms)
+✓ resources.test.tsx › Samplers and bind groups › explicit layouts of every kind, a texture as a resource (1ms)
+✓ resources.test.tsx › Samplers and bind groups › NullSlots.spec: a null bind group layout keeps the later indices (1ms)
+✓ resources.test.tsx › Compute pipelines › getBindGroupLayout and the async variant (1ms)
+✗ resources.test.tsx › Query sets › type, count, destroy, timestamp without the feature (1ms)
+    expected "Validation Error\n\nCaused by:\n  In Device::create_query_set\n    Features Features { features_wgpu: FeaturesWGPU(0x0), features_webgpu: FeaturesWebGPU(TIMESTAMP_QUERY) } are required but not enabled on the device\n" to contain "timestamp-query"
+    at <anonymous> (resources.test.tsx:501:95)
+✓ resources.test.tsx › GPU.spec: features, limits, info › features are a set of spec names and every one can be required (1ms)
+✗ resources.test.tsx › GPU.spec: features, limits, info › limits: every getter, bounds, JSON.stringify (0ms)
+    expected 4194304 to be 268435456
+    at <anonymous> (resources.test.tsx:536:36)
+✓ resources.test.tsx › GPU.spec: features, limits, info › info: fields, fallback, JSON, the device's equals the adapter's (1ms)
+error 27 tests: 22 passed, 5 failed (5.3s)
+exit 1

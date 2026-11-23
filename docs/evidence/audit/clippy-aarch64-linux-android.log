@@ -1,0 +1,3 @@
+== cargo clippy -p nsh-webgpu --target aarch64-linux-android --all-targets -- -D warnings ==
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.24s
+exit=0

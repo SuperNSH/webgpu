@@ -1,0 +1,5 @@
+nsh 0.6.0 (f577c51 nightly 2026-11-22)
+$ nsh check
+✓ checked webgpu-gallery-native (137ms)
+✓ checked nsh-webgpu (347ms)
+✓ built the Rust crates webgpu-gallery-native, nsh-webgpu (549ms)

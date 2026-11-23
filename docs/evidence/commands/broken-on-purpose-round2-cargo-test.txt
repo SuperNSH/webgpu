@@ -1,0 +1,295 @@
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/commands/crates/nsh-webgpu)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.15s
+     Running unittests src/lib.rs (target/debug/deps/nsh_webgpu-ab595d8467acbf47)
+
+running 10 tests
+test api::queue::tests::halves_round_trip_the_values_a_byte_holds ... ok
+test api::queue::tests::srgb_white_and_black_stay_in_display_p3 ... ok
+test api::features::tests::every_webgpu_feature_of_wgpu_has_a_spec_name ... ok
+test api::features::tests::names_round_trip_and_never_include_an_empty_name ... ok
+test api::limits::tests::every_spec_limit_has_a_value ... ok
+test api::limits::tests::required_limits_keep_the_better_value ... ok
+test api::features::tests::unknown_and_unavailable_names_are_type_errors ... ok
+test api::compute_pass_encoder::tests::matrix_multiplication_direct_and_indirect ... FAILED
+test api::compute_pass_encoder::tests::dynamic_offsets_reach_the_shader ... FAILED
+test api::external_texture::tests::crop_mirror_and_rotation_reach_the_shader ... ok
+
+failures:
+
+---- api::compute_pass_encoder::tests::matrix_multiplication_direct_and_indirect stdout ----
+
+thread 'api::compute_pass_encoder::tests::matrix_multiplication_direct_and_indirect' (148250858) panicked at crates/nsh-webgpu/src/api/compute_pass_encoder.rs:400:13:
+assertion `left == right` failed
+  left: [0.0, 0.0]
+ right: [16.0, 16.0]
+
+---- api::compute_pass_encoder::tests::dynamic_offsets_reach_the_shader stdout ----
+
+thread 'api::compute_pass_encoder::tests::dynamic_offsets_reach_the_shader' (148250857) panicked at crates/nsh-webgpu/src/api/compute_pass_encoder.rs:505:13:
+assertion `left == right` failed
+  left: [0, 0, 0, 0]
+ right: [42, 0, 0, 0]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    api::compute_pass_encoder::tests::dynamic_offsets_reach_the_shader
+    api::compute_pass_encoder::tests::matrix_multiplication_direct_and_indirect
+
+test result: FAILED. 8 passed; 2 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.16s
+
+error: test failed, to rerun pass `-p nsh-webgpu --lib`
+     Running tests/commands/main.rs (target/debug/deps/commands-de105d001951871d)
+
+running 52 tests
+test copies::bytes_per_row_must_be_a_multiple_of_256 ... ok
+test draws::a_depth_attachment_without_its_ops_makes_the_encoder_invalid ... ok
+test copies::misaligned_or_out_of_range_buffer_copies_invalidate_the_encoder ... ok
+test bundles::an_invalid_descriptor_is_a_validation_error_and_an_invalid_bundle ... ok
+test copies::copy_buffer_to_buffer_with_offsets_and_the_short_form ... FAILED
+test bundles::a_bundle_of_the_wrong_format_fails_the_pass_and_finishing_twice_fails ... FAILED
+test copies::clear_buffer_zeroes_a_range ... FAILED
+test copies::buffer_to_texture_to_texture_to_buffer_round_trips ... FAILED
+test compute::matrix_multiplication ... FAILED
+test draws::a_null_vertex_buffer_unbinds_a_slot_the_pipeline_does_not_read ... FAILED
+test draws::blend_constant_and_stencil_reference_reach_the_pipeline ... FAILED
+test draws::create_texture_and_read_it ... ok
+test draws::viewport_and_scissor_limit_the_draw ... FAILED
+test encoder::a_call_on_a_locked_encoder_invalidates_it ... ok
+test encoder::a_second_pass_while_one_is_open_is_invalid ... ok
+test encoder::an_invalid_pass_invalidates_its_encoder ... ok
+test encoder::calls_after_end_and_after_finish_are_validation_errors ... FAILED
+test encoder::enforce_range_offsets_are_type_errors ... ok
+test encoder::finishing_with_a_pass_open_is_a_validation_error ... ok
+test encoder::unbalanced_debug_groups_make_finish_fail ... FAILED
+test encoder::unknown_ids_in_a_descriptor_are_type_errors ... FAILED
+test draws::draw_with_an_instance_count ... FAILED
+test draws::draw_indexed_indirect_matches_the_direct_draw ... FAILED
+test external::importing_a_texture_needs_the_device_feature ... ok
+test draws::draw_with_a_non_zero_first_instance ... FAILED
+test image_bitmap::a_crop_outside_the_image_is_transparent_and_a_negative_size_extends_back ... ok
+test draws::simple_triangle ... FAILED
+test draws::draw_indirect_with_an_instance_count ... FAILED
+test draws::alpha_premultiplied_color ... FAILED
+test image_bitmap::a_display_p3_destination_converts_the_colors ... FAILED
+test image_bitmap::a_region_outside_the_bitmap_is_an_operation_error ... ok
+test image_bitmap::alpha_conversions_are_bit_exact ... ok
+test bundles::a_bundle_draws_the_triangle ... FAILED
+test draws::draw_indexed_with_an_instance_count ... FAILED
+test image_bitmap::image_data_pixels_make_a_bitmap ... ok
+test image_bitmap::the_destination_needs_render_attachment_and_a_listed_format ... ok
+test image_bitmap::undecodable_bytes_are_an_invalid_state_error ... FAILED
+test image_bitmap::destination_formats_get_the_same_colors ... ok
+test queue::array_buffer_round_trips_through_write_copy_and_map ... FAILED
+test draws::draw_with_a_step_mode_instance_vertex_buffer ... FAILED
+test queue::write_buffer_checks_its_range_on_the_device ... ok
+test queue::on_submitted_work_done_settles_after_the_work ... FAILED
+test image_bitmap::options_match_the_reference_clients ... ok
+test queue::write_texture_respects_the_layout_offset ... ok
+test image_bitmap::the_source_origin_selects_the_region ... ok
+test draws::triangle_msaa_resolves_into_the_canvas ... FAILED
+test bundles::bundles_replay_indexed_and_vertex_buffer_draws ... FAILED
+test image_bitmap::every_alpha_case_matches_its_snapshot ... ok
+test image_bitmap::image_data_decodes_like_the_reference ... ok
+test external::flip_y_false_does_not_flip ... FAILED
+test external::simple_1_flip_y ... FAILED
+test external::simple_2_no_flip_y ... FAILED
+
+failures:
+
+---- copies::copy_buffer_to_buffer_with_offsets_and_the_short_form stdout ----
+
+thread 'copies::copy_buffer_to_buffer_with_offsets_and_the_short_form' (148252072) panicked at crates/nsh-webgpu/tests/commands/copies.rs:26:5:
+assertion `left == right` failed
+  left: Some("Validation Error\n\nCaused by:\n  In a CommandEncoder\n    Copy at offset 8 for 12 bytes would end up overrunning the bounds of the Destination buffer of size 16\n")
+ right: None
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- bundles::a_bundle_of_the_wrong_format_fails_the_pass_and_finishing_twice_fails stdout ----
+
+thread 'bundles::a_bundle_of_the_wrong_format_fails_the_pass_and_finishing_twice_fails' (148252065) panicked at crates/nsh-webgpu/tests/commands/bundles.rs:137:31:
+called `Option::unwrap()` on a `None` value
+
+---- copies::clear_buffer_zeroes_a_range stdout ----
+
+thread 'copies::clear_buffer_zeroes_a_range' (148252071) panicked at crates/nsh-webgpu/tests/commands/copies.rs:59:5:
+assertion `left == right` failed
+  left: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ right: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0]
+
+---- copies::buffer_to_texture_to_texture_to_buffer_round_trips stdout ----
+
+thread 'copies::buffer_to_texture_to_texture_to_buffer_round_trips' (148252069) panicked at crates/nsh-webgpu/tests/commands/copies.rs:109:5:
+assertion `left == right` failed
+  left: [0, 0, 0, 0]
+ right: [72, 73, 74, 75]
+
+---- compute::matrix_multiplication stdout ----
+
+thread 'compute::matrix_multiplication' (148252068) panicked at crates/nsh-webgpu/tests/commands/compute.rs:99:13:
+assertion failed: (out[2 + i * 16 + j] - expected).abs() < 1e-4
+
+---- draws::a_null_vertex_buffer_unbinds_a_slot_the_pipeline_does_not_read stdout ----
+
+thread 'draws::a_null_vertex_buffer_unbinds_a_slot_the_pipeline_does_not_read' (148252075) panicked at crates/nsh-webgpu/tests/commands/draws.rs:552:5:
+assertion `left == right` failed
+  left: [0, 0, 0, 0]
+ right: [255, 0, 0, 255]
+
+---- draws::blend_constant_and_stencil_reference_reach_the_pipeline stdout ----
+
+thread 'draws::blend_constant_and_stencil_reference_reach_the_pipeline' (148252290) panicked at crates/nsh-webgpu/tests/commands/draws.rs:486:5:
+assertion `left == right` failed: stencil fails: the clear
+  left: [0, 0, 0, 0]
+ right: [0, 0, 0, 255]
+
+---- draws::viewport_and_scissor_limit_the_draw stdout ----
+
+thread 'draws::viewport_and_scissor_limit_the_draw' (148252410) panicked at crates/nsh-webgpu/tests/commands/draws.rs:418:5:
+assertion `left == right` failed: outside the viewport
+  left: [0, 0, 0, 0]
+ right: [0, 0, 0, 255]
+
+---- encoder::calls_after_end_and_after_finish_are_validation_errors stdout ----
+
+thread 'encoder::calls_after_end_and_after_finish_are_validation_errors' (148252441) panicked at crates/nsh-webgpu/tests/commands/encoder.rs:89:19:
+called `Option::unwrap()` on a `None` value
+
+---- encoder::unbalanced_debug_groups_make_finish_fail stdout ----
+
+thread 'encoder::unbalanced_debug_groups_make_finish_fail' (148252464) panicked at crates/nsh-webgpu/tests/commands/encoder.rs:114:5:
+a debug group left open
+
+---- encoder::unknown_ids_in_a_descriptor_are_type_errors stdout ----
+
+thread 'encoder::unknown_ids_in_a_descriptor_are_type_errors' (148252472) panicked at crates/nsh-webgpu/tests/commands/encoder.rs:165:5:
+OperationError: no object 999999 (released?)
+
+---- draws::draw_with_an_instance_count stdout ----
+
+thread 'draws::draw_with_an_instance_count' (148252322) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-instanced.png: 809144 pixels differ (at most 200)
+
+---- draws::draw_indexed_indirect_matches_the_direct_draw stdout ----
+
+thread 'draws::draw_indexed_indirect_matches_the_direct_draw' (148252292) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-indexed-instanced.png: 1006551 pixels differ (at most 200)
+
+---- draws::draw_with_a_non_zero_first_instance stdout ----
+
+thread 'draws::draw_with_a_non_zero_first_instance' (148252320) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-instanced-first-instance.png: 888954 pixels differ (at most 200)
+
+---- draws::simple_triangle stdout ----
+
+thread 'draws::simple_triangle' (148252335) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+triangle.png: 917504 pixels differ (at most 200)
+
+---- draws::draw_indirect_with_an_instance_count stdout ----
+
+thread 'draws::draw_indirect_with_an_instance_count' (148252303) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-instanced.png: 1021895 pixels differ (at most 200)
+
+---- draws::alpha_premultiplied_color stdout ----
+
+thread 'draws::alpha_premultiplied_color' (148252289) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+semi-opaque-cyan.png: 1048576 pixels differ (at most 200)
+
+---- image_bitmap::a_display_p3_destination_converts_the_colors stdout ----
+
+thread 'image_bitmap::a_display_p3_destination_converts_the_colors' (148252641) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:428:5:
+[210, 8, 4, 255]
+
+---- bundles::a_bundle_draws_the_triangle stdout ----
+
+thread 'bundles::a_bundle_draws_the_triangle' (148252064) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+triangle.png: 917504 pixels differ (at most 200)
+
+---- draws::draw_indexed_with_an_instance_count stdout ----
+
+thread 'draws::draw_indexed_with_an_instance_count' (148252294) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-indexed-instanced.png: 1006551 pixels differ (at most 200)
+
+---- image_bitmap::undecodable_bytes_are_an_invalid_state_error stdout ----
+
+thread 'image_bitmap::undecodable_bytes_are_an_invalid_state_error' (148252679) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:82:5:
+OperationError: createImageBitmap: the source image could not be decoded (OperationError: The image format could not be determined)
+
+---- queue::array_buffer_round_trips_through_write_copy_and_map stdout ----
+
+thread 'queue::array_buffer_round_trips_through_write_copy_and_map' (148252680) panicked at crates/nsh-webgpu/tests/commands/queue.rs:40:70:
+called `Result::unwrap()` on an `Err` value: "OperationError: broken"
+
+---- draws::draw_with_a_step_mode_instance_vertex_buffer stdout ----
+
+thread 'draws::draw_with_a_step_mode_instance_vertex_buffer' (148252321) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-instanced-step-mode.png: 1048576 pixels differ (at most 200)
+
+---- queue::on_submitted_work_done_settles_after_the_work stdout ----
+
+thread 'queue::on_submitted_work_done_settles_after_the_work' (148252689) panicked at crates/nsh-webgpu/tests/commands/queue.rs:140:18:
+called `Result::unwrap()` on an `Err` value: "OperationError: broken"
+
+---- draws::triangle_msaa_resolves_into_the_canvas stdout ----
+
+thread 'draws::triangle_msaa_resolves_into_the_canvas' (148252340) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+triangle-msaa.png: 916992 pixels differ (at most 200)
+
+---- bundles::bundles_replay_indexed_and_vertex_buffer_draws stdout ----
+
+thread 'bundles::bundles_replay_indexed_and_vertex_buffer_draws' (148252067) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-indexed-instanced.png: 1006551 pixels differ (at most 200)
+
+---- external::flip_y_false_does_not_flip stdout ----
+
+thread 'external::flip_y_false_does_not_flip' (148252478) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+f2.png: 786432 pixels differ (at most 200)
+
+---- external::simple_1_flip_y stdout ----
+
+thread 'external::simple_1_flip_y' (148252629) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+f.png: 786432 pixels differ (at most 200)
+
+---- external::simple_2_no_flip_y stdout ----
+
+thread 'external::simple_2_no_flip_y' (148252635) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+f2.png: 786432 pixels differ (at most 200)
+
+
+failures:
+    bundles::a_bundle_draws_the_triangle
+    bundles::a_bundle_of_the_wrong_format_fails_the_pass_and_finishing_twice_fails
+    bundles::bundles_replay_indexed_and_vertex_buffer_draws
+    compute::matrix_multiplication
+    copies::buffer_to_texture_to_texture_to_buffer_round_trips
+    copies::clear_buffer_zeroes_a_range
+    copies::copy_buffer_to_buffer_with_offsets_and_the_short_form
+    draws::a_null_vertex_buffer_unbinds_a_slot_the_pipeline_does_not_read
+    draws::alpha_premultiplied_color
+    draws::blend_constant_and_stencil_reference_reach_the_pipeline
+    draws::draw_indexed_indirect_matches_the_direct_draw
+    draws::draw_indexed_with_an_instance_count
+    draws::draw_indirect_with_an_instance_count
+    draws::draw_with_a_non_zero_first_instance
+    draws::draw_with_a_step_mode_instance_vertex_buffer
+    draws::draw_with_an_instance_count
+    draws::simple_triangle
+    draws::triangle_msaa_resolves_into_the_canvas
+    draws::viewport_and_scissor_limit_the_draw
+    encoder::calls_after_end_and_after_finish_are_validation_errors
+    encoder::unbalanced_debug_groups_make_finish_fail
+    encoder::unknown_ids_in_a_descriptor_are_type_errors
+    external::flip_y_false_does_not_flip
+    external::simple_1_flip_y
+    external::simple_2_no_flip_y
+    image_bitmap::a_display_p3_destination_converts_the_colors
+    image_bitmap::undecodable_bytes_are_an_invalid_state_error
+    queue::array_buffer_round_trips_through_write_copy_and_map
+    queue::on_submitted_work_done_settles_after_the_work
+
+test result: FAILED. 23 passed; 29 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.26s
+
+error: test failed, to rerun pass `-p nsh-webgpu --test commands`
+error: 2 targets failed:
+    `-p nsh-webgpu --lib`
+    `-p nsh-webgpu --test commands`

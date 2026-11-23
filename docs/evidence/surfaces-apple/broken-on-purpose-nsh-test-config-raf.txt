@@ -1,0 +1,16 @@
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (2.4s)
+✓ built the headless runner of webgpu-headless-native, nsh-webgpu (3.4s)
+✓ bundled surfaces-apple.app.tsx (70586 B in 9.2 ms)
+✗ surfaces-apple.test.tsx › the canvas ref and the context's configuration (96ms)
+    expected "TypeError: cannot read property 'viewFormats' of null" to be undefined
+    at <anonymous> (surfaces-apple.test.tsx:22:32)
+    on screen: "contextId: number", "unsupported context: Error: [WebGPU] Unsupported context: 2d", "native surface: 0", "instance: true", "canvas size: 64x64", "failed: TypeError: cannot read property 'viewFormats' of null"
+✗ surfaces-apple.test.tsx › the current texture: one per frame, and the triangle drawn into it (57ms)
+    expected undefined to be "true"
+    at <anonymous> (surfaces-apple.test.tsx:50:44)
+    on screen: "contextId: number", "unsupported context: Error: [WebGPU] Unsupported context: 2d", "native surface: 0", "instance: true", "canvas size: 64x64", "failed: TypeError: cannot read property 'viewFormats' of null"
+✗ surfaces-apple.test.tsx › requestAnimationFrame drives a render loop (62ms)
+    expected undefined to be "3"
+    at <anonymous> (surfaces-apple.test.tsx:61:37)
+    on screen: "contextId: number", "unsupported context: Error: [WebGPU] Unsupported context: 2d", "native surface: 0", "instance: true", "canvas size: 64x64", "failed: TypeError: cannot read property 'viewFormats' of null"
+error 3 tests: 0 passed, 3 failed (6.3s)

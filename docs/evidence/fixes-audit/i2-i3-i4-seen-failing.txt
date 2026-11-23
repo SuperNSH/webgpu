@@ -1,0 +1,9 @@
+$ nsh test canvas-lifecycle.test.tsx  # with the previous tsx/Canvas.tsx and tsx/hooks.tsx (a9e7e4d)
+✓ bundled canvas-lifecycle.app.tsx (101126 B in 13.1 ms)
+✗ canvas-lifecycle.test.tsx › the ref is set after the first layout, with a context of the layout's size (5.0s)
+    `text:refs: canvas` showing never happened in 5000 ms; on screen: ["toggle", "wider", "stale", "refs: canvas during render", "first context: 0x0", "surface: 0x0", "client: 0x0", "stale getContext: not tried", "object ref: unset"]
+✗ canvas-lifecycle.test.tsx › useSurface() follows the real canvas: mount, resize, unmount (5.0s)
+    `text:surface: 40x20` showing never happened in 5000 ms; on screen: ["toggle", "wider", "stale", "refs: canvas during render", "first context: 0x0", "surface: 0x0", "client: 0x0", "stale getContext: not tried", "object ref: unset"]
+✗ canvas-lifecycle.test.tsx › unmount calls the ref with null, and the old ref's getContext() throws (5.0s)
+    `text:refs: canvas` showing never happened in 5000 ms; on screen: ["toggle", "wider", "stale", "refs: canvas during render", "first context: 0x0", "surface: 0x0", "client: 0x0", "stale getContext: not tried", "object ref: unset"]
+error 3 tests: 0 passed, 3 failed (17.9s)

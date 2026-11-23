@@ -1,0 +1,8 @@
+$ cargo run   (in docs/upstream/wgpu-null-vertex-slot; wgpu 29.0.4, macOS 27.2, Apple M3 Max)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.05s
+     Running `kache test-runner ~/os/nsh-webgpu/target/upstream-repro/debug/wgpu-null-vertex-slot`
+adapter: "Apple M3 Max" (Metal)
+control   (slot 0 = green layout):             [0, 255, 0, 255]
+with hole (slot 0 = no attributes, slot 1 = green): [255, 0, 0, 255]
+BUG: slot 1's attribute read the buffer bound at slot 0
+exit: 1

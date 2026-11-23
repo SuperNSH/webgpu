@@ -1,0 +1,7 @@
+/target
+/.nsh-nightly
+/.nsh-home
+.nsh/
+node_modules/
+*.DS_Store
+target/

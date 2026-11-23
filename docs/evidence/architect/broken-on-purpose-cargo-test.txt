@@ -1,0 +1,17 @@
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+test errors::destroy_loses_the_device ... ok
+test errors::a_descriptor_that_does_not_convert_is_a_type_error ... ok
+test errors::invalid_wgsl_is_a_validation_error_with_compilation_messages ... ok
+test mapping::destroy_unmaps ... ok
+test errors::a_validation_error_goes_to_the_innermost_matching_scope ... ok
+test mapping::unmap_before_the_mapping_finishes_aborts_it ... ok
+test errors::an_error_no_scope_catches_is_uncaptured_not_a_panic ... ok
+test mapping::queue_write_buffer_then_map_for_reading ... ok
+test mapping::bytes_written_to_a_mapped_range_reach_the_buffer_on_unmap ... ok
+test mapping::a_map_write_buffer_keeps_its_bytes_across_mappings ... ok
+test triangle::the_reference_triangle_renders_offscreen ... FAILED
+thread 'triangle::the_reference_triangle_renders_offscreen' (144120888) panicked at crates/nsh-webgpu/tests/native/triangle.rs:124:9:
+assertion `left == right` failed: inside at (32, 32)
+  left: [0, 0, 0, 0]
+ right: [255, 0, 0, 255]
+test result: FAILED. 10 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.07s

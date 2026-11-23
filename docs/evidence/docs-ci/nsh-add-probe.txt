@@ -1,0 +1,23 @@
+# A scratch TSX app (nsh.json with name/id/version/build only), nightly nsh 0.6.0 (f577c51 nightly 2026-11-22), NSH_HOME in a scratch directory.
+# nsh add reads an nshm at the root of what it is given; a github: or Git source is unpacked whole (git archive) and read at its root (nsh-cli/src/nshm/fetch.rs install, resolve.rs Manifest::read). --path on the repository root takes the same Manifest::read:
+$ nsh add --path <checkout>
+error nsh add: nsh.json and nsh.lock are unchanged: ~/os/nsh-webgpu-wt/docs-ci/Cargo.toml: no [package] name
+exit 1
+
+$ nsh add --path <checkout>/crates/nsh-webgpu
+       Added nsh-webgpu v0.1.0 (../../../../../../..~/os/nsh-webgpu-wt/docs-ci/crates/nsh-webgpu) to dependencies
+      Import from "nsh-webgpu/native", "nsh-webgpu"
+        Note nsh-webgpu has Rust, so this app now builds with the Rust toolchain (https://rustup.rs)
+exit 0
+$ cat nsh.json
+{
+  "name": "Add Probe",
+  "id": "com.example.addprobe",
+  "version": "1.0.0",
+  "build": 1,
+  "dependencies": {
+    "nsh-webgpu": {
+      "path": "../../../../../../..~/os/nsh-webgpu-wt/docs-ci/crates/nsh-webgpu"
+    }
+  }
+}

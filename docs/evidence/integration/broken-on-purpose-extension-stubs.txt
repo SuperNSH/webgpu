@@ -1,0 +1,9 @@
+# Broken on purpose: GPUDevice.forceLossForTesting returns instead of throwing ERR_WEBGPU_UNSUPPORTED
+$ nsh test integration.test.tsx   (in examples/headless)
+✓ integration.test.tsx › <Canvas> and installWebGPU() by platform › on the web: the browser's navigator.gpu stays, the canvas is a web canvas view (22ms)
+✓ integration.test.tsx › <Canvas> and installWebGPU() by platform › off the web: navigator.gpu is nsh-webgpu's and the canvas is the native view (5ms)
+✓ integration.test.tsx › the offscreen readback module is registered (0ms)
+✗ integration.test.tsx › the reference's extensions wgpu cannot back throw ERR_WEBGPU_UNSUPPORTED (20ms)
+    expected "no error" to be "ERR_WEBGPU_UNSUPPORTED"
+    at <anonymous> (integration.test.tsx:50:52)
+error 4 tests: 3 passed, 1 failed (3.4s)

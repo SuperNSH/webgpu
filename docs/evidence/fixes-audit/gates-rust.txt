@@ -1,0 +1,7 @@
+fmt: exit 0
+clippy: exit 0
+cargo-test: exit 0 117 passed, 0 failed
+clippy-wasm32-unknown-unknown: exit 0
+clippy-aarch64-linux-android: exit 0
+clippy-x86_64-pc-windows-gnu: exit 0
+clippy-aarch64-apple-ios-sim: exit 0

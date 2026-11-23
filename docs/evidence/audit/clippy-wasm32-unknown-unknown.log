@@ -1,0 +1,3 @@
+== cargo clippy -p nsh-webgpu --target wasm32-unknown-unknown -- -D warnings ==
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.22s
+exit=0

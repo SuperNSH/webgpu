@@ -1,0 +1,13 @@
+# Broken on purpose: WgpuOffscreenCanvas not registered in lib.rs
+$ nsh test integration.test.tsx   (in examples/headless)
+error integration.test.tsx: building .nsh/test/integration.test.tsx.run.js failed
+      ~/os/nsh-webgpu/examples/headless/integration.test.tsx
+      
+        x `nsh-webgpu/native` has no export `WgpuOffscreenCanvas`
+         ,-[6:10]
+       5 | import { describe, expect, open, test } from "nsh/test";
+       6 | import { WgpuOffscreenCanvas } from "nsh-webgpu/native";
+         :          ^^^^^^^^^^^^^^^^^^^
+       7 | 
+         `----
+error 1 test: 0 passed, 1 failed (8.4s)

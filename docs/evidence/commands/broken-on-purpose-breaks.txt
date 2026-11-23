@@ -1,0 +1,112 @@
+# Breaks applied on purpose (then reverted from a backup; final gates re-run after).
+
+## Rust round 1 (broken-on-purpose-cargo-test.txt): replay skips draw/drawIndexed/viewport/blend, null vertex slot unbound, compute dispatch z=0 and indirect skipped, plus:
+import sys
+plan = {
+'command_encoder.rs':[
+ ('''            e.invalid
+                .get_or_insert_with(|| format!("{what} was called while a pass was open"));''','''            let _ = what;'''),
+ ('''value.trunc() < 0.0 || ''',''''''),
+ ('''EncoderState::Locked => Some("a pass is still open".to_owned()),''','''EncoderState::Locked => None,'''),
+ ('''!src_offset.is_multiple_of(4) ||''','''false && !src_offset.is_multiple_of(4) ||'''),
+ (".filter(|b| !b.is_multiple_of(wgpu::COPY_BYTES_PER_ROW_ALIGNMENT))",".filter(|_| false)"),
+ ('''error.get_or_insert(format!("depthClearValue {v} is outside [0, 1]"));''','''let _ = v;'''),
+ ('''None => return Err(format!("{name}ClearValue is required to clear")),''','''None => wgpu::LoadOp::Load,'''),
+ ('''e.clear_buffer(&buf, offset, size)''','''e.clear_buffer(&buf, (offset + 4).min(buf.size()), size)'''),
+ ('''        if e.state != EncoderState::Locked {
+            return;
+        }''','''        if e.state != EncoderState::Locked {
+            return;
+        }
+        let error = error.filter(|e| !e.contains("setVertexBuffer"));'''),
+],
+'render_bundle_encoder.rs':[
+ ('''return Some("colorFormats has no format and there is no depthStencilFormat".into());''','''return None;'''),
+ ('''Some("finish: the render bundle encoder is already finished".to_owned())''','''None'''),
+ ('''wgpu_encoder.replay(command);''','''if !matches!(command, DrawCommand::Draw(..) | DrawCommand::DrawIndexed(..)) { wgpu_encoder.replay(command); }'''),
+],
+'queue.rs':[
+ ("if source.flip_y { h - 1 - row } else { row }","row"),
+ ("pixels.flat_map(|p| [p[2], p[1], p[0], p[3]])","pixels.flat_map(|p| [p[0], p[1], p[2], p[3]])"),
+ ("                srgb_to_display_p3(&mut staged);","                let _ = srgb_to_display_p3;"),
+ ("if !texture.usage().contains(needed) {","if !texture.usage().contains(wgpu::TextureUsages::COPY_DST) && !texture.usage().contains(needed) {"),
+ ('''return Err(NativeError::operation(format!(
+                    "copyExternalImageToTexture: the source''','''return Err(NativeError::type_error(format!(
+                    "copyExternalImageToTexture: the source'''),
+ ("            if layout.offset > data.0.len() as u64 {","            let layout = TexelCopyBufferLayout { offset: 0, ..layout };\n            if layout.offset > data.0.len() as u64 {"),
+ ('''if !target.buffer.usage().contains(wgpu::BufferUsages::COPY_DST) {''','''if false {'''),
+ ("|| offset.checked_add(size).is_none_or(|end| end > target.buffer.size())",""),
+ ("        return sign | ((m >> 13) as u16 + u16::from(round));","        return sign | ((m >> 13) as u16 + u16::from(round)) | 1;"),
+ ("    half + u16::from(round)\n","    half + u16::from(round) + 1\n"),
+],
+'image_bitmap.rs':[
+ ("((value * alpha + 127) / 255) as u8","((value * alpha) / 255) as u8"),
+ ("        image = crop(&image, rect)?;","        let _ = (crop, rect);"),
+ ("image = resize(&image, w, h, nearest);","image = resize(&image, w, h, !nearest);"),
+ ('''Some("flipY") {''','''Some("flipYY") {'''),
+ ('''.map_err(|e| {''','''.map_err(|e| { let _ = invalid_state; NativeError::operation(format!("{e}")) }).map_err(|e: NativeError| {'''),
+ ('''return Err(invalid_state(
+            "createImageBitmap: resizeWidth and resizeHeight must not be 0",
+        ));''','''return Err(range_error("0"));'''),
+ ('''if pixels.0.len() as u64 != u64::from(width)''','''if pixels.0.len() as u64 > u64::from(width)'''),
+ ('''    pub fn close(bitmap: u32) {
+        if''','''    pub fn close(bitmap: u32) {
+        if false &&'''),
+ ('''return Err(range_error(
+            "createImageBitmap: the crop width and height must not be 0",
+        ));''','''let _ = range_error;'''),
+],
+'external_texture.rs':[
+ ("90 => (v, 1.0 - u),","90 => (1.0 - v, u),"),
+ ("let s = if mirrored { 1.0 - s } else { s };","let _ = mirrored;"),
+ ("if !matches!(rotation as u32, 0 | 90 | 180 | 270) || rotation.fract() != 0.0 {","if false {"),
+ ("if !entry.device.features().contains(wgpu::Features::EXTERNAL_TEXTURE)","if entry.device.features().contains(wgpu::Features::EXTERNAL_TEXTURE)"),
+ ("if ox > tw || oy > th || cw > tw - ox || ch > th - oy || cw == 0 || ch == 0 {","if cw == 0 {"),
+],
+}
+missing=[]
+for p,pairs in plan.items():
+    s=open(p).read()
+    for a,b in pairs:
+        if a not in s: missing.append((p,a)); continue
+        s=s.replace(a,b,1)
+    open(p,'w').write(s)
+for m in missing: print("MISSING", m)
+
+## Rust round 2 (broken-on-purpose-round2-cargo-test.txt):
+plan = {
+'queue.rs':[
+ ("        1.055 * v.powf(1.0 / 2.4) - 0.055","        v"),
+ ("pending::fill(&slot, Ok(()))","pending::fill(&slot, Err(NativeError::operation(\"broken\")))"),
+ ("entry.queue.write_buffer(&target.buffer, offset, &data.0);","entry.queue.write_buffer(&target.buffer, offset, &vec![0; data.0.len()]);"),
+],
+'command_encoder.rs':[
+ ("e.copy_texture_to_texture(src, dst, size)","e.copy_texture_to_texture(dst, src, size)"),
+ ("e.copy_buffer_to_buffer(&src, source_offset, &dst, destination_offset, size)","e.copy_buffer_to_buffer(&src, source_offset, &dst, destination_offset, None)"),
+ (".unwrap_or(wgpu::Color::TRANSPARENT),",".map(|_| wgpu::Color::TRANSPARENT).unwrap_or(wgpu::Color::TRANSPARENT),"),
+ ("    Ok((device, open))\n}","    let _ = open;\n    Ok((device, true))\n}"),
+ ("e.push_debug_group(&group_label)","let _ = (e, &group_label);"),
+ ("    Ok(registry::get::<TextureViewEntry>(id)?.view)","    registry::get::<TextureViewEntry>(id).map(|v| v.view).map_err(|e| NativeError::operation(e.message))"),
+],
+'render_pass_encoder.rs':[
+ ("DrawCommand::DrawIndirect(b, o) => self.draw_indirect(b, *o),","DrawCommand::DrawIndirect(b, o) => { let _ = (b, o); }"),
+ ("DrawCommand::DrawIndexedIndirect(b, o) => self.draw_indexed_indirect(b, *o),","DrawCommand::DrawIndexedIndirect(b, o) => { let _ = (b, o); }"),
+ ("    if ended {\n        DeviceEntry::get(device)?.report(","    if ended && false {\n        DeviceEntry::get(device)?.report("),
+],
+'image_bitmap.rs':[
+ ("let decoded = image::load_from_memory(bytes)\n        .map_err(|e| {","let decoded = image::load_from_memory(bytes)\n        .map_err(|e| NativeError::operation(format!(\"{e}\")))\n        .map_err(|e: NativeError| {"),
+],
+}
+missing=[]
+for p,pairs in plan.items():
+    s=open(p).read()
+    for a,b in pairs:
+        if a not in s: missing.append((p,a)); continue
+        s=s.replace(a,b,1)
+    open(p,'w').write(s)
+for m in missing: print("MISSING", m)
+
+## Rust round 3 (broken-on-purpose-round3-cargo-test.txt): admit() does not invalidate a locked encoder and lock() always succeeds; srgb_to_display_p3 is a no-op.
+
+## TSX round 1 (broken-on-purpose-nsh-test.txt): dynamic offsets ignore dataStart; u64 sourceOffset abs(); insertDebugMarker no-op; finish() drops label; executeBundles([]); bytesOf takes look-alikes and ignores byteOffset; writeBuffer no %4 check; closed bitmap not detected; origin dropped; GPUTexture source unsupported; close() keeps size; crop overload ignored; decode errors become plain Error; premultiplyAlpha forced to none.
+## TSX round 2 (broken-on-purpose-round2-nsh-test.txt): copyExternalImageToTexture drops flipY.

@@ -1,0 +1,24 @@
+# Does `nsh init --template mixed` fit nsh-webgpu? nightly nsh 0.6.0 (f577c51 nightly 2026-11-22), macOS, 2026-11-24.
+# nsh init mixed-probe --template mixed; its ext/mixed-probe-native nsh-core/nsh-base changed to git rev f577c51
+# (Cargo.lock from examples/headless/native); nsh add --path <this checkout>; then nsh check, nsh test:
+       Added nsh-webgpu v0.1.0 (~/os/nsh-webgpu) to dependencies
+      Import from "nsh-webgpu/native", "nsh-webgpu"
+        Note mixed-probe-native, nsh-webgpu have Rust, so this app now builds with the Rust toolchain (https://rustup.rs)
+3:import { expect, open, test } from "nsh/test";
+13:import "nsh-webgpu";
+    | ------------------- this is the found type
+    = help: you can use `cargo tree` to explore your dependency tree
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `nsh-app-mixed-probe-native-cd237747-describe` (bin "nsh-app-mixed-probe-native-cd237747-describe") due to 2 previous errors
+   ::: ~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-core/src/element/component.rs:950:1
+    |
+950 | pub struct Registry {
+    | ------------------- this is the found type
+    = help: you can use `cargo tree` to explore your dependency tree
+
+For more information about this error, try `rustc --explain E0308`.
+error: could not compile `nsh-app-mixed-probe-native-cd237747-describe` (bin "nsh-app-mixed-probe-native-cd237747-describe") due to 2 previous errors
+
+# Verdict: no. A mixed app's crate is a path nshm, not the app's "rust" crate, so the hosts still build against
+# crates.io nsh-core 0.6.0 and meet the Git-pinned one (E0308, two Registry types). The app needs "rust": "native".

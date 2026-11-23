@@ -1,0 +1,57 @@
+# Broken on purpose: GPUCanvasContext looks its state up by context id again (the old code; Canvas's cleanup deletes it), and createRenderPipelineAsync compiles on the JS thread (the old code). Then:
+$ nsh test gallery.test.tsx --filter RenderAfterUnmount
+[surface-lifecycle] frame 25: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 26: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 27: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 28: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 29: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 30: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 31: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 32: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 33: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 34: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 35: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 36: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 37: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 38: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 39: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 40: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 41: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 42: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 43: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+[surface-lifecycle] frame 44: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+$ nsh test gallery.test.tsx --filter AsyncStarvation
+✗ gallery.test.tsx › Diagnostics › AsyncStarvation: runs without an uncaught GPU error (1m 0s)
+    the condition never held in 60000 ms; on screen: ["Back", "⚠\u{fe0f} Async Runner Starvation", "Async Runner Starvation", "Testing async operation impact on the event loop…", "❌ Event loop was blocked! Neither animation frames nor idle callbacks could execute during the async operation (1 ms).\n\nThis indicates potential performance issues with WebGPU async operations.", "This test verifies that WebGPU async operations don't block the event loop. We test both requestAnimationFrame (rendering) and an idle callback (JS thread idle time) to ensure the app remains responsive during GPU operations."]
+error 1 test: 0 passed, 1 failed (1m 3s)
+
+# Restored (as shipped):
+$ nsh test gallery.test.tsx --filter RenderAfterUnmount
+✓ built the Rust crates webgpu-gallery-native, nsh-webgpu (402ms)
+✓ built the headless runner of webgpu-gallery-native, nsh-webgpu (519ms)
+✓ bundled App.tsx (1224191 B in 50.5 ms)
+[surface-lifecycle] frame 120 ok
+[surface-lifecycle] frame 240 ok
+RenderAfterUnmount: A frame loop renders into the canvas and keeps running after the canvas unmounts. Expected: the context detaches and falls back to offscreen rendering. On a broken build the next frame uses the freed native surface and crashes. | frame 120 ok | frame 240 ok
+✓ gallery.test.tsx › Diagnostics › RenderAfterUnmount: runs without an uncaught GPU error (5.9s)
+✓ 1 test: 1 passed, 0 failed (9.6s)
+$ nsh test gallery.test.tsx --filter AsyncStarvation
+✓ built the Rust crates webgpu-gallery-native, nsh-webgpu (373ms)
+✓ built the headless runner of webgpu-gallery-native, nsh-webgpu (508ms)
+✓ bundled App.tsx (1224191 B in 53.7 ms)
+✗ gallery.test.tsx › Diagnostics › AsyncStarvation: runs without an uncaught GPU error (1m 0s)
+    the condition never held in 60000 ms; on screen: ["Back", "⚠\u{fe0f} Async Runner Starvation", "Async Runner Starvation", "Testing async operation impact on the event loop…", "❌ Event loop was blocked! Neither animation frames nor idle callbacks could execute during the async operation (1 ms).\n\nThis indicates potential performance issues with WebGPU async operations.", "This test verifies that WebGPU async operations don't block the event loop. We test both requestAnimationFrame (rendering) and an idle callback (JS thread idle time) to ensure the app remains responsive during GPU operations."]
+error 1 test: 0 passed, 1 failed (1m 3s)
+$ nsh test gallery.test.tsx --filter ImportExternalTexture
+✓ built the Rust crates webgpu-gallery-native, nsh-webgpu (366ms)
+✓ built the headless runner of webgpu-gallery-native, nsh-webgpu (494ms)
+✓ bundled App.tsx (1224191 B in 53.6 ms)
+probe ImportExternalTexture: 390x767 frame=0 err=0 distinct=1145 top=#7bdf:1.0,#67df:1.0,#9ddf:1.0,#601f:1.0,#711f:1.0
+✓ gallery.test.tsx › ImportExternalTexture: opens from Home and draws without GPU errors (876ms)
+✓ 1 test: 1 passed, 0 failed (3.9s)
+
+# AsyncStarvation's expectation then took a warm driver cache into account (gallery.test.tsx comment: a pipeline compiled before is ready within ~1 ms, before any timer is due; a block under 10 ms is not one). Rerun:
+$ nsh test gallery.test.tsx --filter AsyncStarvation
+AsyncStarvation: ❌ Event loop was blocked! Neither animation frames nor idle callbacks could execute during the async operation (0 ms).
+✓ gallery.test.tsx › Diagnostics › AsyncStarvation: runs without an uncaught GPU error (846ms)
+✓ 1 test: 1 passed, 0 failed (3.6s)

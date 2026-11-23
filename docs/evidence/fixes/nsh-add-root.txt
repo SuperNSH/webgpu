@@ -1,0 +1,56 @@
+# A scratch TSX app at examples/_probe-install (nsh.json with name/id/version/build only), nightly nsh 0.6.0 (f577c51 nightly 2026-11-22), NSH_HOME=.nsh-home in this repo. Deleted after this run.
+$ nsh add --path ../..
+       Added nsh-webgpu v0.1.0 (../..) to dependencies
+      Import from "nsh-webgpu/native", "nsh-webgpu"
+        Note nsh-webgpu has Rust, so this app now builds with the Rust toolchain (https://rustup.rs)
+exit 0
+$ cat nsh.json
+{
+  "name": "Add Probe",
+  "id": "com.example.addprobe",
+  "version": "1.0.0",
+  "build": 1,
+  "dependencies": {
+    "nsh-webgpu": {
+      "path": "../.."
+    }
+  }
+}
+$ cat nsh.lock
+{
+  "version": 2,
+  "packages": [
+    {
+      "name": "nsh-webgpu",
+      "version": "0.1.0",
+      "path": "../..",
+      "module": "nsh-webgpu/native",
+      "exports": {
+        "nsh-webgpu": "tsx/index.tsx"
+      }
+    }
+  ]
+}
+
+# Stand-in for 'nsh add github:SuperNSH/webgpu' (no git commands here): nsh-cli fetch.rs Net::install unpacks 'git archive <commit>' whole and resolve.rs calls Manifest::read on that directory's root, the same call --path makes. The working tree minus .gitignore'd paths (target, .nsh-nightly, .nsh-home, .nsh, node_modules) was copied to webgpu-archive/ to stand for the archive:
+$ nsh add --path webgpu-archive
+       Added nsh-webgpu v0.1.0 (./webgpu-archive) to dependencies
+      Import from "nsh-webgpu/native", "nsh-webgpu"
+        Note nsh-webgpu has Rust, so this app now builds with the Rust toolchain (https://rustup.rs)
+exit 0
+$ ls webgpu-archive
+AGENTS.md
+CHANGELOG.md
+CONTRIBUTING.md
+Cargo.lock
+Cargo.toml
+LICENSE
+README.md
+docs
+examples
+justfile
+nsh.json
+src
+tests
+tsx
+# examples/_probe-install deleted after the run (rm -rf examples/_probe-install).

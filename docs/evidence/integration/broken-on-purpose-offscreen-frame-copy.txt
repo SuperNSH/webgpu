@@ -1,0 +1,28 @@
+# Broken on purpose: offscreen-frame-copy
+$ nsh test react-parity.test.tsx   (in examples/headless)
+✓ react-parity.test.tsx › hooks › useDevice resolves an adapter and a device; useCanvasRef and useSurface follow the canvas (37ms)
+✓ react-parity.test.tsx › hooks › warnIfNotHardwareAccelerated warns for a fallback adapter only (0ms)
+✓ react-parity.test.tsx › GPUDeviceProvider › renders its children once the device is ready and shares one device; useMainDevice throws outside (5ms)
+warn [nsh-webgpu] uncaptured validation error: Validation Error
+     
+     Caused by:
+       In Queue::write_texture
+         Usage flags TextureUsages(COPY_SRC | TEXTURE_BINDING | RENDER_ATTACHMENT) of Texture with '' label do not contain required usage flags TextureUsages(COPY_DST)
+✓ react-parity.test.tsx › GPUOffscreenCanvas › renders the reference's triangle and reads it back with getImageData (20ms)
+warn [nsh-webgpu] uncaptured validation error: Validation Error
+     
+     Caused by:
+       In Queue::write_texture
+         Usage flags TextureUsages(COPY_SRC | TEXTURE_BINDING | RENDER_ATTACHMENT) of Texture with '' label do not contain required usage flags TextureUsages(COPY_DST)
+✗ react-parity.test.tsx › GPUOffscreenCanvas › a frame of createTestVideoFrame written into it reads back byte for byte (9ms)
+    expected ["offscreen: bgra8unorm 50x50 bytes=10000 center=0,0,255,255 corner=0,0,0,0 red=300","frame: bgra8unorm same=false last=0,0,0,0"] to contain "frame: bgra8unorm same=true last=220,255,255,255"
+    at <anonymous> (react-parity.test.tsx:76:25)
+    on screen: "offscreen: bgra8unorm 50x50 bytes=10000 center=0,0,255,255 corner=0,0,0,0 red=300", "frame: bgra8unorm same=false last=0,0,0,0"
+✓ react-parity.test.tsx › GPUOffscreenCanvas › getContext gives the one context for webgpu and null otherwise; it throws before configure (0ms)
+✓ react-parity.test.tsx › useNativeBufferSize › reports the first size at once and settles later ones after 150 ms (8ms)
+✓ react-parity.test.tsx › useNativeBufferSize › NativeBufferView throws ERR_WEBGPU_UNSUPPORTED (4ms)
+✓ react-parity.test.tsx › extensions › createTestVideoFrame makes the reference's bgra8 pattern (0ms)
+✓ react-parity.test.tsx › extensions › createTestVideoFrame makes the reference's nv12 frame: red left, green right (0ms)
+✓ react-parity.test.tsx › extensions › the Dawn and platform-buffer extensions throw ERR_WEBGPU_UNSUPPORTED (0ms)
+✓ react-parity.test.tsx › extensions › getPreferredHighBitDepthCanvasFormat, WebGPUModule.install and installWebGPU (0ms)
+error 12 tests: 11 passed, 1 failed (3.0s)

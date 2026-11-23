@@ -1,0 +1,9 @@
+# Broken on purpose: canvas-web-branch
+$ nsh test integration.test.tsx   (in examples/headless)
+✗ integration.test.tsx › <Canvas> and installWebGPU() by platform › on the web: the browser's navigator.gpu stays, the canvas is a web canvas view (21ms)
+    expected ["context id: 1","surface: 0","os: web","navigator.gpu: none"] to contain "surface: 1"
+    at <anonymous> (integration.test.tsx:15:25)
+    on screen: "context id: 1", "surface: 0", "os: web", "navigator.gpu: none"
+✓ integration.test.tsx › <Canvas> and installWebGPU() by platform › off the web: navigator.gpu is nsh-webgpu's and the canvas is the native view (4ms)
+✓ integration.test.tsx › the offscreen readback module is registered (0ms)
+error 3 tests: 2 passed, 1 failed (2.9s)

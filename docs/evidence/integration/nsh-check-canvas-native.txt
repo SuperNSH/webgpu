@@ -1,0 +1,5 @@
+$ nsh check   (in examples/canvas-native, nsh 0.6.0 (f577c51 nightly 2026-11-22))
+✓ checked webgpu-canvas-native (2.6s)
+✓ checked nsh-webgpu (264ms)
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (5.4s)
+exit: 0

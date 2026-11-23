@@ -1,0 +1,12 @@
+{
+  "name": "WebGPU Headless",
+  "id": "com.example.webgpuheadless",
+  "version": "1.0.0",
+  "build": 1,
+  "dependencies": {
+    "nsh-webgpu": {
+      "path": "../.."
+    }
+  },
+  "rust": "native"
+}

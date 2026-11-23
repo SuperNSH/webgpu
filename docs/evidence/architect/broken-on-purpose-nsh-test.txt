@@ -1,0 +1,8 @@
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (3.3s)
+✓ built the headless runner of webgpu-headless-native, nsh-webgpu (4.2s)
+✓ bundled App.tsx (56086 B in 7.3 ms)
+✗ App.test.tsx › the reference triangle renders offscreen through the TSX classes (43ms)
+    expected "triangle: bgra8unorm center=0,0,0,0 corner=0,0,0,0 red=0" to match /^triangle: bgra8unorm center=255,0,0,255 corner=0,0,0,0 red=\d+$/
+    at <anonymous> (App.test.tsx:8:17)
+    on screen: "triangle: bgra8unorm center=0,0,0,0 corner=0,0,0,0 red=0"
+error 1 test: 0 passed, 1 failed (6.5s)

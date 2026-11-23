@@ -1,0 +1,9 @@
+# The same repro on wgpu =30.0.2 (a scratch copy; two API changes: VertexState.buffers is &[Option<VertexBufferLayout>], get_mapped_range() returns a Result)
+$ cargo run
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.04s
+     Running `kache test-runner target/debug/wgpu-null-vertex-slot`
+adapter: "Apple M3 Max" (Metal)
+control   (slot 0 = green layout):             [0, 255, 0, 255]
+with hole (slot 0 = no attributes, slot 1 = green): [0, 255, 0, 255]
+OK: slot 1's attribute read slot 1's buffer
+exit: 0

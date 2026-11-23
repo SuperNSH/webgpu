@@ -1,0 +1,3 @@
+    Checking nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/commands/crates/nsh-webgpu)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.31s
+exit 0

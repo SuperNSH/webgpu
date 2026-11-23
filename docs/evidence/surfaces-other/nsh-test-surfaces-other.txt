@@ -1,0 +1,9 @@
+$ nsh test surfaces-other.test.tsx
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (446ms)
+✓ built the headless runner of webgpu-headless-native, nsh-webgpu (835ms)
+✓ surfaces-other.test.tsx › the web canvas off the web › has no browser GPU, canvas or context (0ms)
+✓ surfaces-other.test.tsx › the web canvas off the web › names canvases as the reference does and counts context ids up (0ms)
+✓ surfaces-other.test.tsx › the web canvas off the web › reports a canvas not in a page as 0 x 0 with inert DOM methods (0ms)
+✓ bundled ~/os/nsh-webgpu-wt/surfaces-other/examples/canvas-web/App.tsx (7411 B in 2.9 ms)
+✓ surfaces-other.test.tsx › on the web the canvas view is a view named after its context, filling its parent (9ms)
+✓ 4 tests: 4 passed, 0 failed (3.1s)

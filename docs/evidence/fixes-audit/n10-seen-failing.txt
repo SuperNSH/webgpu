@@ -1,0 +1,6 @@
+$ nsh test canvas-lifecycle.test.tsx  # warnings test with the previous tsx/Canvas.tsx (a9e7e4d)
+✓ bundled canvas-warnings.app.tsx (97162 B in 20.8 ms)
+warn Ignoring a change of android.backingView on a mounted canvas: the backing view is chosen when the canvas mounts. Remount the canvas (give it a new key) to change it.
+✗ canvas-lifecycle.test.tsx › development warnings: HardwareBufferView below Android 10, a backing view changed on a mounted canvas (5.0s)
+    the condition never held in 5000 ms; on screen: ["surface view", "warned: Ignoring a change of android.backingView on a mounted canvas: the backing view is chosen when the canvas mounts. Remount the canvas (give it a new key) to change it."]
+error 4 tests: 0 passed, 4 failed (23.0s)

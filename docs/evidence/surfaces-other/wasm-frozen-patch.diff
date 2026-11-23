@@ -1,0 +1,32 @@
+diff -ru ~/os/nsh-webgpu-wt/surfaces-other/crates/nsh-webgpu/src/api/adapter.rs crates/nsh-webgpu/src/api/adapter.rs
+--- ~/os/nsh-webgpu-wt/surfaces-other/crates/nsh-webgpu/src/api/adapter.rs	2026-11-24 00:58:09
++++ crates/nsh-webgpu/src/api/adapter.rs	2026-11-24 01:20:09
+@@ -4,6 +4,12 @@
+ 
+ use nsh_core::{JsonValue, prelude::*};
+ use serde::Deserialize;
++
++/// wasm has no `nsh_core::blocking` (one thread): the work runs in place.
++#[cfg(target_arch = "wasm32")]
++async fn blocking<R>(f: impl FnOnce() -> R) -> Result<R, std::convert::Infallible> {
++    Ok(f())
++}
+ use serde_json::json;
+ 
+ use crate::{
+diff -ru ~/os/nsh-webgpu-wt/surfaces-other/crates/nsh-webgpu/src/api/gpu.rs crates/nsh-webgpu/src/api/gpu.rs
+--- ~/os/nsh-webgpu-wt/surfaces-other/crates/nsh-webgpu/src/api/gpu.rs	2026-11-24 00:58:09
++++ crates/nsh-webgpu/src/api/gpu.rs	2026-11-24 01:20:09
+@@ -4,6 +4,12 @@
+ use nsh_core::{JsonValue, prelude::*};
+ use serde::Deserialize;
+ 
++/// wasm has no `nsh_core::blocking` (one thread): the work runs in place.
++#[cfg(target_arch = "wasm32")]
++async fn blocking<R>(f: impl FnOnce() -> R) -> Result<R, std::convert::Infallible> {
++    Ok(f())
++}
++
+ use crate::{
+     api::adapter::AdapterEntry,
+     convert::parse,

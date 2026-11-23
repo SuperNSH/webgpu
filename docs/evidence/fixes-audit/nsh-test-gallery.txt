@@ -1,0 +1,154 @@
+✓ built the Rust crates webgpu-gallery-native, nsh-webgpu (418ms)
+✓ built the headless runner of webgpu-gallery-native, nsh-webgpu (5.1s)
+✓ bundled App.tsx (1228848 B in 52.3 ms)
+PNG HelloTriangle iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAAKRElEQVR4nO3bCYplRxJFwdr/ptU0iKankmrIzHMjwgx8A/HcDz8L6ds3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ... [3398 characters elided to keep the repository small]
+probe HelloTriangle: 390x767 frame=0 err=0 distinct=2 top=#0000:87.5,#f00f:12.5
+✓ gallery.test.tsx › HelloTriangle: opens from Home and draws without GPU errors (485ms)
+PNG HelloTriangleMSAA iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAAawElEQVR4nO3dUXZcR5IEUS6NS9POuDTM4WmpheZQIkAUyiIz7od9j4+XpevlqwL7y5cvX16gAw5wgAP/dYAMOuAABzjwygFl6IADHOCAUSSBIeAAB37ugGJ0wAEOcMAoks ... [9030 characters elided to keep the repository small]
+probe HelloTriangleMSAA: 390x767 frame=0 err=0 distinct=5 top=#000f:87.4,#f00f:12.4,#400f:0.1,#800f:0.1,#b00f:0.1
+✓ gallery.test.tsx › HelloTriangleMSAA: opens from Home and draws without GPU errors (378ms)
+PNG ImageBlur iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAARhn0lEQVR4nOy99Vtc2bb9XThB4u7u7kaAQCAESIK7Q1EUUEDhroEY0U4nLeec637Pdfd7rv1X433Gqr3IYmXtEiDp7vN9f5hPDKmQzSdj2piOv/7rvwbjb/7mb/C3f/u3+Lu/+zv8wz ... [382738 characters elided to keep the repository small]
+probe ImageBlur: 390x767 frame=0 err=0 distinct=197 top=#bbbf:8.5,#aaaf:7.6,#999f:6.7,#cccf:5.5,#888f:4.7
+✓ gallery.test.tsx › ImageBlur: opens from Home and draws without GPU errors (471ms)
+Adapter features: ["bgra8unorm-storage","core-features-and-limits","depth-clip-control","depth32float-stencil8","dual-source-blending","float32-blendable","float32-filterable","indirect-first-instance","primitive-index","rg11b10ufloat-renderable","shader-f16","subgroups","texture-compression-astc","texture-compression-astc-sliced-3d","texture-compression-bc","texture-compression-bc-sliced-3d","texture-compression-etc2","texture-formats-tier1","timestamp-query"]
+Adapter limits: {"maxTextureDimension1D":16384,"maxTextureDimension2D":16384,"maxTextureDimension3D":2048,"maxTextureArrayLayers":2048,"maxBindGroups":8,"maxBindGroupsPlusVertexBuffers":24,"maxBinding ... [1053 characters elided to keep the repository small]
+WebGPU engine created
+Shader compiled successfully with entry points: ["main_image"]
+Shader compiled in 0.00ms
+PNG ComputeToys iVBORw0KGgoAAAANSUhEUgAAASgAAAKACAYAAAAvoOUHAAF10UlEQVR4nOzUx6oTCtsF4AwyyCADCVsySAiEBJJIEpOYQuLWgSKooCiKqKioqKioKPbeGxasWLD33rvL3ss59t57772unwNr8F7CP/gGzy08DocDdDnACg6wogMMOMCgAww7wEoO ... [127488 characters elided to keep the repository small]
+probe ComputeToys: 390x844 frame=0 err=0 distinct=256 top=#ffbf:1.7,#febf:1.7,#efbf:1.7,#eebf:1.6,#dfbf:1.5
+✓ gallery.test.tsx › ComputeToys: opens from Home and draws without GPU errors (544ms)
+PNG Cube iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAMV80lEQVR4nOzcU5d02daw68iMSNvOSJuPUbZt27Zt27Zt27bNVbaeqmu3yop3fftw76Nvrbf1a7T7D+RBz5hzjDETiRBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIIYQ ... [269521 characters elided to keep the repository small]
+probe Cube: 390x767 frame=0 err=0 distinct=711 top=#0000:60.0,#0fff:0.4,#1fff:0.3,#0fef:0.3,#2fff:0.3
+✓ gallery.test.tsx › Cube: opens from Home and draws without GPU errors (469ms)
+PNG CanvasAPI iVBORw0KGgoAAAANSUhEUgAAAVQAAAKACAYAAADD1YARAAAbq0lEQVR4nO3dW5Jjx4EEUS5NS9POtLQaa5lKQ5H9rofnjTwf/isLBTyjkRco8I8//vjjBTrgAAc48C4OEEkHHOAAB97JAUXqgAMc4IBBJYEh4AAHznIgDwAdcIADKw7kAaADDnBgxY ... [9334 characters elided to keep the repository small]
+probe CanvasAPI: 390x734 frame=0 err=0 distinct=5 top=#000f:87.4,#f00f:12.4,#800f:0.1,#400f:0.1,#b00f:0.1
+✓ gallery.test.tsx › CanvasAPI: opens from Home and draws without GPU errors (382ms)
+PNG Cubemap iVBORw0KGgoAAAANSUhEUgAAAYYAAAGGCAYAAAB/gCblAAQ6/klEQVR4nISdd3tUV7LuOTPnjLHB2ZjgMJ6xDcoSIILIKKtbORFtMgiBck5kDLbJQeTgOHPu/ZB1n7fCWrW3mrl/1LO7dwdgwvr1W2+FRf/9zmL66zuL6S+L/0Z/Xfw3+u/Fb3H8ZfF/ ... [369552 characters elided to keep the repository small]
+probe Cubemap: 390x390 frame=0 err=0 distinct=254 top=#358f:7.7,#247f:7.5,#469f:5.0,#479f:3.5,#58af:3.3
+✓ gallery.test.tsx › Cubemap: opens from Home and draws without GPU errors (656ms)
+PNG InstancedCube iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAALtPElEQVR4nOzdZ3hcVbbu+w5kTE5uMiaDyW2TsTE5Y8A0GDDBgAkGDJhkcjQ5g8nR2MY555yTLFs555xVkkolqaTffQpp3973Pufue/bZZx/c3evD+KYPpVn/9Y75vnPMVX946a ... [255634 characters elided to keep the repository small]
+probe InstancedCube: 390x767 frame=0 err=0 distinct=947 top=#888f:65.1,#ffff:0.1,#0fff:0.1,#afff:0.1,#9fff:0.1
+✓ gallery.test.tsx › InstancedCube: opens from Home and draws without GPU errors (509ms)
+PNG TexturedCube iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAANY/klEQVR4nOy755Mc95VguzN0T0NKNBK9EUnRiJQoEWgHS3hLI5IiRVKGoicIwhvCe9Mw7YF2QAPtve8uX5mVlZnlq9obACSl0c6se/H+iPMis5uamYiN2FjzdvLN3g8nqih8Udx ... [292413 characters elided to keep the repository small]
+probe TexturedCube: 390x767 frame=0 err=0 distinct=1110 top=#888f:59.6,#000f:2.1,#100f:1.2,#600f:1.2,#101f:1.2
+✓ gallery.test.tsx › TexturedCube: opens from Home and draws without GPU errors (496ms)
+PNG FractalCube iVBORw0KGgoAAAANSUhEUgAAAYYAAAGGCAYAAAB/gCblAAFEf0lEQVR4nOzdd5SfVfn3+0zvvffeaybTMpNJmfROaNJBmlRBBVEQFFEQLFhRQUFRVFQQBUF67yX0DoEAAQIBAmlAktezvrdz1jr/nHV+z+95nsMc3Ote18qf883e7/v63Htfbco3 ... [110656 characters elided to keep the repository small]
+probe FractalCube: 390x390 frame=30 err=0 distinct=778 top=#888f:79.4,#1fff:0.2,#2fff:0.2,#0fff:0.2,#3fff:0.2
+✓ gallery.test.tsx › FractalCube: opens from Home and draws without GPU errors (325ms)
+PNG Particles iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAG6oklEQVR4nOydBbRVVffFxf7sTuxuTMAAAxEMMMCWELsVEOlSpJEUUBoUpBRFASkbFEVAQRQsPhVb7F7/8Vt37ufm+jD+xrl87D3GGfDeu+/dc/dZe+655oq92mqrrWbpSnOQbCDZQL ... [150978 characters elided to keep the repository small]
+probe Particles: 390x767 frame=30 err=0 distinct=68 top=#000f:70.0,#ffff:8.3,#7fff:1.3,#8fff:1.3,#9fff:1.2
+✓ gallery.test.tsx › Particles: opens from Home and draws without GPU errors (689ms)
+update render bundle
+PNG RenderBundles iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAFZaElEQVR4nOy99VedWbfvecboUxIvSari7goxiIcQIAESCC7BLRAgECBocHd3J0SJS1VKU/66v+c995x7T3efvveO7r79P3x7zPXIfvZmoyF5dqXmD3Ngm4eVVd/9qWlrrn/6p3 ... [117794 characters elided to keep the repository small]
+probe RenderBundles: 390x767 frame=0 err=0 distinct=111 top=#000f:91.5,#111f:0.9,#222f:0.8,#333f:0.6,#444f:0.6
+✓ gallery.test.tsx › RenderBundles: opens from Home and draws without GPU errors (901ms)
+PNG OcclusionQuery iVBORw0KGgoAAAANSUhEUgAAAVQAAAKACAYAAADD1YARAAAZQklEQVR4nO3dsXEkVxoEYRjAOJmGUad0fqw7dIKukbFx+sUuA8SfXf0JRRmsypfzemaA/fj27dtfooOvYODX/3zIT3Twx3//F+fzOefz4/oHkHd1QKqEuhxCDYzwphDqz93S3 ... [8519 characters elided to keep the repository small]
+probe OcclusionQuery: 390x735 frame=0 err=0 distinct=8 top=#888f:87.8,#505f:7.1,#000f:2.3,#00bf:1.9,#001f:0.3
+✓ gallery.test.tsx › OcclusionQuery: opens from Home and draws without GPU errors (478ms)
+PNG ReversedZ iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAAdZklEQVR4nO3cgW4cSXZEUX36/vkYMjALLUGKTYndNyrroBCwLcvwm5dHUdlNzf748eM//4gdMMAAA/8agAEGBhhg4BcDluEPBAMMMKAUIVAEDDDwvgGL8YeDAQYYUIoQKAIGGHBThE ... [9926 characters elided to keep the repository small]
+probe ReversedZ: 390x767 frame=0 err=0 distinct=3 top=#008f:78.1,#f00f:14.6,#0f0f:7.3
+✓ gallery.test.tsx › ReversedZ: opens from Home and draws without GPU errors (404ms)
+PNG ComputeBoids iVBORw0KGgoAAAANSUhEUgAAAYYAAAGGCAYAAAB/gCblAABdUklEQVR4nO3dh5slVbU28N09iTxDlChBknAvJhC5oiKXoGBCREQMn1kRFEURvYarIgYQERQwgIogiuIVA5IUkJzjCAwzTOrzd+zvWQ1rWL1m7107h6p6n+d9mD6hqk73zPmxdp0 ... [31749 characters elided to keep the repository small]
+probe ComputeBoids: 390x390 frame=0 err=0 distinct=82 top=#0000:84.5,#410f:0.6,#dedf:0.6,#bdef:0.6,#025f:0.5
+✓ gallery.test.tsx › ComputeBoids: opens from Home and draws without GPU errors (313ms)
+PNG MNISTInference iVBORw0KGgoAAAANSUhEUgAAAYYAAAGGCAYAAAB/gCblAAASaklEQVR4nO3cMQrjQBQEUd3/dnOSSZ1ZODBGCAQCo6ngBbvZJt21XR4FfxtjvP2RAQYwgAEMfBnYPn/N+br9x7/7Xy6ylAtefv8X/B9avxHEEBglYpALXoihtBHEECiCGOSCF ... [6183 characters elided to keep the repository small]
+probe MNISTInference: 390x390 frame=0 err=0 distinct=2 top=#eeff:85.7,#dddf:14.3
+✓ gallery.test.tsx › MNISTInference: opens from Home and draws without GPU errors (305ms)
+PNG ShadowMapping iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAITiUlEQVR4nOzd2ZMk2XUmdv5P6fu+xb7kvu9b7Vt3V3dVdXctvaDRDQIEQYIcrCQ4IAQMAXAAcsgZDbiL4gzIkUiRlDSSSSaTzcPI9CLTZtKL7JOde90jPCI8MiOzMsszs87DZ7 ... [181326 characters elided to keep the repository small]
+probe ShadowMapping: 390x767 frame=0 err=0 distinct=482 top=#333f:39.0,#000f:34.4,#443f:3.4,#444f:2.7,#433f:1.9
+✓ gallery.test.tsx › ShadowMapping: opens from Home and draws without GPU errors (444ms)
+PNG SamplerParameters iVBORw0KGgoAAAANSUhEUgAAAMgAAADICAYAAACtWK6eAABP6UlEQVR4nOx9BXhVZ9Z1CxSX4BJPiBEXSIgrEoV4Qtzd3SEhkBAIwd0luLu7FCrUXUY6M3Wbdma+71//s96bS4EPb2juhJPnWU0vOffce/bea+v7nvOCpaUlJEgykGzg/j ... [27174 characters elided to keep the repository small]
+probe SamplerParameters: 200x200 frame=0 err=0 distinct=320 top=#333f:65.3,#000f:5.8,#ffff:3.1,#666f:2.2,#999f:2.1
+✓ gallery.test.tsx › SamplerParameters: opens from Home and draws without GPU errors (287ms)
+PNG DeferedRendering iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAGOdElEQVR4nOy9d3NcV5bt2d9JQHp/b16X96b3BpkwCe+9I0gCNCDonWhEikbem5JUctVd9Ur9etrMvJh4PTE98+JNxPska2KfmwkkQLJUXSVWktT+Y0WCIChe7Vz5495nn7P ... [135905 characters elided to keep the repository small]
+probe DeferedRendering: 390x767 frame=0 err=0 distinct=316 top=#333f:47.8,#000f:34.5,#444f:2.1,#433f:1.6,#334f:1.6
+✓ gallery.test.tsx › DeferedRendering: opens from Home and draws without GPU errors (435ms)
+PNG ABuffer iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAA3g0lEQVR4nO2dPY4kObalXRuhhRJbzCWUVkJLuYFcQ+4gxQc8NcQBRpgljFbq5AJGcKCFEadQQj88ycXXkqOlBFKIgUU4Peh0/pNm95L8hIPMjHCPYNw4/PJckmZ2Op1Or4ga4AE8gAfu ... [18836 characters elided to keep the repository small]
+probe ABuffer: 390x767 frame=0 err=0 distinct=71 top=#000f:64.9,#f0ff:14.7,#8804:6.6,#cc04:2.7,#00ff:2.2
+✓ gallery.test.tsx › ABuffer: opens from Home and draws without GPU errors (442ms)
+PNG Wireframe iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAFplklEQVR4nOy993MdV5bnSYneEyQIQ8I7EiBBECBBA3rvvffek6InRVI08hIllWyVykjlva/qri7TXdXVXV3tpns6ZnZ7NjZmI2Z3ayPmp/kPOiI3zs383jz35L2Z+eAeQGZGfCPz5U ... [123314 characters elided to keep the repository small]
+probe Wireframe: 390x767 frame=0 err=0 distinct=667 top=#444f:38.3,#ffff:7.9,#bfff:5.2,#fbff:3.2,#afff:2.0
+✓ gallery.test.tsx › Wireframe: opens from Home and draws without GPU errors (1.7s)
+PNG Resize iVBORw0KGgoAAAANSUhEUgAAABIAAAKACAYAAACR/yg2AAAB+klEQVR4nO3ayw3DMAwDUI/SUTpKRskoHaWbZJQUOhQIAsf5FkXsZ8BXHghStiSm/qKTAOGIjlhEGVEhvSIeSJ8I/yN/SN9jLYTuSAepyzZAMGQxPzJjMz40YjU9NmG3PLBgsTuyX7M6tF61grZdl0AQrhBAka2RPxKtEj+TrJM+FKwUPpWrlT2+5MhnV83Rq+tep4ECBBCO6KhFi7yfz3dcQDiiIxY5WEaGx2OIe7qMAMIRHbVqkTGlMS4gHNFRSxaJZgYQjuioRYvEBAIQjuiIRU6UkehBLikjgHBERzezyBcEEI7oiEUOlJFpQxO3tGIFhCM6qski0ynEpUClgAUgHNFRTRaZNjRxS5tRQDiiIxbJnGkJWRtrFMsIIBzRUYsWmXdGa40NIBzRUS0WmTc0a40NIBzRUe0WWZpGpK3jDEA4oqNWLJIDKfUjgHBERy1YJNePAMIRHbHIjjKSa2wOlRFAOKKjm1kk148AwhEdsciOMpJrbA6VkREQjuioUossrVZLYw1AOKKjGiyytBH9CdC8QwL0b46+Wlq7m4D2HkA4oiMWUUZUSK+IB9Inwv/IH9L3WAuhO9JB6rINEAxZzI/M2IwPjVhNj03YLQ8sWOyO7NesDq1XraBt1yUQhCsEUGRr5I9Eq8TPJOukDwUrhU/lavtb5mo/W+L6VibnqC4AAAAASUVORK5CYII=
+probe Resize: 22x767 frame=60 err=0 distinct=5 top=#8888:85.7,#f00f:10.8,#a66a:1.3,#c44c:1.1,#d22d:1.0
+✓ gallery.test.tsx › Resize: opens from Home and draws without GPU errors (266ms)
+PNG GradientTiles iVBORw0KGgoAAAANSUhEUgAAAYYAAAGGCAYAAAB/gCblAAAU2UlEQVR4nO3YMRHEQBDEwINmaMfM0PzRY9AEHYjABlLNnnPuh/YGDyZucJHf4MXEDY4o9GGshQhhqIMgDH0MhGEgBsKwF6RaiuiFCIshD4LF0MdAGLaCRMwbN/BKEoZcyCvUUk ... [7010 characters elided to keep the repository small]
+probe GradientTiles: 390x390 frame=0 err=0 distinct=16 top=#448f:6.3,#b48f:6.3,#4b8f:6.3,#bb8f:6.3,#408f:6.2
+✓ gallery.test.tsx › GradientTiles: opens from Home and draws without GPU errors (306ms)
+PNG StorageBufferVertices iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAA3NElEQVR4nO3dT6h263kW8E3SEltpMzDqQCLVBmswp4iSc6DWiIEqaHdoTBDSqC0GlQQxHdRJaKUR00EF8U+gWKg6kEOww5JB9ChilBSKlHpCMYgJTkwlJIYGoXXQI2 ... [18746 characters elided to keep the repository small]
+probe StorageBufferVertices: 390x767 frame=0 err=0 distinct=86 top=#444f:7.2,#81bf:5.4,#969f:4.9,#9c3f:4.0,#656f:4.0
+✓ gallery.test.tsx › StorageBufferVertices: opens from Home and draws without GPU errors (416ms)
+PNG ImportExternalTexture iVBORw0KGgoAAAANSUhEUgAAAUUAAAKACAYAAAALuWrHAAFOBElEQVR4nOzXeVub9532f0ywARtjY7wFm4vV7OC0zWK30zZpEifdJs06MwEE2tgRIISQBIh9E0KIXWwCRJZfZ5qlmXQ6jeM0aZvEaTY7iR3H1nM5f0eu22g++vL53s ... [113914 characters elided to keep the repository small]
+probe ImportExternalTexture: 390x767 frame=0 err=0 distinct=1145 top=#7bdf:1.0,#67df:1.0,#9ddf:1.0,#601f:1.0,#711f:1.0
+✓ gallery.test.tsx › ImportExternalTexture: opens from Home and draws without GPU errors (787ms)
+PNG SixteenBitTextures iVBORw0KGgoAAAANSUhEUgAAAKoAAAKACAYAAAAM3uP7AAAMGUlEQVR4nO3UwXFUWRQE0e8TAtSIETiABJLw35Q3JkzvJqPiLHJ/41ZWXU8//x74Qd2B6/8+AH5AVBLMDIFFDYQAopJgpAgWNRACiEqCkSJY1EAIICoJRopgUQMhgKgkG ... [4031 characters elided to keep the repository small]
+probe SixteenBitTextures: 195x734 frame=0 err=0 distinct=3 top=#335f:62.4,#334f:29.7,#345f:7.9
+✓ gallery.test.tsx › SixteenBitTextures: opens from Home and draws without GPU errors (443ms)
+37 entries expected; accessibility rows: 38
+✓ gallery.test.tsx › Home lists the reference's entries, in its order (245ms)
+✓ gallery.test.tsx › the entries that are not ported open a page saying why (252ms)
+PNG MNISTInference iVBORw0KGgoAAAANSUhEUgAAAYYAAAGGCAYAAAB/gCblAAASaklEQVR4nO3cMQrjQBQEUd3/dnOSSZ1ZODBGCAQCo6ngBbvZJt21XR4FfxtjvP2RAQYwgAEMfBnYPn/N+br9x7/7Xy6ylAtefv8X/B9avxHEEBglYpALXoihtBHEECiCGOSCF ... [6183 characters elided to keep the repository small]
+✓ gallery.test.tsx › MNISTInference: a stroke drawn on the pad runs the network (386ms)
+AsyncStarvation: ❌ Event loop was blocked! Neither animation frames nor idle callbacks could execute during the async operation (0 ms).
+
+This indicates potential performance issues with WebGPU async operations.
+✓ gallery.test.tsx › Diagnostics › AsyncStarvation: runs without an uncaught GPU error (752ms)
+DeviceLostHang: Calling forceLossForTesting – the device lost callback is delivered asynchronously…
+✓ gallery.test.tsx › Diagnostics › DeviceLostHang: runs without an uncaught GPU error (774ms)
+[surface-lifecycle] getCurrentTexture() before configure()...
+[surface-lifecycle] threw (correct per spec): InvalidStateError: getCurrentTexture() called on a canvas context that is not configured; call context.configure() first
+[surface-lifecycle] configure() with canvas.width = canvas.height = 0...
+[surface-lifecycle] getCurrentTexture() -> 1x1
+[surface-lifecycle] createView() survived
+[surface-lifecycle] rendered one frame, calling unconfigure()...
+[surface-lifecycle] threw (correct per spec): InvalidStateError: getCurrentTexture() called on a canvas context that is not configured; call context.configure() first
+ContextEdgeCases: threw (correct per spec): InvalidStateError: getCurrentTexture() called on a canvas context that is not configured; call context.configure() first | rendered one frame, calling unconfigure()... | threw (correct per spec): InvalidStateError: getCurrentTexture() called on a canvas context that is not configured; call context.configure() first
+✓ gallery.test.tsx › Diagnostics › ContextEdgeCases: runs without an uncaught GPU error (2.1s)
+[surface-lifecycle] configured bgra8unorm with viewFormats: [bgra8unorm-srgb]
+[surface-lifecycle] canvas.width -> 389, next frame reconfigures with the dangling viewFormats pointer
+ViewFormatsUseAfterFree: canvas.width -> 389, next frame reconfigures with the dangling viewFormats pointer
+✓ gallery.test.tsx › Diagnostics › ViewFormatsUseAfterFree: runs without an uncaught GPU error (1.3s)
+[surface-lifecycle] rendering, unmount the canvas while the loop keeps going
+[surface-lifecycle] frame 120 ok
+[surface-lifecycle] frame 240 ok
+RenderAfterUnmount: A frame loop renders into the canvas and keeps running after the canvas unmounts. Expected: the context detaches and falls back to offscreen rendering. On a broken build the next frame uses the freed native surface and crashes. | frame 120 ok | frame 240 ok
+✓ gallery.test.tsx › Diagnostics › RenderAfterUnmount: runs without an uncaught GPU error (5.8s)
+[surface-lifecycle] rendering, background the app and come back (or flip the switch)
+BackgroundDetach: 
+✓ gallery.test.tsx › Diagnostics › BackgroundDetach: runs without an uncaught GPU error (873ms)
+[surface-lifecycle] epoch 0
+[surface-lifecycle] epoch 10
+SurfaceChurn: Remounts the canvas every 400ms while rendering every frame, flipping the Android backing view every third remount. Expected: flicker, but no crash and no validation errors. Leave it running for a minute. | epoch 0 | epoch 10
+✓ gallery.test.tsx › Diagnostics › SurfaceChurn: runs without an uncaught GPU error (4.8s)
+[surface-lifecycle] rendering, now unmount the canvas
+[surface-lifecycle] cleanup: device.destroy() (surface still attached)
+[surface-lifecycle] cleanup done, the native view is dropped next frame
+[surface-lifecycle] [device lost] destroyed: 
+DeviceDestroyBeforeDetach: The canvas is configured and rendering. Unmounting it destroys the device synchronously in the effect cleanup (like three's WebGPURenderer.dispose()); the native view is dropped one frame later and detaches a surface whose swapchain still references the dead device. Expected: a device-lost log line and no crash. | context.unconfigure() before device.destroy() | cleanup: device.destroy() (surface still attached) | cleanup done, the native view is dropped next frame | [device lost] destroyed: 
+✓ gallery.test.tsx › Diagnostics › DeviceDestroyBeforeDetach: runs without an uncaught GPU error (1.2s)
+PNG HelloTriangle-snapshot iVBORw0KGgoAAAANSUhEUgAAAoAAAAKACAYAAAAMzckjAAAPLElEQVR4nO3d23LkRBBFUf//T0N4IoYHsAf3RTqZddYK6h26s1U7SpL5+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ... [5083 characters elided to keep the repository small]
+probe HelloTriangle: 1024x1024 frame=0 err=0 distinct=2 top=#0000:87.5,#f00f:12.5 snapshot=triangle.png:0/1048576
+✓ gallery.test.tsx › HelloTriangle: matches the reference snapshot (2.1s)
+PNG HelloTriangleMSAA-snapshot iVBORw0KGgoAAAANSUhEUgAAAoAAAAKACAYAAAAMzckjAAArC0lEQVR4nO3dXXKcNw6GUS8tS5udZWmaqkkpkx87kaXufkDiXOCe9eoQRNgf42/fvn17UzJggAEGGGCAAQZWGcgXoGTAAAMMMMAAAwwYACHQCBhggAEGGGCAA ... [14599 characters elided to keep the repository small]
+probe HelloTriangleMSAA: 1024x1024 frame=0 err=0 distinct=5 top=#000f:87.5,#f00f:12.5,#800f:0.0,#400f:0.0,#b00f:0.0 snapshot=triangle-msaa.png:0/1048576
+✓ gallery.test.tsx › HelloTriangleMSAA: matches the reference snapshot (2.1s)
+PNG ImageBlur-snapshot iVBORw0KGgoAAAANSUhEUgAAAoAAAAKACAYAAAAMzckjAAc71UlEQVR4nOyd91sbWZ71AYMx4IBzzrmds7GNM2CMwSaYnHMSUWREjs7u7pmemc0572zOO7uz7x923ufcqisu11WlkhDY7uGH8xgrC6TSR+d8Q8Q//dM/Qeqf//mfhf7lX ... [631991 characters elided to keep the repository small]
+probe ImageBlur: 1024x1024 frame=0 err=0 distinct=197 top=#bbbf:8.5,#aaaf:7.6,#999f:6.7,#cccf:5.5,#888f:4.7 snapshot=blur.png:0/1048576
+✓ gallery.test.tsx › ImageBlur: matches the reference snapshot (2.7s)
+PNG Cube-snapshot iVBORw0KGgoAAAANSUhEUgAAAoAAAAKACAYAAAAMzckjAAMvHElEQVR4nOzdZ3BW96Hv+4WEGkioIQQChCRAEkXCfvBjWwUDAgkhQMI4duIkTpzuNCdxeu+99957T3Z6rzvZ2enJTk92enPcMb187lh+7pkze+6duffOuXPO3uf3WfPlNS+Y4T ... [278118 characters elided to keep the repository small]
+probe Cube: 1024x1024 frame=0 err=0 distinct=722 top=#0000:79.3,#0fff:0.2,#0eff:0.2,#0dff:0.1,#0cff:0.1 snapshot=cube.png:0/1048576
+✓ gallery.test.tsx › Cube: matches the reference snapshot (2.3s)
+PNG InstancedCube-snapshot iVBORw0KGgoAAAANSUhEUgAAAoAAAAKACAYAAAAMzckjAAYh3klEQVR4nOzddXCdR4Iv7JiZZZCZZGaZmZmZZZnZlil20GGYMDPThJkmzIwTsuOYGSRbtiSLnq/0RjuVnW/p5u5eZ3a6TrX+VnU/59fc57SNGzcKJdRBMBAMBAPBQ ... [535751 characters elided to keep the repository small]
+probe InstancedCube: 1024x1024 frame=0 err=0 distinct=947 top=#888f:62.6,#0fff:0.2,#2fff:0.1,#1fff:0.1,#4fff:0.1 snapshot=instanced-cubes.png:0/1048576
+✓ gallery.test.tsx › InstancedCube: matches the reference snapshot (2.6s)
+PNG TexturedCube-snapshot iVBORw0KGgoAAAANSUhEUgAAAoAAAAKACAYAAAAMzckjAAMHdElEQVR4nOzd55NU177m+ZXem8rylVVZJk1ZXDlM4a1AAiEQyCLkEZJABhBCOIHwCO8R3gsnC0IIZI6591zTt++NnuiJ6I7pmYk7Peav+E7syp1SHkbqdxOHc3hePJ ... [264590 characters elided to keep the repository small]
+probe TexturedCube: 1024x1024 frame=0 err=0 distinct=1160 top=#888f:79.3,#000f:3.2,#011f:1.0,#001f:0.8,#010f:0.5 snapshot=textured-cube.png:0/1048576
+✓ gallery.test.tsx › TexturedCube: matches the reference snapshot (2.3s)
+PNG FractalCube-snapshot iVBORw0KGgoAAAANSUhEUgAAAoAAAAKACAYAAAAMzckjAAMnsUlEQVR4nOzce9T2c533/xehIiSiDIoxFMaEmzY3E6XShkbJkpYaWmjhZ4yblmQJP2EJWcau7FOSbVIS2e8v+/32sruuc3Ps99/99/v8rWNdn3vNNed9nq255zczzrp ... [275593 characters elided to keep the repository small]
+probe FractalCube: 1024x1024 frame=9 err=0 distinct=2316 top=#888f:78.9,#0eff:0.2,#0cff:0.1,#0dff:0.1,#01ff:0.1 snapshot=fractal-cubes.png:8/1048576
+✓ gallery.test.tsx › FractalCube: matches the reference snapshot (2.3s)
+✓ bundled App.tsx (1228848 B in 46.2 ms)
+tour skipped: not on a phone target
+✓ tour.test.tsx › tour: every demo on screen, for the screenshots (phone targets only) (307ms)
+✓ 45 tests: 45 passed, 0 failed (56.2s)

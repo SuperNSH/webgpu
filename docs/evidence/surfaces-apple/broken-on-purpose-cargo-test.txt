@@ -1,0 +1,39 @@
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/surfaces-apple/crates/nsh-webgpu)
+warning: field `id` is never read
+   --> crates/nsh-webgpu/src/api/canvas_context.rs:158:5
+    |
+156 | struct Frame {
+    |        ----- field in this struct
+157 |     /// Its id in the registry (TSX's `GPUTexture`).
+158 |     id: Id,
+    |     ^^
+    |
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `nsh-webgpu` (lib) generated 1 warning
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 4.96s
+     Running tests/surfaces_apple/main.rs (target/debug/deps/surfaces_apple-036dedf9dfc12eac)
+
+running 4 tests
+test context_ids_are_unique_and_destroy_drops_the_context ... ok
+test configure_rejects_what_the_spec_rejects ... ok
+test frames_offscreen_until_a_view_attaches ... FAILED
+test frames_come_from_an_attached_metal_layer ... ok
+
+failures:
+
+---- frames_offscreen_until_a_view_attaches stdout ----
+
+thread 'frames_offscreen_until_a_view_attaches' (147967866) panicked at crates/nsh-webgpu/tests/surfaces_apple/main.rs:154:5:
+assertion `left == right` failed: one texture per frame
+  left: 10
+ right: 9
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    frames_offscreen_until_a_view_attaches
+
+test result: FAILED. 3 passed; 1 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+error: test failed, to rerun pass `-p nsh-webgpu --test surfaces_apple`

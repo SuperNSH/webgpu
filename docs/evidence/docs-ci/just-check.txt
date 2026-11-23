@@ -1,0 +1,13 @@
+$ just check
+cargo fmt --all -- --check
+cargo clippy --workspace --all-targets -- -D warnings
+    Checking nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/docs-ci/crates/nsh-webgpu)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 1.12s
+exit 0
+
+$ just cross aarch64-apple-ios-sim
+    Checking nsh-base v0.6.0 (https://github.com/longbridge/nsh?rev=f577c51901a2857956f8ba0580da4db9ce3a3311#f577c519)
+    Checking nsh-platform-ios v0.6.0 (https://github.com/longbridge/nsh?rev=f577c51901a2857956f8ba0580da4db9ce3a3311#f577c519)
+    Checking nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/docs-ci/crates/nsh-webgpu)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 22.75s
+exit 0

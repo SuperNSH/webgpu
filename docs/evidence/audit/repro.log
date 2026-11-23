@@ -1,0 +1,37 @@
+   Compiling nsh-webgpu-audit-repro v0.0.0 (~/os/nsh-webgpu/docs/evidence/audit/repro)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.29s
+     Running unittests src/lib.rs (target/debug/deps/nsh_webgpu_audit_repro-ac5b1055b7825a12)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/repro.rs (target/debug/deps/repro-cb485c3671f36453)
+
+running 2 tests
+test buffer_map_async_getmappedrange_overflow_in_rust_api ... 
+thread 'buffer_map_async_getmappedrange_overflow_in_rust_api' (153730385) panicked at /kache/workspace/src/api/buffer.rs:218:72:
+attempt to add with overflow
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+map_async(2^63, 2^63): Ok(Err("OperationError: wgpu: attempt to add with overflow"))
+ok
+test frame_texture_used_and_released_after_view_gone ... teardown panics caught: 0
+createView after view gone: Ok(7)
+beginRenderPass: Ok(9)
+end: Ok(())
+finish: Ok(10)
+submit: Ok(())
+present: Ok(())
+release(view) panicked: false
+release(frame texture) panicked: false
+ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.17s
+
+   Doc-tests nsh_webgpu_audit_repro
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit=0

@@ -1,0 +1,31 @@
+--- ~/os/nsh-webgpu-wt/surfaces-other/crates/nsh-webgpu/src/instance.rs	2026-11-24 00:58:09
++++ crates/nsh-webgpu/src/instance.rs	2026-11-24 01:35:11
+@@ -7,7 +7,27 @@
+ use std::sync::LazyLock;
+ 
+ static INSTANCE: LazyLock<wgpu::Instance> = LazyLock::new(|| {
+-    wgpu::Instance::new(wgpu::InstanceDescriptor::new_without_display_handle_from_env())
++    #[allow(unused_mut)]
++    let mut desc = wgpu::InstanceDescriptor::new_without_display_handle_from_env();
++    // Android: an `ANativeWindow` takes one producer API, and a surface made
++    // for Vulkan and GL at once connects it for Vulkan (vkCreateAndroidSurfaceKHR
++    // connects), so GL's EGL surface then fails (EGL_BAD_ALLOC, "Invalid
++    // surface"). One backend: Vulkan when it has an adapter (the reference's
++    // choice), else GL (emulators). `WGPU_BACKEND` still decides when set.
++    #[cfg(target_os = "android")]
++    if std::env::var_os("WGPU_BACKEND").is_none() {
++        let mut probe = wgpu::InstanceDescriptor::new_without_display_handle();
++        probe.backends = wgpu::Backends::VULKAN;
++        let vulkan = wgpu::Instance::new(probe);
++        let has_vulkan =
++            !pollster::block_on(vulkan.enumerate_adapters(wgpu::Backends::VULKAN)).is_empty();
++        desc.backends = if has_vulkan {
++            wgpu::Backends::VULKAN
++        } else {
++            wgpu::Backends::GL
++        };
++    }
++    wgpu::Instance::new(desc)
+ });
+ 
+ /// The instance.

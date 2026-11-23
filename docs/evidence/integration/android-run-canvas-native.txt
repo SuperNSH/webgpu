@@ -1,0 +1,13 @@
+# nsh run --target android --device emulator-5580 (AVD nsh-webgpu-surfaces-other), master checkout with the phase 3 instance.rs; JAVA_HOME = Android Studio's JBR, ANDROID_NDK_HOME = ndk 28.2.13676358
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (206ms)
+✓ built App.tsx (2.6 KB js, 7.6 KB bytecode, 3ms)
+✓ built libnsh.so of webgpu-canvas-native, nsh-webgpu for arm64-v8a (3.7s)
+✓ built the Android development host (886ms)
+✓ installed the Android development host on emulator-5580 (428ms)
+• Android Emulator (sdk_gphone16k_arm64) connected, build 1
+EGL says it can present to the window but not natively
+warn Android Emulator: canvas demo adapters: ["Android Emulator OpenGL ES Translator (Apple M3 Max) Gl presents=true"]
+warn Android Emulator: canvas demo: configuring 1 (996, 1073) Rgba8Unorm on Android Emulator OpenGL ES Translator (Apple M3 Max) (Gl)
+warn Android Emulator: canvas demo: configuring 2 (996, 1073) Rgba8Unorm on Android Emulator OpenGL ES Translator (Apple M3 Max) (Gl)
+warn Android Emulator: canvas demo: configuring 1 (996, 987) Rgba8Unorm on Android Emulator OpenGL ES Translator (Apple M3 Max) (Gl)
+warn Android Emulator: canvas demo: configuring 2 (996, 987) Rgba8Unorm on Android Emulator OpenGL ES Translator (Apple M3 Max) (Gl)

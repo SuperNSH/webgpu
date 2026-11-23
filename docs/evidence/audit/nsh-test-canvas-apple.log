@@ -1,0 +1,10 @@
+== nsh test (canvas-apple) ==
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (172ms)
+✓ built the headless runner of webgpu-canvas-native, nsh-webgpu (241ms)
+✓ bundled App.tsx (112537 B in 13.6 ms)
+PNG triangle-offscreen iVBORw0KGgoAAAANSUhEUgAAAK0AAALyCAYAAACo6FRIAAAHx0lEQVR4nO3Z0Wok1hVE0fn/n05IGIERUUZ6sOtU3bXwfR98dheN+tcvAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ... [2555 characters elided to keep the repository small]
+PNG cube-offscreen iVBORw0KGgoAAAANSUhEUgAAAK0AAALyCAYAAACo6FRIAAIEdklEQVR4nOzbBZOkWXYm6P6nSzOr0WjELTVzd1UXVyUzZ2RkBjMzMzMzR3g487MWqrK1tTVbmF1J3a2+j9n5A/69/vm95xz/3veCIAiCIAiCIAiCIAiCIAiCIAiCIAiCIAiCI ... [176183 characters elided to keep the repository small]
+WebGPU canvas: bgra8unorm triangle 173x754 cube 173x754 surface none | cube (reference): 70 frames
+✓ canvas.test.tsx › the Triangle and the Cube draw into their canvases (1.8s)
+✓ 1 test: 1 passed, 0 failed (4.6s)
+exit=0

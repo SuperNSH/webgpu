@@ -1,0 +1,2 @@
+$ (examples/canvas-web) nsh check
+exit 0

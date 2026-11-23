@@ -1,0 +1,9 @@
+# Broken on purpose: install-web-noop
+$ nsh test integration.test.tsx   (in examples/headless)
+✗ integration.test.tsx › <Canvas> and installWebGPU() by platform › on the web: the browser's navigator.gpu stays, the canvas is a web canvas view (21ms)
+    expected ["context id: 1","surface: 1","os: web","navigator.gpu: nsh-webgpu"] to contain "navigator.gpu: none"
+    at <anonymous> (integration.test.tsx:12:25)
+    on screen: "context id: 1", "surface: 1", "os: web", "navigator.gpu: nsh-webgpu"
+✓ integration.test.tsx › <Canvas> and installWebGPU() by platform › off the web: navigator.gpu is nsh-webgpu's and the canvas is the native view (5ms)
+✓ integration.test.tsx › the offscreen readback module is registered (0ms)
+error 3 tests: 2 passed, 1 failed (3.5s)

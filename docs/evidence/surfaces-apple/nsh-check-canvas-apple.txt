@@ -1,0 +1,4 @@
+✓ checked webgpu-canvas-native (432ms)
+✓ checked nsh-webgpu (882ms)
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (1.7s)
+exit 0

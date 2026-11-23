@@ -1,0 +1,7 @@
+    Checking tokio v1.53.3
+    Checking nsh-core v0.6.0 (https://github.com/longbridge/nsh?rev=f577c51901a2857956f8ba0580da4db9ce3a3311#f577c519)
+    Checking nsh-engine v0.6.0 (https://github.com/longbridge/nsh?rev=f577c51901a2857956f8ba0580da4db9ce3a3311#f577c519)
+    Checking nsh-base v0.6.0 (https://github.com/longbridge/nsh?rev=f577c51901a2857956f8ba0580da4db9ce3a3311#f577c519)
+    Checking nsh-platform-windows v0.6.0 (https://github.com/longbridge/nsh?rev=f577c51901a2857956f8ba0580da4db9ce3a3311#f577c519)
+    Checking nsh-webgpu v0.1.0 (~/os/nsh-webgpu)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 13.40s

@@ -1,0 +1,4 @@
+== nsh build (canvas-apple) ==
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (167ms)
+✓ built App.tsx into .nsh/out (109.9 KB js, 222.7 KB bytecode, 13ms)
+exit=0

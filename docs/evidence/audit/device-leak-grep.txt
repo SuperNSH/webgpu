@@ -1,0 +1,26 @@
+$ grep -rn "WgpuDevice.release\|WgpuDevice\.destroy" tsx
+tsx/api/GPUDevice.ts:113:    call(() => WgpuDevice.destroy(this[HANDLE]));
+$ grep -n "released by destroy" tsx/api/GPUDevice.ts
+83:    // released by destroy(), not by the collector.
+$ sed -n 194,214p src/api/device.rs
+    /// `device.destroy()`: the device is lost with reason `"destroyed"`,
+    /// its resources with it.
+    pub fn destroy(device: u32) -> Result<(), String> {
+        guard(|| {
+            let entry = DeviceEntry::get(device)?;
+            entry.device.destroy();
+            entry
+                .lost
+                .lock()
+                .unwrap_or_else(|e| e.into_inner())
+                .get_or_insert_with(|| ("destroyed".into(), String::new()));
+            Ok(())
+        })
+    }
+
+    /// Lets device `device` go: drops its listeners and its entry.
+    pub fn release(device: u32) {
+        ErrorSink::forget(device);
+        let _ = LOST.try_with(|l| l.borrow_mut().remove(&device));
+        registry::release(device);
+    }

@@ -1,0 +1,7 @@
+$ nsh --version
+nsh 0.6.0 (f577c51 nightly 2026-11-22)
+$ nsh check   (examples/headless)
+✓ checked webgpu-headless-native (158ms)
+✓ checked nsh-webgpu (615ms)
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (406ms)
+exit 0

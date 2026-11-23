@@ -1,0 +1,42 @@
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/surfaces-apple/crates/nsh-webgpu)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 5.77s
+     Running unittests src/lib.rs (target/debug/deps/nsh_webgpu-46c9531ba3a53828)
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+     Running tests/native/main.rs (target/debug/deps/native-0f74b7c06cf96100)
+
+running 11 tests
+test errors::destroy_loses_the_device ... ok
+test errors::a_descriptor_that_does_not_convert_is_a_type_error ... ok
+test errors::a_validation_error_goes_to_the_innermost_matching_scope ... ok
+test errors::invalid_wgsl_is_a_validation_error_with_compilation_messages ... ok
+test mapping::destroy_unmaps ... ok
+test mapping::unmap_before_the_mapping_finishes_aborts_it ... ok
+test errors::an_error_no_scope_catches_is_uncaptured_not_a_panic ... ok
+test mapping::queue_write_buffer_then_map_for_reading ... ok
+test mapping::bytes_written_to_a_mapped_range_reach_the_buffer_on_unmap ... ok
+test mapping::a_map_write_buffer_keeps_its_bytes_across_mappings ... ok
+test triangle::the_reference_triangle_renders_offscreen ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+     Running tests/surfaces_apple/main.rs (target/debug/deps/surfaces_apple-036dedf9dfc12eac)
+
+running 4 tests
+test context_ids_are_unique_and_destroy_drops_the_context ... ok
+test configure_rejects_what_the_spec_rejects ... ok
+test frames_offscreen_until_a_view_attaches ... ok
+test frames_come_from_an_attached_metal_layer ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s
+
+   Doc-tests nsh_webgpu
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit 0

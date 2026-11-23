@@ -1,0 +1,45 @@
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/commands/crates/nsh-webgpu)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 3.63s
+     Running unittests src/lib.rs (target/debug/deps/nsh_webgpu-ab595d8467acbf47)
+
+running 1 test
+test api::queue::tests::srgb_white_and_black_stay_in_display_p3 ... FAILED
+
+failures:
+
+---- api::queue::tests::srgb_white_and_black_stay_in_display_p3 stdout ----
+
+thread 'api::queue::tests::srgb_white_and_black_stay_in_display_p3' (148267551) panicked at crates/nsh-webgpu/src/api/queue.rs:462:9:
+[255, 255, 255, 255, 0, 0, 0, 255, 255, 0, 0, 255]
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    api::queue::tests::srgb_white_and_black_stay_in_display_p3
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 9 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p nsh-webgpu --lib`
+     Running tests/commands/main.rs (target/debug/deps/commands-de105d001951871d)
+
+running 1 test
+test encoder::a_second_pass_while_one_is_open_is_invalid ... FAILED
+
+failures:
+
+---- encoder::a_second_pass_while_one_is_open_is_invalid stdout ----
+
+thread 'encoder::a_second_pass_while_one_is_open_is_invalid' (148268509) panicked at crates/nsh-webgpu/tests/commands/encoder.rs:74:5:
+assertion failed: error.is_some()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    encoder::a_second_pass_while_one_is_open_is_invalid
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 51 filtered out; finished in 0.13s
+
+error: test failed, to rerun pass `-p nsh-webgpu --test commands`
+error: 2 targets failed:
+    `-p nsh-webgpu --lib`
+    `-p nsh-webgpu --test commands`

@@ -1,0 +1,13 @@
+$ cargo test --test native ranges_whose  # with the unchecked offset + size of a9e7e4d
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+thread 'mapping::ranges_whose_end_overflows_u64_are_rejected_not_wrapped' (153771820) panicked at tests/native/mapping.rs:119:75:
+called `Result::unwrap()` on an `Err` value: "OperationError: wgpu: attempt to add with overflow"
+
+
+failures:
+    mapping::ranges_whose_end_overflows_u64_are_rejected_not_wrapped
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 12 filtered out; finished in 0.18s
+
+error: test failed, to rerun pass `--test native`

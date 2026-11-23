@@ -1,0 +1,10 @@
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (5.4s, 1 warning: -v shows it)
+✓ built the headless runner of webgpu-headless-native, nsh-webgpu (6.6s, 1 warning: -v shows it)
+✓ bundled surfaces-apple.app.tsx (70628 B in 8.3 ms)
+✓ surfaces-apple.test.tsx › the canvas ref and the context's configuration (226ms)
+✗ surfaces-apple.test.tsx › the current texture: one per frame, and the triangle drawn into it (136ms)
+    expected "false" to be "true"
+    at <anonymous> (surfaces-apple.test.tsx:50:44)
+    on screen: "contextId: number", "unsupported context: Error: [WebGPU] Unsupported context: 2d", "native surface: 0", "instance: true", "canvas size: 64x64", "configuration before: null", "texture before configure: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured; call context.configure() first", "bad colorSpace: TypeError: 'rec2020' is not a valid value for enumeration PredefinedColorSpace", "bad toneMapping: TypeError: 'loud' is not a valid value for enumeration GPUCanvasToneMappingMode", "bad format: TypeError: configure: R8Unorm is not a format a canvas supports (bgra8unorm, rgba8unorm, rgba16float)", "configuration: {\"device\":true,\"format\":\"bgra8unorm\",\"usage\":17,\"viewFormats\":[],\"colorSpace\":\"srgb\",\"toneMapping\":{\"mode\":\"standard\"},\"alphaMode\":\"premultiplied\"}", "shared configuration: true", "same texture in a frame: false", "texture: 64x64 bgra8unorm 17 true", "triangle: center=255,0,0,255 corner=0,0,0,0", "new texture after present: true", "new texture after configure: true", "after resize: true 16x64", "configuration after unconfigure: null", "texture after unconfigure: InvalidStateError", "animation frames: 3"
+✓ surfaces-apple.test.tsx › requestAnimationFrame drives a render loop (122ms)
+error 3 tests: 2 passed, 1 failed (9.5s)

@@ -1,0 +1,3 @@
+    Checking nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/surfaces-apple/crates/nsh-webgpu)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.69s
+exit 0

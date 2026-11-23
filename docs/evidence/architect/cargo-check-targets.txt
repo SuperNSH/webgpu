@@ -1,0 +1,15 @@
+$ cargo check -p nsh-webgpu --target aarch64-apple-ios
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+$ cargo check -p nsh-webgpu --target aarch64-linux-android
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+$ cargo check -p nsh-webgpu --target x86_64-pc-windows-gnu
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+$ cargo check -p nsh-webgpu --target x86_64-unknown-linux-gnu
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.11s
+$ cargo check -p nsh-webgpu --target wasm32-unknown-unknown
+error: could not compile `nsh-webgpu` (lib) due to 23 previous errors
+error[E0277]: `(dyn FnOnce() + 'static)` cannot be sent between threads safely
+error[E0277]: `(dyn FnOnce(std::result::Result<(), BufferAsyncError>) + 'static)` cannot be sent between threads safely
+error[E0277]: `(dyn wgpu::WindowHandle + 'static)` cannot be sent between threads safely
+error[E0277]: `(dyn wgpu::WindowHandle + 'static)` cannot be shared between threads safely
+error[E0425]: cannot find function `blocking` in this scope

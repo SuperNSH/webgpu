@@ -1,0 +1,4 @@
+$ cargo clippy --target aarch64-apple-ios-sim -p nsh-webgpu --all-targets -- -D warnings
+    Checking nsh-webgpu v0.1.0 (~/os/nsh-webgpu/crates/nsh-webgpu)
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.84s
+exit: 0

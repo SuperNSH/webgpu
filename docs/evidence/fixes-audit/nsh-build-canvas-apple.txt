@@ -1,0 +1,2 @@
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (181ms)
+✓ built App.tsx into .nsh/out (114.3 KB js, 231.8 KB bytecode, 13ms)

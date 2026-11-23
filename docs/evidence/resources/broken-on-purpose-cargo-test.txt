@@ -1,0 +1,276 @@
+$ python3 breaks.py apply   (the breaks listed in docs/parity/resources.md "Tests seen failing", round 1)
+$ cargo test -p nsh-webgpu --no-fail-fast --lib --test resources -- --test-threads=1
+warning: variable does not need to be mutable
+   --> crates/nsh-webgpu/src/api/limits.rs:31:17
+    |
+ 31 |               let mut map = BTreeMap::from([$(($name.to_owned(), limits.$field as f64)),*]);
+    |                   ----^^^
+    |                   |
+    |                   help: remove this `mut`
+...
+ 84 | / limits! {
+ 85 | |     "maxTextureDimension1D" => max_texture_dimension_1d,
+ 86 | |     "maxTextureDimension2D" => max_texture_dimension_2d,
+ 87 | |     "maxTextureDimension3D" => max_texture_dimension_3d,
+...   |
+115 | |     "maxImmediateSize" => max_immediate_size,
+116 | | }
+    | |_- in this macro invocation
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+    = note: this warning originates in the macro `limits` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: field `mip_level_count` is never read
+  --> crates/nsh-webgpu/src/api/texture.rs:53:5
+   |
+48 | struct TextureDescriptor {
+   |        ----------------- field in this struct
+...
+53 |     mip_level_count: u32,
+   |     ^^^^^^^^^^^^^^^
+   |
+   = note: `TextureDescriptor` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `dimension` is never read
+  --> crates/nsh-webgpu/src/api/texture_view.rs:35:5
+   |
+31 | struct TextureViewDescriptor {
+   |        --------------------- field in this struct
+...
+35 |     dimension: Option<wgpu::TextureViewDimension>,
+   |     ^^^^^^^^^
+   |
+   = note: `TextureViewDescriptor` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+
+warning: `nsh-webgpu` (lib) generated 3 warnings (run `cargo fix --lib -p nsh-webgpu` to apply 1 suggestion)
+warning: `nsh-webgpu` (lib test) generated 3 warnings (3 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.17s
+     Running unittests src/lib.rs (target/debug/deps/nsh_webgpu-bb408e26c0fa367e)
+
+running 5 tests
+test api::features::tests::every_webgpu_feature_of_wgpu_has_a_spec_name ... FAILED
+test api::features::tests::names_round_trip_and_never_include_an_empty_name ... FAILED
+test api::features::tests::unknown_and_unavailable_names_are_type_errors ... ok
+test api::limits::tests::every_spec_limit_has_a_value ... FAILED
+test api::limits::tests::required_limits_keep_the_better_value ... ok
+
+failures:
+
+---- api::features::tests::every_webgpu_feature_of_wgpu_has_a_spec_name stdout ----
+
+thread 'api::features::tests::every_webgpu_feature_of_wgpu_has_a_spec_name' (146387903) panicked at crates/nsh-webgpu/src/api/features.rs:109:13:
+assertion `left == right` failed: DEPTH_CLIP_CONTROL: ["depth-clip-control"]
+  left: 1
+ right: 2
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- api::features::tests::names_round_trip_and_never_include_an_empty_name stdout ----
+
+thread 'api::features::tests::names_round_trip_and_never_include_an_empty_name' (146387904) panicked at crates/nsh-webgpu/src/api/features.rs:122:9:
+assertion failed: reported.contains(&"core-features-and-limits".to_owned())
+
+---- api::limits::tests::every_spec_limit_has_a_value stdout ----
+
+thread 'api::limits::tests::every_spec_limit_has_a_value' (146387906) panicked at crates/nsh-webgpu/src/api/limits.rs:152:9:
+assertion `left == right` failed
+  left: 31
+ right: 36
+
+
+failures:
+    api::features::tests::every_webgpu_feature_of_wgpu_has_a_spec_name
+    api::features::tests::names_round_trip_and_never_include_an_empty_name
+    api::limits::tests::every_spec_limit_has_a_value
+
+test result: FAILED. 2 passed; 3 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `-p nsh-webgpu --lib`
+     Running tests/resources/main.rs (target/debug/deps/resources-ac974d30a41c0ebc)
+
+running 26 tests
+test adapter::adapter_features_are_spec_names_and_all_of_them_can_be_required ... FAILED
+test adapter::adapter_info_fields ... FAILED
+test adapter::limits_have_every_spec_name_and_the_spec_bounds ... FAILED
+test binding::a_compare_sampler_samples_a_depth_texture ... FAILED
+test binding::a_compute_pipeline_multiplies_matrices ... FAILED
+test binding::a_null_bind_group_layout_keeps_the_later_indices ... FAILED
+test binding::bind_group_layouts_take_every_entry_type ... FAILED
+test binding::compute_pipelines_validate_and_expose_their_layouts ... FAILED
+test binding::invalid_layouts_and_bind_groups_are_validation_errors ... FAILED
+test binding::invalid_samplers_are_validation_errors ... FAILED
+test buffer::an_image_written_into_a_buffer_reads_back_as_the_reference ... FAILED
+test buffer::created_mapped_buffers ... FAILED
+test buffer::get_mapped_range_checks_the_mapping_its_alignment_and_bounds ... ok
+test buffer::map_async_rejects_what_the_spec_rejects_with_a_validation_error ... FAILED
+test buffer::map_write_reaches_the_gpu_and_destroy_while_pending_aborts ... FAILED
+test query::an_occlusion_query_counts_samples ... ok
+test query::query_sets_and_their_validation ... FAILED
+test query::timestamp_sets_where_the_adapter_has_the_feature ... ok
+test shader::a_parse_error_is_reported_with_a_location ... FAILED
+test shader::an_error_message_has_its_line_position_offset_and_length ... FAILED
+test shader::valid_wgsl_has_no_messages ... FAILED
+test texture::a_rendered_texture_reads_back_as_the_reference ... ok
+test texture::create_view_takes_every_descriptor_field ... FAILED
+test texture::every_spec_format_makes_a_texture_where_its_feature_is_there ... FAILED
+test texture::texture_descriptors_dimensions_and_destroy ... FAILED
+test texture::tier1_texture_formats_and_the_newer_vertex_formats ... ok
+
+failures:
+
+---- adapter::adapter_features_are_spec_names_and_all_of_them_can_be_required stdout ----
+adapter features: ["bgra8unorm-storage", "depth-clip-control", "depth32float-stencil8", "dual-source-blending", "float32-blendable", "float32-filterable", "indirect-first-instance", "primitive-index", "rg11b10ufloat-renderable", "shader-f16", "subgroups", "texture-compression-astc", "texture-compression-astc-sliced-3d", "texture-compression-bc", "texture-compression-bc-sliced-3d", "texture-compression-etc2", "texture-formats-tier1", "timestamp-query"]
+
+thread 'adapter::adapter_features_are_spec_names_and_all_of_them_can_be_required' (146388683) panicked at crates/nsh-webgpu/tests/resources/adapter.rs:61:9:
+core-features-and-limits
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- adapter::adapter_info_fields stdout ----
+
+thread 'adapter::adapter_info_fields' (146388757) panicked at crates/nsh-webgpu/tests/resources/adapter.rs:158:9:
+isFallbackAdapter
+
+---- adapter::limits_have_every_spec_name_and_the_spec_bounds stdout ----
+
+thread 'adapter::limits_have_every_spec_name_and_the_spec_bounds' (146388758) panicked at crates/nsh-webgpu/tests/resources/adapter.rs:96:39:
+called `Option::unwrap()` on a `None` value
+
+---- binding::a_compare_sampler_samples_a_depth_texture stdout ----
+
+thread 'binding::a_compare_sampler_samples_a_depth_texture' (146388759) panicked at crates/nsh-webgpu/tests/resources/binding.rs:156:5:
+assertion `left == right` failed
+  left: Some("Validation Error\n\nCaused by:\n  In Device::create_bind_group\n    Sampler binding 1 expects comparison = true, but given a sampler with comparison = false\n")
+ right: None
+
+---- binding::a_compute_pipeline_multiplies_matrices stdout ----
+
+thread 'binding::a_compute_pipeline_multiplies_matrices' (146388840) panicked at crates/nsh-webgpu/tests/resources/binding.rs:248:5:
+assertion `left == right` failed
+  left: [16.000002, 16.0]
+ right: [16.0, 16.0]
+
+---- binding::a_null_bind_group_layout_keeps_the_later_indices stdout ----
+
+thread 'binding::a_null_bind_group_layout_keeps_the_later_indices' (146388863) panicked at crates/nsh-webgpu/tests/resources/binding.rs:294:10:
+called `Result::unwrap()` on an `Err` value: "TypeError: object 31 is not a GPUBindingResource"
+
+---- binding::bind_group_layouts_take_every_entry_type stdout ----
+
+thread 'binding::bind_group_layouts_take_every_entry_type' (146388869) panicked at crates/nsh-webgpu/tests/resources/binding.rs:379:10:
+called `Result::unwrap()` on an `Err` value: "TypeError: object 45 is not a GPUBindingResource"
+
+---- binding::compute_pipelines_validate_and_expose_their_layouts stdout ----
+
+thread 'binding::compute_pipelines_validate_and_expose_their_layouts' (146388881) panicked at crates/nsh-webgpu/tests/resources/binding.rs:563:5:
+unknown constant
+
+---- binding::invalid_layouts_and_bind_groups_are_validation_errors stdout ----
+
+thread 'binding::invalid_layouts_and_bind_groups_are_validation_errors' (146388906) panicked at crates/nsh-webgpu/tests/resources/binding.rs:413:9:
+two members
+
+---- binding::invalid_samplers_are_validation_errors stdout ----
+
+thread 'binding::invalid_samplers_are_validation_errors' (146388916) panicked at crates/nsh-webgpu/tests/resources/binding.rs:501:9:
+assertion `left == right` failed
+  left: true
+ right: false
+
+---- buffer::an_image_written_into_a_buffer_reads_back_as_the_reference stdout ----
+
+thread 'buffer::an_image_written_into_a_buffer_reads_back_as_the_reference' (146388923) panicked at crates/nsh-webgpu/tests/resources/buffer.rs:216:5:
+assertion `left == right` failed
+  left: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ... [1190036 characters elided to keep the repository small]
+ right: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, ... [1190036 characters elided to keep the repository small]
+
+---- buffer::created_mapped_buffers stdout ----
+
+thread 'buffer::created_mapped_buffers' (146388941) panicked at crates/nsh-webgpu/tests/resources/buffer.rs:162:5:
+an exception: 78
+
+---- buffer::map_async_rejects_what_the_spec_rejects_with_a_validation_error stdout ----
+
+thread 'buffer::map_async_rejects_what_the_spec_rejects_with_a_validation_error' (146388960) panicked at crates/nsh-webgpu/tests/resources/buffer.rs:54:9:
+usage without MAP_READ: no validation error
+
+---- buffer::map_write_reaches_the_gpu_and_destroy_while_pending_aborts stdout ----
+
+thread 'buffer::map_write_reaches_the_gpu_and_destroy_while_pending_aborts' (146388967) panicked at crates/nsh-webgpu/tests/resources/buffer.rs:124:5:
+assertion `left == right` failed
+  left: [1, 0, 160, 64, 0, 0, 192, 64, 0, 0, 224, 64, 0, 0, 0, 65]
+ right: [0, 0, 160, 64, 0, 0, 192, 64, 0, 0, 224, 64, 0, 0, 0, 65]
+
+---- query::query_sets_and_their_validation stdout ----
+
+thread 'query::query_sets_and_their_validation' (146389028) panicked at crates/nsh-webgpu/tests/resources/query.rs:26:5:
+assertion `left == right` failed
+  left: Some("Validation Error\n\nCaused by:\n  In Device::create_query_set\n    Features Features { features_wgpu: FeaturesWGPU(0x0), features_webgpu: FeaturesWebGPU(TIMESTAMP_QUERY) } are required but not enabled on the device\n")
+ right: None
+
+---- shader::a_parse_error_is_reported_with_a_location stdout ----
+
+thread 'shader::a_parse_error_is_reported_with_a_location' (146389043) panicked at crates/nsh-webgpu/tests/resources/shader.rs:76:5:
+assertion failed: messages.iter().all(|m| m["type"] == "error")
+
+---- shader::an_error_message_has_its_line_position_offset_and_length stdout ----
+
+thread 'shader::an_error_message_has_its_line_position_offset_and_length' (146389054) panicked at crates/nsh-webgpu/tests/resources/shader.rs:49:5:
+assertion `left == right` failed: {"length":0,"lineNum":4,"linePos":28,"message":"\nShader '' parsing error: no definition in scope for identifier: `nope`\n  ┌─ wgsl:3:24\n  │\n3 │ fn g() -> f32 { return nope; }\n  │                        ^^^^ unknown identifier\n\n","offset":75,"type":"error"}
+  left: Number(4)
+ right: 3
+
+---- shader::valid_wgsl_has_no_messages stdout ----
+
+thread 'shader::valid_wgsl_has_no_messages' (146389062) panicked at crates/nsh-webgpu/tests/resources/shader.rs:23:5:
+assertion failed: WgpuShaderModule::compilation_info(module).unwrap().is_empty()
+
+---- texture::create_view_takes_every_descriptor_field stdout ----
+
+thread 'texture::create_view_takes_every_descriptor_field' (146389420) panicked at crates/nsh-webgpu/tests/resources/texture.rs:254:9:
+assertion `left == right` failed: {"baseMipLevel":1,"dimension":"2d-array","mipLevelCount":2} of {"format":"rgba8unorm","mipLevelCount":4,"size":[8,8,12],"usage":4}: Some("Validation Error\n\nCaused by:\n  In Texture::create_view\n    `TextureView` starts at mip level 1 and spans 2 mip levels, but the texture view only has 1 total mip level(s)\n")
+  left: false
+ right: true
+
+---- texture::every_spec_format_makes_a_texture_where_its_feature_is_there stdout ----
+
+thread 'texture::every_spec_format_makes_a_texture_where_its_feature_is_there' (146389430) panicked at crates/nsh-webgpu/tests/resources/texture.rs:165:14:
+called `Result::unwrap()` on an `Err` value: "TypeError: 'Rgb9e5Ufloat' is not a valid GPUTextureFormat"
+
+---- texture::texture_descriptors_dimensions_and_destroy stdout ----
+
+thread 'texture::texture_descriptors_dimensions_and_destroy' (146389439) panicked at crates/nsh-webgpu/tests/resources/texture.rs:315:9:
+assertion `left == right` failed: {"format":"rgba8unorm","mipLevelCount":6,"size":[16,16],"usage":2}: None
+  left: true
+ right: false
+
+
+failures:
+    adapter::adapter_features_are_spec_names_and_all_of_them_can_be_required
+    adapter::adapter_info_fields
+    adapter::limits_have_every_spec_name_and_the_spec_bounds
+    binding::a_compare_sampler_samples_a_depth_texture
+    binding::a_compute_pipeline_multiplies_matrices
+    binding::a_null_bind_group_layout_keeps_the_later_indices
+    binding::bind_group_layouts_take_every_entry_type
+    binding::compute_pipelines_validate_and_expose_their_layouts
+    binding::invalid_layouts_and_bind_groups_are_validation_errors
+    binding::invalid_samplers_are_validation_errors
+    buffer::an_image_written_into_a_buffer_reads_back_as_the_reference
+    buffer::created_mapped_buffers
+    buffer::map_async_rejects_what_the_spec_rejects_with_a_validation_error
+    buffer::map_write_reaches_the_gpu_and_destroy_while_pending_aborts
+    query::query_sets_and_their_validation
+    shader::a_parse_error_is_reported_with_a_location
+    shader::an_error_message_has_its_line_position_offset_and_length
+    shader::valid_wgsl_has_no_messages
+    texture::create_view_takes_every_descriptor_field
+    texture::every_spec_format_makes_a_texture_where_its_feature_is_there
+    texture::texture_descriptors_dimensions_and_destroy
+
+test result: FAILED. 5 passed; 21 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.83s
+
+error: test failed, to rerun pass `-p nsh-webgpu --test resources`
+error: 2 targets failed:
+    `-p nsh-webgpu --lib`
+    `-p nsh-webgpu --test resources`
+exit 101

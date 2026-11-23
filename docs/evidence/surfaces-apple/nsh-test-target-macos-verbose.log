@@ -1,0 +1,29 @@
+warning: patch `nsh-bundler v0.6.0 (~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-bundler v0.6.0 (~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-bundler)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+warning: profile package spec `nsh-bundler` in profile `dev` did not match any packages
+warning: profile package spec `nsh-platform-gpui` in profile `dev` did not match any packages
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+[2m2026-11-23T20:24:49.795208Z[0m [33m WARN[0m [2mkache::cargo_proxy[0m[2m:[0m target liveness receipt not recorded [3merror[0m[2m=[0msymlink in evidence tree
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (547ms)
+warning: patch `nsh-bundler v0.6.0 (~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-bundler v0.6.0 (~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-bundler)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+warning: profile package spec `nsh-bundler` in profile `dev` did not match any packages
+warning: profile package spec `nsh-platform-gpui` in profile `dev` did not match any packages
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.23s
+[2m2026-11-23T20:24:50.489280Z[0m [33m WARN[0m [2mkache::cargo_proxy[0m[2m:[0m target liveness receipt not recorded [3merror[0m[2m=[0msymlink in evidence tree
+✓ built the development host for macOS (679ms)
+ info platform_macos::dev loading build 1
+ info js PNG triangle-surface iVBORw0KGgoAAAANSUhEUgAAAVoAAAXkCAYAAACL3sNgAAAYUklEQVR4nO3dwa5kRa5AUf7/p7v1pB4w4CGoupk7bK8leY7iODahUiX88QcAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA ... [8210 characters elided to keep the repository small]
+ info js PNG cube-surface iVBORw0KGgoAAAANSUhEUgAAAVoAAAXkCAYAAACL3sNgAAIxmUlEQVR4nOzd95Mc15Huff3/8e5qV95SokSJEp3ovScIR4DwwHjvetp73/lGZeY5lZOTJe3upQSKfJ6I7w8bG/euCGo+6OmqOvWDH2AYhmEYhmEYhmEYhmEYhmEYhm ... [191594 characters elided to keep the repository small]
+ info js WebGPU canvas: bgra8unorm triangle 346x1508 cube 346x1508 surface attached | cube (self-contained): 72 frames
+debug dev::server dev client disconnected: WebSocket protocol error: Connection reset without closing handshake
+✓ canvas.test.tsx › the Triangle and the Cube draw into their canvases (4.2s)
+✓ 1 test: 1 passed, 0 failed (4.8s)

@@ -1,0 +1,3 @@
+$ cargo clippy --target x86_64-pc-windows-gnu -p nsh-webgpu --all-targets -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.17s
+exit: 0

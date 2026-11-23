@@ -1,0 +1,62 @@
+# actionlint is not installed on this Mac; the workflow is parsed with PyYAML and Ruby's YAML and checked by /private/tmp/claude-501/-Users-hmziq-fo-nsh-starter/16a4bd00-262a-4d87-affd-580ce9a13475/scratchpad/validate_ci.py (pinned SHAs, runs-on, no runner context in a job env). The script:
+    """Parse a workflow and check what actionlint would catch most often here."""
+    import re, sys, yaml
+    path = sys.argv[1]
+    doc = yaml.safe_load(open(path))
+    on = doc.get(True, doc.get("on"))  # PyYAML reads the key `on` as True
+    print(f"parsed {path}: name={doc['name']!r}, triggers={sorted(on)}")
+    problems = 0
+    for name, job in doc["jobs"].items():
+        steps = job["steps"]
+        assert "runs-on" in job, name
+        if "env" in job and "runner." in str(job["env"]):
+            print(f"  {name}: runner context in job env"); problems += 1
+        for step in steps:
+            if "uses" in step:
+                ref = step["uses"].split("@", 1)[1]
+                if not re.fullmatch(r"[0-9a-f]{40}", ref):
+                    print(f"  {name}: unpinned {step['uses']}"); problems += 1
+            if not ("uses" in step or "run" in step):
+                print(f"  {name}: step without uses/run"); problems += 1
+        print(f"  job {name}: runs-on={job['runs-on']}, {len(steps)} steps")
+    uses = sorted({s["uses"] for j in doc["jobs"].values() for s in j["steps"] if "uses" in s})
+    print("actions:"); [print("  " + u) for u in uses]
+    print(f"problems: {problems}")
+    sys.exit(1 if problems else 0)
+
+$ python3 validate_ci.py .github/workflows/ci.yml
+parsed .github/workflows/ci.yml: name='CI', triggers=['pull_request', 'push', 'workflow_dispatch']
+  job format: runs-on=ubuntu-latest, 3 steps
+  job rust-macos: runs-on=macos-latest, 5 steps
+  job rust-linux: runs-on=ubuntu-24.04, 7 steps
+  job rust-windows: runs-on=windows-latest, 5 steps
+  job cross: runs-on=${{ matrix.os }}, 5 steps
+  job typescript: runs-on=macos-latest, 13 steps
+actions:
+  Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0
+  actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+  actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+  dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc
+problems: 0
+exit 0
+$ ruby -ryaml -e YAML.load_file(...)
+ok
+
+# Action SHAs: gh api repos/<owner>/<repo>/commits/<ref> --jq .sha (2026-11-24)
+actions/checkout@v7.0.1 3d3c42e5aac5ba805825da76410c181273ba90b1
+actions/cache@v6.1.0 55cc8345863c7cc4c66a329aec7e433d2d1c52a9
+Swatinem/rust-cache@v2.9.3 d1527c8f67ef9af357290475d4af4b0fab8f12e0
+dtolnay/rust-toolchain@master df2a88e9fe4098bad09cb42c3dec7187f15861fc
+
+# The nightly pin: the release's metadata and the asset checksum
+$ curl -fsSL https://github.com/longbridge/nsh/releases/download/nightly/nsh-release.json
+{
+  "version": "0.6.0",
+  "commit": "f577c51901a2857956f8ba0580da4db9ce3a3311",
+  "date": "2026-11-23"
+}
+
+$ curl -fsSL .../nightly/nsh-macos-arm64.tar.gz.sha256
+c243a77a300e673da03fac8db9e4e403fbc93fe5c357f814d32301c12abb9f8f  nsh-macos-arm64.tar.gz
+$ gh release view nightly -R longbridge/nsh --json name,targetCommitish
+{"name":"nsh nightly 2026-11-23 (f577c51)","targetCommitish":"f577c51901a2857956f8ba0580da4db9ce3a3311"}

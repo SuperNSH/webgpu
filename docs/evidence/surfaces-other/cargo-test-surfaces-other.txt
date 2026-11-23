@@ -1,0 +1,13 @@
+$ cargo test -p nsh-webgpu --test surfaces_other
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.24s
+     Running tests/surfaces_other/main.rs (target/debug/deps/surfaces_other-9a491af159706077)
+
+running 5 tests
+test refuses_to_read_a_texture_without_copy_src ... ok
+test reads_back_a_texture_whose_rows_need_padding ... ok
+test reads_back_bgra_in_its_own_byte_order_and_swizzles_on_request ... ok
+test an_offscreen_context_keeps_its_texture_for_a_frame ... ok
+test a_presenting_view_gets_each_presented_frame_at_its_size ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+

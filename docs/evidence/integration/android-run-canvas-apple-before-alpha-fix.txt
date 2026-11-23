@@ -1,0 +1,135 @@
+# nsh run --target android --device emulator-5580 in examples/canvas-apple (<Canvas> + GPUCanvasContext: Triangle and rAF Cube), master with the phase 3 instance.rs
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (1.2s)
+✓ built App.tsx (148.6 KB js, 413.3 KB bytecode, 42ms)
+✓ built libnsh.so of webgpu-canvas-native, nsh-webgpu for arm64-v8a (30.5s)
+✓ built the Android development host (885ms)
+✓ installed the Android development host on emulator-5580 (452ms)
+• Android Emulator (sdk_gphone16k_arm64) connected, build 1
+EGL says it can present to the window but not natively
+warn Android Emulator: [nsh-webgpu] uncaptured validation error: Validation Error
+     
+     Caused by:
+       In Surface::configure
+         Requested alpha mode PreMultiplied is not in the list of supported alpha modes: [Opaque]
+→ the app's Rust code changed: building it again
+error building the Rust crates webgpu-canvas-native, nsh-webgpu failed
+warning: patch `nsh-bundler v0.6.0 (~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-bundler)` was not used in the crate graph
+warning: patch `nsh-bundler v0.6.0 (~/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-bundler)` was not used in the crate graph
+help: Check that the patched package version and available features are compatible
+      with the dependency requirements. If the patch has a different version from
+      what is locked in the Cargo.lock file, run `cargo update` to use the new
+      version. This may also occur with an optional dependency that is not enabled.
+warning: profile package spec `nsh-bundler` in profile `dev` did not match any packages
+warning: profile package spec `nsh-platform-gpui` in profile `dev` did not match any packages
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu/crates/nsh-webgpu)
+error[E0061]: this method takes 2 arguments but 1 argument was supplied
+   --> ~/os/nsh-webgpu/crates/nsh-webgpu/src/api/canvas_context.rs:294:48
+    |
+294 |             .configure(&config.device, &config.surface(extra));
+    |                                                ^^^^^^^ ----- argument #1 of type `&wgpu::Surface<'static>` is missing
+    |
+note: method defined here
+   --> ~/os/nsh-webgpu/crates/nsh-webgpu/src/api/canvas_context.rs:128:8
+    |
+128 |     fn surface(
+    |        ^^^^^^^
+129 |         &self,
+130 |         surface: &wgpu::Surface<'static>,
+    |         --------------------------------
+help: provide the argument
+    |
+294 |             .configure(&config.device, &config.surface(/* &Surface<'static> */, extra));
+    |                                                        ++++++++++++++++++++++++
+
+error[E0063]: missing field `adapter` in initializer of `Config`
+   --> ~/os/nsh-webgpu/crates/nsh-webgpu/src/api/canvas_context.rs:463:26
+    |
+463 |             let config = Config {
+    |                          ^^^^^^ missing `adapter`
+
+error[E0061]: this method takes 2 arguments but 1 argument was supplied
+   --> ~/os/nsh-webgpu/crates/nsh-webgpu/src/api/canvas_context.rs:489:29
+    |
+489 |                     &config.surface(wgpu::TextureUsages::empty()),
+    |                             ^^^^^^^ ---------------------------- argument #1 of type `&wgpu::Surface<'static>` is missing
+    |
+note: method defined here
+   --> ~/os/nsh-webgpu/crates/nsh-webgpu/src/api/canvas_context.rs:128:8
+    |
+128 |     fn surface(
+    |        ^^^^^^^
+129 |         &self,
+130 |         surface: &wgpu::Surface<'static>,
+    |         --------------------------------
+help: provide the argument
+    |
+489 |                     &config.surface(/* &Surface<'static> */, wgpu::TextureUsages::empty()),
+    |                                     ++++++++++++++++++++++++
+
+error[E0061]: this method takes 2 arguments but 1 argument was supplied
+   --> ~/os/nsh-webgpu/crates/nsh-webgpu/src/api/canvas_context.rs:621:21
+    |
+621 |             &config.surface(wgpu::TextureUsages::empty()),
+    |                     ^^^^^^^ ---------------------------- argument #1 of type `&wgpu::Surface<'static>` is missing
+    |
+note: method defined here
+   --> ~/os/nsh-webgpu/crates/nsh-webgpu/src/api/canvas_context.rs:128:8
+    |
+128 |     fn surface(
+    |        ^^^^^^^
+129 |         &self,
+130 |         surface: &wgpu::Surface<'static>,
+    |         --------------------------------
+help: provide the argument
+    |
+621 |             &config.surface(/* &Surface<'static> */, wgpu::TextureUsages::empty()),
+    |                             ++++++++++++++++++++++++
+
+error[E0061]: this method takes 2 arguments but 1 argument was supplied
+   --> ~/os/nsh-webgpu/crates/nsh-webgpu/src/api/canvas_context.rs:661:29
+    |
+661 |                     &config.surface(wgpu::TextureUsages::empty()),
+    |                             ^^^^^^^ ---------------------------- argument #1 of type `&wgpu::Surface<'static>` is missing
+    |
+note: method defined here
+   --> ~/os/nsh-webgpu/crates/nsh-webgpu/src/api/canvas_context.rs:128:8
+    |
+128 |     fn surface(
+    |        ^^^^^^^
+129 |         &self,
+130 |         surface: &wgpu::Surface<'static>,
+    |         --------------------------------
+help: provide the argument
+    |
+661 |                     &config.surface(/* &Surface<'static> */, wgpu::TextureUsages::empty()),
+    |                                     ++++++++++++++++++++++++
+
+Some errors have detailed explanations: E0061, E0063.
+For more information about an error, try `rustc --explain E0061`.
+error: could not compile `nsh-webgpu` (lib) due to 5 previous errors
+  fix the code and save: nsh builds it again
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (5.5s, 1 warning: -v shows it)
+✓ built App.tsx (148.6 KB js, 413.3 KB bytecode, 17ms)
+✓ built libnsh.so of webgpu-canvas-native, nsh-webgpu for arm64-v8a (7.3s, 1 warning: -v shows it)
+✓ built the Android development host (871ms)
+✓ installed the Android development host on emulator-5580 (537ms)
+• Android Emulator (sdk_gphone16k_arm64) connected, build 1
+EGL says it can present to the window but not natively
+warn Android Emulator: [nsh-webgpu] uncaptured validation error: Validation Error
+     
+     Caused by:
+       In Surface::configure
+         Requested usage TextureUses(COPY_SRC | COLOR_TARGET) is not in the list of supported usages: TextureUses(COLOR_TARGET)
+→ the app's Rust code changed: building it again
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (1.9s)
+✓ built App.tsx (148.6 KB js, 413.3 KB bytecode, 18ms)
+✓ built libnsh.so of webgpu-canvas-native, nsh-webgpu for arm64-v8a (3.5s)
+✓ built the Android development host (834ms)
+✓ installed the Android development host on emulator-5580 (385ms)
+• Android Emulator (sdk_gphone16k_arm64) connected, build 1
+EGL says it can present to the window but not natively
+warn Android Emulator: [nsh-webgpu] uncaptured validation error: Validation Error
+     
+     Caused by:
+       In Surface::configure
+         Requested usage TextureUses(COPY_SRC | COLOR_TARGET) is not in the list of supported usages: TextureUses(COLOR_TARGET)

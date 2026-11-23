@@ -1,0 +1,6 @@
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (846ms)
+✓ built the headless runner of webgpu-headless-native, nsh-webgpu (1.6s)
+✗ webgpu.test.tsx › GPUBuffer › writes to a mapped range reach the buffer on unmap, and the range detaches (6ms)
+    expected [0,0,0,0] to equal [1,2,3,4]
+    at <anonymous> (webgpu.test.tsx:154:66)
+error 15 tests: 14 passed, 1 failed (4.0s)

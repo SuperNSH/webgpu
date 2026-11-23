@@ -1,0 +1,29 @@
+$ python3 breaks.py apply   (round 3)
+broke: src/api/texture.rs - texture: r16snorm rejected
+broke: src/api/render_pipeline.rs - render pipeline: vertex locations shifted
+$ cargo test -p nsh-webgpu --no-fail-fast --test resources tier1 -- --test-threads=1
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/resources/crates/nsh-webgpu)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.62s
+     Running tests/resources/main.rs (target/debug/deps/resources-ac974d30a41c0ebc)
+
+running 1 test
+test texture::tier1_texture_formats_and_the_newer_vertex_formats ... FAILED
+
+failures:
+
+---- texture::tier1_texture_formats_and_the_newer_vertex_formats stdout ----
+
+thread 'texture::tier1_texture_formats_and_the_newer_vertex_formats' (146575056) panicked at crates/nsh-webgpu/tests/resources/texture.rs:450:18:
+called `Result::unwrap()` on an `Err` value: "TypeError: r16snorm"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    texture::tier1_texture_formats_and_the_newer_vertex_formats
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 25 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `-p nsh-webgpu --test resources`
+error: 1 target failed:
+    `-p nsh-webgpu --test resources`
+exit 101

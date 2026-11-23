@@ -1,0 +1,17 @@
+fmt exit=0
+clippy exit=0
+test exit=0
+clippy-wasm32-unknown-unknown exit=0
+clippy-aarch64-linux-android exit=0
+clippy-x86_64-pc-windows-gnu exit=0
+clippy-aarch64-apple-ios-sim exit=0
+nsh-check-headless exit=0
+nsh-build-headless exit=0 warn=0
+nsh-test-headless exit=0
+nsh-check-canvas-apple exit=0
+nsh-build-canvas-apple exit=0 warn=0
+nsh-test-canvas-apple exit=0
+nsh-check-gallery exit=0
+nsh-build-gallery exit=0 warn=0
+nsh-test-gallery exit=0
+DONE

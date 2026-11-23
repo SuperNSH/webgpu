@@ -1,0 +1,2 @@
+test texture::a_rendered_texture_reads_back_as_the_reference ... texture.png: 0 pixels differ
+test texture::every_spec_format_makes_a_texture_where_its_feature_is_there ... 101 of 101 spec formats on this adapter

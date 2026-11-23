@@ -1,0 +1,5 @@
+$ (examples/headless) nsh check
+✓ checked webgpu-headless-native (362ms)
+✓ checked nsh-webgpu (1.8s)
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (6.4s)
+exit 0

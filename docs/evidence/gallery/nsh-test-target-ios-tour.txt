@@ -1,0 +1,60 @@
+$ nsh test --target ios --device nsh-webgpu-gallery tour.test.tsx   (with a watcher running xcrun simctl io 67641E44-ECB8-4D9F-81DD-498442946BC1 screenshot ios/ios-<entry>.png at each TOUR line; PNG lines elided)
+✓ built the Rust crates webgpu-gallery-native, nsh-webgpu (554ms)
+✓ built the development host for the iOS simulator (893ms)
+TOUR Home
+TOUR HelloTriangle
+TOUR HelloTriangleMSAA
+TOUR ImageBlur
+Adapter features: ["bgra8unorm-storage","core-features-and-limits","depth32float-stencil8","dual-source-blending","float32-blendable","shader-f16","texture-compression-astc","texture-compression-etc2","texture-formats-tier1"]
+Adapter limits: {"maxTextureDimension1D":8192,"maxTextureDimension2D":8192,"maxTextureDimension3D":2048,"maxTextureArrayLayers":2048,"maxBindGroups":8,"maxBindGroupsPlusVertexBuffers":24,"maxBindingsPerBindGroup":65535,"maxDynamicUniformBuffersPerPipelineLayout":8,"maxDynamicStorageBuffersPerPipelineLayout":4,"maxSampledTexturesPerShaderStage":31,"maxSamplersPerShaderStage":16,"maxStorageBuffersPerShaderStage":31,"maxStorageTexturesPerShaderStage":31,"maxUniformBuffersPerShaderStage":31,"maxUniformBufferBindingSize":268435456,"maxStorageBufferBindingSize":268435456,"minUniformBufferOffsetAlignment":64,"minStorageBufferOffsetAlignment":64,"maxVertexBuffers":16,"maxBufferSize":268435456,"maxVertexAttributes":31,"maxVertexBufferArrayStride":2048,"maxInterStageShaderVariables":15,"maxColorAttachments":8,"maxColorAttachmentBytesPerSample":32,"maxComputeWorkgroupStorageSize":16384,"maxComputeInvocationsPerWorkgroup":512,"maxComputeWorkgroupSizeX":512,"maxComputeWorkgroupSizeY":512,"maxComputeWorkgroupSizeZ":512,"maxComputeWorkgroupsPerDimension":65535,"maxImmediateSize":4096,"maxStorageBuffersInVertexStage":31,"maxStorageBuffersInFragmentStage":31,"maxStorageTexturesInVertexStage":31,"maxStorageTexturesInFragmentStage":31}
+WebGPU engine created
+Shader compiled successfully with entry points: ["main_image"]
+Shader compiled in 1.51ms
+TOUR ComputeToys
+TOUR Cube
+TOUR CanvasAPI
+TOUR Cubemap
+TOUR InstancedCube
+TOUR TexturedCube
+TOUR FractalCube
+TOUR Particles
+update render bundle
+TOUR RenderBundles
+TOUR OcclusionQuery
+TOUR ReversedZ
+TOUR ComputeBoids
+TOUR MNISTInference
+TOUR ShadowMapping
+TOUR SamplerParameters
+TOUR DeferedRendering
+TOUR ABuffer
+TOUR Wireframe
+TOUR Resize
+TOUR GradientTiles
+TOUR StorageBufferVertices
+TOUR SixteenBitTextures
+TOUR skip-Tests
+TOUR skip-ThreeJS
+TOUR Diagnostics
+[surface-lifecycle] epoch 0
+TOUR diag-SurfaceChurn
+[surface-lifecycle] epoch 10
+[surface-lifecycle] [device lost] destroyed: 
+[surface-lifecycle] rendering, unmount the canvas while the loop keeps going
+TOUR diag-RenderAfterUnmount
+[surface-lifecycle] [device lost] destroyed: 
+[surface-lifecycle] getCurrentTexture() before configure()...
+[surface-lifecycle] threw (correct per spec): InvalidStateError: getCurrentTexture() called on a canvas context that is not configured; call context.configure() first
+[surface-lifecycle] configure() with canvas.width = canvas.height = 0...
+[surface-lifecycle] getCurrentTexture() -> 1x1
+[surface-lifecycle] createView() survived
+[surface-lifecycle] rendered one frame, calling unconfigure()...
+[surface-lifecycle] threw (correct per spec): InvalidStateError: getCurrentTexture() called on a canvas context that is not configured; call context.configure() first
+TOUR diag-ContextEdgeCases
+[surface-lifecycle] [device lost] destroyed: 
+[surface-lifecycle] [device lost] destroyed: 
+warn [gallery] ImportExternalTexture: TypeError: object 58911 is not a GPUBindingResource
+TOUR ImportExternalTexture
+TOUR done
+✓ tour.test.tsx › tour: every demo on screen, for the screenshots (phone targets only) (3m 41s)
+✓ 1 test: 1 passed, 0 failed (3m 44s)

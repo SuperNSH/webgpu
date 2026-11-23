@@ -1,0 +1,25 @@
+$ (broke src/api/bind_group.rs: the size-0 check looks for size 999999)
+$ cargo test -p nsh-webgpu --test resources invalid_layouts
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/resources/crates/nsh-webgpu)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.30s
+     Running tests/resources/main.rs (target/debug/deps/resources-ac974d30a41c0ebc)
+
+running 1 test
+test binding::invalid_layouts_and_bind_groups_are_validation_errors ... FAILED
+
+failures:
+
+---- binding::invalid_layouts_and_bind_groups_are_validation_errors stdout ----
+
+thread 'binding::invalid_layouts_and_bind_groups_are_validation_errors' (146772622) panicked at crates/nsh-webgpu/tests/resources/binding.rs:471:9:
+a zero size
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    binding::invalid_layouts_and_bind_groups_are_validation_errors
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 25 filtered out; finished in 0.10s
+
+error: test failed, to rerun pass `-p nsh-webgpu --test resources`
+exit 101

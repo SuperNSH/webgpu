@@ -1,0 +1,4 @@
+✓ checked webgpu-headless-native (3.4s)
+✓ checked nsh-webgpu (2.3s)
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (736ms)
+exit 0

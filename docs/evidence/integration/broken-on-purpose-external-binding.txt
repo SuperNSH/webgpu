@@ -1,0 +1,27 @@
+# Broken on purpose: the Bound::of branch for ExternalTextureEntry removed from src/api/bind_group.rs
+$ cargo test -p nsh-webgpu --test commands an_imported
+   |     ^^^^^^^^
+   |
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `nsh-webgpu` (lib) generated 2 warnings (run `cargo fix --lib -p nsh-webgpu` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 1.93s
+
+running 1 test
+test external::an_imported_texture_binds_and_renders ... FAILED
+
+failures:
+
+---- external::an_imported_texture_binds_and_renders stdout ----
+
+thread 'external::an_imported_texture_binds_and_renders' (149095612) panicked at crates/nsh-webgpu/tests/commands/external.rs:196:6:
+called `Result::unwrap()` on an `Err` value: "TypeError: object 4 is not a GPUBindingResource"
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    external::an_imported_texture_binds_and_renders
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 52 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `-p nsh-webgpu --test commands`

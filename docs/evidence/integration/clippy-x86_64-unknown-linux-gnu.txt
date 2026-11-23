@@ -1,0 +1,4 @@
+$ cargo clippy -p nsh-webgpu --target x86_64-unknown-linux-gnu --all-targets -- -D warnings
+# check only, cross from macOS: C build scripts compiled with the NDK 28 clang/llvm-ar against its sysroot headers (objects never linked), pkg-config faked (docs/evidence/surfaces-other/linux-fake-pkg-config.sh), so gtk4-rs type-checks against its Rust API, not GTK headers.
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 2.94s
+exit: 0

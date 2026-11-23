@@ -1,0 +1,4 @@
+== nsh build (headless) ==
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (442ms)
+✓ built App.tsx into .nsh/out (84.7 KB js, 173.6 KB bytecode, 12ms)
+exit=0

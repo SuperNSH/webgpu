@@ -1,0 +1,80 @@
+$ RUST_BACKTRACE=1 nsh test -v --target macos <gallery.test.tsx limited to Diagnostics > RenderAfterUnmount>
+(excerpt: the panic, its backtrace, the result)
+thread 'main' (153335262) panicked at /kache/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wgpu-core-29.0.4/src/storage.rs:135:46:
+Surface[Id(0,1)] does not exist
+stack backtrace:
+ info js [surface-lifecycle] frame 66: InvalidStateError: getCurrentTexture() called on a canvas context that is not configured
+   0: __rustc::rust_begin_unwind
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/std/src/panicking.rs:679:5
+   1: core::panicking::panic_fmt
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/panicking.rs:80:14
+   2: get<alloc::sync::Arc<wgpu_core::instance::Surface, alloc::alloc::Global>>
+             at /kache/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wgpu-core-29.0.4/src/storage.rs:135:46
+   3: get<alloc::sync::Arc<wgpu_core::instance::Surface, alloc::alloc::Global>>
+             at /kache/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wgpu-core-29.0.4/src/registry.rs:115:21
+   4: surface_texture_discard
+             at /kache/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wgpu-core-29.0.4/src/present.rs:412:37
+   5: texture_discard
+             at /kache/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wgpu-29.0.4/src/backend/wgpu_core.rs:3959:30
+   6: drop
+             at /kache/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wgpu-29.0.4/src/api/surface_texture.rs:46:25
+   7: core::ptr::drop_glue::<wgpu::api::surface_texture::SurfaceTexture>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+   8: core::ptr::drop_glue::<nsh_webgpu::api::canvas_context::Source>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+   9: core::ptr::drop_glue::<nsh_webgpu::api::canvas_context::Frame>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+  10: core::ptr::drop_glue::<core::option::Option<nsh_webgpu::api::canvas_context::Frame>>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+  11: core::ptr::drop_glue::<nsh_webgpu::api::canvas_context::Context>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+  12: core::ptr::drop_glue::<core::option::Option<nsh_webgpu::api::canvas_context::Context>>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+  13: core::mem::drop::<core::option::Option<nsh_webgpu::api::canvas_context::Context>>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/mem/mod.rs:1049:1
+  14: nsh_webgpu::api::canvas_context::view_gone
+             at /kache/workspace/src/api/canvas_context.rs:284:5
+  15: nsh_webgpu::surface::apple::detach
+             at /kache/workspace/src/surface/apple.rs:122:5
+  16: <nsh_webgpu::surface::macos::Canvas as core::ops::drop::Drop>::drop
+             at /kache/workspace/src/surface/macos.rs:165:13
+  17: core::ptr::drop_glue::<nsh_webgpu::surface::macos::Canvas>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+  18: core::ptr::drop_glue::<alloc::boxed::Box<dyn nsh_platform_macos::native::NativeComponent>>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+  19: core::ptr::drop_glue::<core::option::Option<alloc::boxed::Box<dyn nsh_platform_macos::native::NativeComponent>>>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+  20: core::ptr::drop_glue::<nsh_platform_macos::native::Host>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+  21: core::ptr::drop_glue::<core::option::Option<nsh_platform_macos::native::Host>>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/ptr/mod.rs:847:1
+  22: core::mem::drop::<core::option::Option<nsh_platform_macos::native::Host>>
+             at /rustc/58cf8f9c35b355199727627d07ae34a4e2846d67/library/core/src/mem/mod.rs:1049:1
+  23: nsh_platform_macos::native::deleted
+             at /kache/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-platform-macos/src/native.rs:355:5
+  24: <nsh_platform_macos::mount::Mounter>::apply
+             at /kache/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-platform-macos/src/mount.rs:405:21
+  25: <nsh_platform_macos::surface::Surface>::apply
+             at /kache/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-platform-macos/src/surface.rs:858:43
+  26: <nsh_platform_macos::surface::Surface>::handle
+             at /kache/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-platform-macos/src/surface.rs:783:22
+  27: <nsh_platform_macos::surface::Surface>::drain::{closure#1}
+             at /kache/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-platform-macos/src/surface.rs:753:33
+  28: nsh_platform_macos::surface::quiet::<(), <nsh_platform_macos::surface::Surface>::drain::{closure#1}>
+             at /kache/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-platform-macos/src/surface.rs:1488:13
+  29: <nsh_platform_macos::surface::Surface>::drain
+             at /kache/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-platform-macos/src/surface.rs:739:9
+  30: <nsh_platform_macos::surface::Sink>::send::{closure#0}
+             at /kache/.cargo/git/checkouts/nsh-9218b667fc8c8325/f577c51/crates/nsh-platform-macos/src/surface.rs:134:29
+  31: dispatch2::utils::function_wrapper::<<nsh_platform_macos::surface::Sink>::send::{closure#0}>
+             at /kache/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/dispatch2-0.3.1/src/utils.rs:11:5
+  32: <unknown>
+  33: <unknown>
+  34: <unknown>
+  35: <unknown>
+  36: <unknown>
+  37: <unknown>
+  38: <unknown>
+  39: <unknown>
+    the host left
+error 4 tests: 0 passed, 1 failed, 3 skipped (7.7s)

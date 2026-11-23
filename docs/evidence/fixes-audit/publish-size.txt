@@ -1,0 +1,4 @@
+$ du -sh docs/evidence
+5.7M	docs/evidence
+$ find . -path ./target -prune -o -path ./.nsh-nightly -prune -o -path '*/target' -prune -o -type f -size +2M -print  # minus .git/ and git-ignored paths
+(none)

@@ -1,0 +1,9 @@
+$ (broke tsx/api/GPUTexture.ts: nativePointer returns 0n instead of throwing)
+$ nsh test resources.test.tsx --filter __brand
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (451ms)
+✓ built the headless runner of webgpu-headless-native, nsh-webgpu (660ms)
+✗ resources.test.tsx › Constants.spec › __brand names the class; nativePointer is ERR_WEBGPU_UNSUPPORTED (18ms)
+    expected the function to throw "ERR_WEBGPU_UNSUPPORTED"; it did not
+    at <anonymous> (resources.test.tsx:401:83)
+error 1 test: 0 passed, 1 failed (4.1s)
+exit 1

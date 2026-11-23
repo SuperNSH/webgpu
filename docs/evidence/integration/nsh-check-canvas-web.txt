@@ -1,0 +1,2 @@
+$ nsh check   (in examples/canvas-web, nsh 0.6.0 (f577c51 nightly 2026-11-22))
+exit: 0

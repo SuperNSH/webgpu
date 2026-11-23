@@ -1,0 +1,13 @@
+[package]
+name = "wgpu-null-vertex-slot"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+# Standalone: not a member of the nsh-webgpu workspace (its root Cargo.toml
+# excludes this directory).
+[workspace]
+
+[dependencies]
+wgpu = "29.0.4"
+pollster = "0.4"

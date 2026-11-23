@@ -1,0 +1,11 @@
+Round 2: for the tests round 1 left passing. Outputs: broken-on-purpose-round2-cargo-test.txt,
+broken-on-purpose-round2-nsh-test.txt.
+broke: src/api/features.rs - features: texture-formats-tier1 unknown
+broke: src/api/features.rs - features: unknown names accepted
+broke: src/api/limits.rs - limits: a worse required value replaces the default
+broke: src/api/buffer.rs - getMappedRange: an unmapped buffer gives an empty range
+broke: src/api/query_set.rs - query set: one query only
+broke: src/api/query_set.rs - query set: timestamp check inverted
+broke: src/api/render_pipeline.rs - render pipeline: red never written
+broke: tsx/api/GPUBuffer.ts - TSX: out-of-range integers become 0
+broke: tsx/api/GPUSampler.ts - TSX: maxAnisotropy clamped up to 1

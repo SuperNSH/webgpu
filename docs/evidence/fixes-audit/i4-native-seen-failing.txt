@@ -1,0 +1,16 @@
+$ cargo test --test surfaces_apple context_ids  # make() not checking destroyed ids (broken on purpose)
+failures:
+
+---- context_ids_are_unique_and_destroy_drops_the_context stdout ----
+
+thread 'context_ids_are_unique_and_destroy_drops_the_context' (153754529) panicked at tests/surfaces_apple/main.rs:106:24:
+an error: ()
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+
+failures:
+    context_ids_are_unique_and_destroy_drops_the_context
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.00s
+
+error: test failed, to rerun pass `--test surfaces_apple`

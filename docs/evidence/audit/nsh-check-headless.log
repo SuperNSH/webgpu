@@ -1,0 +1,5 @@
+== nsh check (headless) ==
+✓ checked webgpu-headless-native (137ms)
+✓ checked nsh-webgpu (514ms)
+✓ built the Rust crates webgpu-headless-native, nsh-webgpu (480ms)
+exit=0

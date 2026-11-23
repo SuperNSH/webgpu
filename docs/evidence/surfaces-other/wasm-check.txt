@@ -1,0 +1,9 @@
+$ cargo check -p nsh-webgpu --target wasm32-unknown-unknown   # this checkout: the Send errors are gone (Cargo.toml wasm feature); what is left is `blocking`, in frozen files
+crates/nsh-webgpu/src/api/adapter.rs:143:31: error[E0425]: cannot find function `blocking` in this scope: not found in this scope
+crates/nsh-webgpu/src/api/gpu.rs:48:13: error[E0425]: cannot find function `blocking` in this scope: not found in this scope
+crates/nsh-webgpu/src/api/gpu.rs:90:13: error[E0425]: cannot find function `blocking` in this scope: not found in this scope
+error: could not compile `nsh-webgpu` (lib) due to 3 previous errors
+
+# A scratch copy of this checkout with the proposed frozen-file patch (wasm-frozen-patch.diff) applied:
+$ cargo clippy -p nsh-webgpu --target wasm32-unknown-unknown -- -D warnings
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 18.84s

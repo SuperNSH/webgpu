@@ -1,0 +1,132 @@
+   Compiling nsh-webgpu v0.1.0 (~/os/nsh-webgpu-wt/commands/crates/nsh-webgpu)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.72s
+     Running unittests src/lib.rs (target/debug/deps/nsh_webgpu-ab595d8467acbf47)
+
+running 10 tests
+test api::queue::tests::halves_round_trip_the_values_a_byte_holds ... ok
+test api::queue::tests::srgb_white_and_black_stay_in_display_p3 ... ok
+test api::features::tests::names_round_trip_and_never_include_an_empty_name ... ok
+test api::limits::tests::required_limits_keep_the_better_value ... ok
+test api::features::tests::unknown_and_unavailable_names_are_type_errors ... ok
+test api::limits::tests::every_spec_limit_has_a_value ... ok
+test api::features::tests::every_webgpu_feature_of_wgpu_has_a_spec_name ... ok
+test api::compute_pass_encoder::tests::matrix_multiplication_direct_and_indirect ... ok
+test api::compute_pass_encoder::tests::dynamic_offsets_reach_the_shader ... ok
+test api::external_texture::tests::crop_mirror_and_rotation_reach_the_shader ... ok
+
+test result: ok. 10 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.15s
+
+     Running tests/commands/main.rs (target/debug/deps/commands-de105d001951871d)
+
+running 52 tests
+test copies::bytes_per_row_must_be_a_multiple_of_256 ... ok
+test draws::a_depth_attachment_without_its_ops_makes_the_encoder_invalid ... ok
+test bundles::an_invalid_descriptor_is_a_validation_error_and_an_invalid_bundle ... ok
+test copies::misaligned_or_out_of_range_buffer_copies_invalidate_the_encoder ... ok
+test bundles::a_bundle_of_the_wrong_format_fails_the_pass_and_finishing_twice_fails ... ok
+test copies::buffer_to_texture_to_texture_to_buffer_round_trips ... ok
+test compute::matrix_multiplication ... ok
+test copies::copy_buffer_to_buffer_with_offsets_and_the_short_form ... ok
+test copies::clear_buffer_zeroes_a_range ... ok
+test draws::a_null_vertex_buffer_unbinds_a_slot_the_pipeline_does_not_read ... ok
+test draws::blend_constant_and_stencil_reference_reach_the_pipeline ... ok
+test bundles::bundles_replay_indexed_and_vertex_buffer_draws ... ok
+test draws::viewport_and_scissor_limit_the_draw ... ok
+test encoder::a_call_on_a_locked_encoder_invalidates_it ... ok
+test draws::draw_indexed_with_an_instance_count ... ok
+test encoder::a_second_pass_while_one_is_open_is_invalid ... ok
+test draws::draw_indexed_indirect_matches_the_direct_draw ... ok
+test draws::alpha_premultiplied_color ... ok
+test encoder::an_invalid_pass_invalidates_its_encoder ... ok
+test encoder::calls_after_end_and_after_finish_are_validation_errors ... ok
+test encoder::finishing_with_a_pass_open_is_a_validation_error ... ok
+test encoder::unbalanced_debug_groups_make_finish_fail ... ok
+test encoder::unknown_ids_in_a_descriptor_are_type_errors ... ok
+test encoder::enforce_range_offsets_are_type_errors ... ok
+test external::importing_a_texture_needs_the_device_feature ... ok
+test image_bitmap::a_crop_outside_the_image_is_transparent_and_a_negative_size_extends_back ... ok
+test image_bitmap::a_display_p3_destination_converts_the_colors ... ok
+test image_bitmap::a_region_outside_the_bitmap_is_an_operation_error ... ok
+test image_bitmap::alpha_conversions_are_bit_exact ... ok
+test draws::create_texture_and_read_it ... ok
+test image_bitmap::destination_formats_get_the_same_colors ... ok
+test draws::simple_triangle ... ok
+test bundles::a_bundle_draws_the_triangle ... ok
+test image_bitmap::image_data_pixels_make_a_bitmap ... ok
+test image_bitmap::the_destination_needs_render_attachment_and_a_listed_format ... ok
+test image_bitmap::options_match_the_reference_clients ... ok
+test image_bitmap::undecodable_bytes_are_an_invalid_state_error ... ok
+test image_bitmap::the_source_origin_selects_the_region ... ok
+test draws::draw_with_a_step_mode_instance_vertex_buffer ... ok
+test queue::array_buffer_round_trips_through_write_copy_and_map ... ok
+test queue::on_submitted_work_done_settles_after_the_work ... ok
+test queue::write_buffer_checks_its_range_on_the_device ... ok
+test draws::draw_with_a_non_zero_first_instance ... ok
+test queue::write_texture_respects_the_layout_offset ... ok
+test draws::triangle_msaa_resolves_into_the_canvas ... ok
+test image_bitmap::every_alpha_case_matches_its_snapshot ... ok
+test draws::draw_indirect_with_an_instance_count ... ok
+test draws::draw_with_an_instance_count ... ok
+test image_bitmap::image_data_decodes_like_the_reference ... ok
+test external::flip_y_false_does_not_flip ... ok
+test external::simple_1_flip_y ... ok
+test external::simple_2_no_flip_y ... ok
+
+test result: ok. 52 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.06s
+
+     Running tests/native/main.rs (target/debug/deps/native-7aea0a6f9930f2b0)
+
+running 11 tests
+test errors::a_descriptor_that_does_not_convert_is_a_type_error ... ok
+test errors::destroy_loses_the_device ... ok
+test mapping::destroy_unmaps ... ok
+test errors::invalid_wgsl_is_a_validation_error_with_compilation_messages ... ok
+test mapping::unmap_before_the_mapping_finishes_aborts_it ... ok
+test errors::a_validation_error_goes_to_the_innermost_matching_scope ... ok
+test errors::an_error_no_scope_catches_is_uncaptured_not_a_panic ... ok
+test mapping::a_map_write_buffer_keeps_its_bytes_across_mappings ... ok
+test mapping::queue_write_buffer_then_map_for_reading ... ok
+test mapping::bytes_written_to_a_mapped_range_reach_the_buffer_on_unmap ... ok
+test triangle::the_reference_triangle_renders_offscreen ... ok
+
+test result: ok. 11 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.12s
+
+     Running tests/resources/main.rs (target/debug/deps/resources-993147aa71031428)
+
+running 26 tests
+test adapter::adapter_info_fields ... ok
+test buffer::created_mapped_buffers ... ok
+test binding::invalid_samplers_are_validation_errors ... ok
+test adapter::limits_have_every_spec_name_and_the_spec_bounds ... ok
+test binding::invalid_layouts_and_bind_groups_are_validation_errors ... ok
+test binding::bind_group_layouts_take_every_entry_type ... ok
+test binding::compute_pipelines_validate_and_expose_their_layouts ... ok
+test query::query_sets_and_their_validation ... ok
+test adapter::adapter_features_are_spec_names_and_all_of_them_can_be_required ... ok
+test buffer::get_mapped_range_checks_the_mapping_its_alignment_and_bounds ... ok
+test shader::a_parse_error_is_reported_with_a_location ... ok
+test query::timestamp_sets_where_the_adapter_has_the_feature ... ok
+test buffer::map_async_rejects_what_the_spec_rejects_with_a_validation_error ... ok
+test binding::a_null_bind_group_layout_keeps_the_later_indices ... ok
+test binding::a_compare_sampler_samples_a_depth_texture ... ok
+test binding::a_compute_pipeline_multiplies_matrices ... ok
+test shader::valid_wgsl_has_no_messages ... ok
+test buffer::map_write_reaches_the_gpu_and_destroy_while_pending_aborts ... ok
+test shader::an_error_message_has_its_line_position_offset_and_length ... ok
+test texture::texture_descriptors_dimensions_and_destroy ... ok
+test texture::every_spec_format_makes_a_texture_where_its_feature_is_there ... ok
+test query::an_occlusion_query_counts_samples ... ok
+test texture::tier1_texture_formats_and_the_newer_vertex_formats ... ok
+test texture::create_view_takes_every_descriptor_field ... ok
+test buffer::an_image_written_into_a_buffer_reads_back_as_the_reference ... ok
+test texture::a_rendered_texture_reads_back_as_the_reference ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.45s
+
+   Doc-tests nsh_webgpu
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+exit 0

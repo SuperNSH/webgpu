@@ -1,0 +1,39 @@
+# Broken on purpose (the bug's order): SurfaceFrame's surface field declared before its texture, and detach_view dropping the view before the frame, so the surface goes before the acquired texture; then:
+$ cargo test --test surfaces_apple a_view_going -- --nocapture
+     Running tests/surfaces_apple/main.rs (target/debug/deps/surfaces_apple-77e1bf16709de86d)
+
+running 1 test
+
+thread 'a_view_going_with_an_unpresented_frame_does_not_panic' (153619472) panicked at /kache/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/wgpu-core-29.0.4/src/storage.rs:135:46:
+Surface[Id(0,1)] does not exist
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+nsh-webgpu: canvas 1: detaching its view panicked: Surface[Id(0,1)] does not exist
+
+thread 'a_view_going_with_an_unpresented_frame_does_not_panic' (153619472) panicked at tests/surfaces_apple/main.rs:323:9:
+assertion `left == right` failed: the view's teardown panicked (caught)
+  left: 1
+ right: 0
+test a_view_going_with_an_unpresented_frame_does_not_panic ... FAILED
+
+failures:
+
+failures:
+    a_view_going_with_an_unpresented_frame_does_not_panic
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured; 4 filtered out; finished in 0.08s
+
+error: test failed, to rerun pass `--test surfaces_apple`
+
+# Restored (src/api/canvas_context.rs as shipped):
+$ cargo test --test surfaces_apple -- --nocapture
+     Running tests/surfaces_apple/main.rs (target/debug/deps/surfaces_apple-77e1bf16709de86d)
+
+running 5 tests
+test context_ids_are_unique_and_destroy_drops_the_context ... ok
+test configure_rejects_what_the_spec_rejects ... ok
+test frames_offscreen_until_a_view_attaches ... ok
+test a_view_going_with_an_unpresented_frame_does_not_panic ... ok
+test frames_come_from_an_attached_metal_layer ... ok
+
+test result: ok. 5 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.18s
+

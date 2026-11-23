@@ -1,0 +1,29 @@
+# docs/evidence/docs-ci/samples: the README and guide code samples in a scratch TSX app with its own crate (native/, a copy of examples/headless/native) and nsh-webgpu by path. nightly nsh 0.6.0 (f577c51 nightly 2026-11-22)
+$ nsh check
+✓ checked samples-native (159ms)
+✓ checked nsh-webgpu (401ms)
+✓ built the Rust crates samples-native, nsh-webgpu (468ms)
+exit 0
+
+# broken on purpose: raf.ts passes a string to requestAnimationFrame
+$ nsh check
+✓ checked samples-native (164ms)
+✓ checked nsh-webgpu (371ms)
+✓ built the Rust crates samples-native, nsh-webgpu (463ms)
+raf.ts(10,36): error TS2345: Argument of type 'string' is not assignable to parameter of type '(timestamp: number) => void'.
+raf.ts(12,34): error TS2345: Argument of type 'string' is not assignable to parameter of type '(timestamp: number) => void'.
+error type check failed (exit status: 1)
+exit 1
+
+$ nsh build
+✓ built the Rust crates samples-native, nsh-webgpu (476ms)
+✓ built App.tsx into .nsh/out (89.9 KB js, 182.6 KB bytecode, 12ms)
+exit 0
+
+$ nsh test
+✓ built the Rust crates samples-native, nsh-webgpu (477ms)
+✓ built the headless runner of samples-native, nsh-webgpu (665ms)
+✓ bundled App.tsx (92031 B in 9.6 ms)
+✓ samples.test.tsx › the README triangle mounts (20ms)
+✓ 1 test: 1 passed, 0 failed (3.8s)
+exit 0

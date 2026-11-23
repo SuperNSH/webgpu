@@ -1,0 +1,4 @@
+== nsh build (gallery) ==
+✓ built the Rust crates webgpu-gallery-native, nsh-webgpu (387ms)
+✓ built App.tsx into .nsh/out (1.2 MB js, 1.4 MB bytecode, 18 assets, 77ms)
+exit=0

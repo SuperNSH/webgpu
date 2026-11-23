@@ -1,0 +1,36 @@
+Round 1: code broken on purpose (all at once), then restored from copies (adapter.rs, an orchestrator file, was
+broken only for this run and restored byte for byte: md5 checked). Outputs: broken-on-purpose-cargo-test.txt,
+broken-on-purpose-nsh-test.txt.
+broke: src/api/features.rs - features: core-features-and-limits never reported
+broke: src/api/limits.rs - limits: derived limits missing
+broke: src/api/buffer.rs - getMappedRange: no alignment check
+broke: src/api/buffer.rs - getMappedRange: first byte flipped
+broke: src/api/buffer.rs - mapAsync: no validation error
+broke: src/api/buffer.rs - destroy: does not unmap
+broke: src/api/buffer.rs - createBuffer: no RangeError
+broke: src/api/sampler.rs - createSampler: compare dropped
+broke: src/api/sampler.rs - createSampler: no validation
+broke: src/api/bind_group_layout.rs - layout: depth sample type read as float
+broke: src/api/bind_group_layout.rs - layout: two members accepted
+broke: src/api/bind_group.rs - bind group: buffer bindings 16 bytes
+broke: src/api/bind_group.rs - bind group: textures are no resource
+broke: src/api/bind_group.rs - bind group: raw buffers are no resource
+broke: src/api/pipeline_layout.rs - pipeline layout: nulls dropped
+broke: src/api/compute_pipeline.rs - compute pipeline: constants dropped
+broke: src/api/query_set.rs - query set: no count limit
+broke: src/api/query_set.rs - query set: occlusion made as timestamp
+broke: src/api/shader_module.rs - compilation info: line off by one
+broke: src/api/shader_module.rs - compilation info: offset in bytes
+broke: src/api/shader_module.rs - compilation info: an extra message
+broke: src/api/texture.rs - texture: rgb9e5ufloat rejected
+broke: src/api/texture.rs - texture: mipLevelCount ignored
+broke: src/api/texture_view.rs - view: dimension ignored
+broke: src/api/adapter.rs - adapter info (orchestrator file, restored): key misspelt
+broke: tsx/api/GPUBuffer.ts - TSX: mappedAtCreation reported unmapped
+broke: tsx/api/GPUBuffer.ts - TSX: no EnforceRange
+broke: tsx/api/GPUBuffer.ts - TSX: unmap writes nothing back
+broke: tsx/api/GPUTexture.ts - TSX: texture usage 0
+broke: tsx/api/GPUSampler.ts - TSX: createSampler returns no GPUSampler
+broke: tsx/api/GPUComputePipeline.ts - TSX: compute async outside scopes
+broke: tsx/api/GPUAdapterInfo.ts - TSX: adapter info JSON empty
+broke: tsx/api/GPUSupportedLimits.ts - TSX: limits JSON empty

@@ -1,0 +1,14 @@
+{
+  "version": 2,
+  "packages": [
+    {
+      "name": "nsh-webgpu",
+      "version": "0.1.0",
+      "path": "../..",
+      "module": "nsh-webgpu/native",
+      "exports": {
+        "nsh-webgpu": "tsx/index.tsx"
+      }
+    }
+  ]
+}

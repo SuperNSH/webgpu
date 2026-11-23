@@ -1,0 +1,15 @@
+[package]
+name = "webgpu-canvas-native"
+description = "The canvas example's own crate: a `CanvasDemo` module that draws into the `webgpu.canvas` view's surface with wgpu, so the platform views (surface/{windows,linux,android}.rs) are checked on screen without the canvas context of area surfaces-apple."
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[dependencies]
+nsh-core = { git = "https://github.com/longbridge/nsh", rev = "f577c51901a2857956f8ba0580da4db9ce3a3311" }
+nsh-webgpu = { path = "../../.." }
+wgpu = { version = "29", default-features = false, features = ["std", "wgsl", "dx12", "metal", "vulkan", "gles"] }
+pollster = "0.4"
+log = "0.4"
+
+[workspace]

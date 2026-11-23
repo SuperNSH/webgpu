@@ -1,0 +1,442 @@
+warning: unused variable: `placeholder`
+   --> crates/nsh-webgpu/src/api/render_pass_encoder.rs:272:9
+    |
+272 |     let placeholder = || -> Result<Made<DrawCommand>, NativeError> {
+    |         ^^^^^^^^^^^ help: if this is intentional, prefix it with an underscore: `_placeholder`
+    |
+    = note: `#[warn(unused_variables)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `flip_y` is never read
+  --> crates/nsh-webgpu/src/api/queue.rs:38:5
+   |
+33 | struct SourceInfo {
+   |        ---------- field in this struct
+...
+38 |     flip_y: bool,
+   |     ^^^^^^
+   |
+   = note: `SourceInfo` has a derived impl for the trait `Debug`, but this is intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: field `0` is never read
+  --> crates/nsh-webgpu/src/api/render_pass_encoder.rs:44:17
+   |
+44 |     SetViewport([f32; 6]),
+   |     ----------- ^^^^^^^^
+   |     |
+   |     field in this variant
+   |
+help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or remove the field
+   |
+44 -     SetViewport([f32; 6]),
+44 +     SetViewport(()),
+   |
+
+warning: field `0` is never read
+  --> crates/nsh-webgpu/src/api/render_pass_encoder.rs:46:22
+   |
+46 |     SetBlendConstant(wgpu::Color),
+   |     ---------------- ^^^^^^^^^^^
+   |     |
+   |     field in this variant
+   |
+help: consider changing the field to be of unit type to suppress this warning while preserving the field numbering, or remove the field
+   |
+46 -     SetBlendConstant(wgpu::Color),
+46 +     SetBlendConstant(()),
+   |
+
+warning: `nsh-webgpu` (lib) generated 4 warnings (run `cargo fix --lib -p nsh-webgpu` to apply 1 suggestion)
+warning: `nsh-webgpu` (lib test) generated 4 warnings (4 duplicates)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.13s
+     Running unittests src/lib.rs (target/debug/deps/nsh_webgpu-ab595d8467acbf47)
+
+running 10 tests
+test api::features::tests::unknown_and_unavailable_names_are_type_errors ... ok
+test api::queue::tests::srgb_white_and_black_stay_in_display_p3 ... ok
+test api::limits::tests::required_limits_keep_the_better_value ... ok
+test api::features::tests::names_round_trip_and_never_include_an_empty_name ... ok
+test api::limits::tests::every_spec_limit_has_a_value ... ok
+test api::queue::tests::halves_round_trip_the_values_a_byte_holds ... FAILED
+test api::features::tests::every_webgpu_feature_of_wgpu_has_a_spec_name ... ok
+test api::compute_pass_encoder::tests::matrix_multiplication_direct_and_indirect ... FAILED
+test api::compute_pass_encoder::tests::dynamic_offsets_reach_the_shader ... FAILED
+test api::external_texture::tests::crop_mirror_and_rotation_reach_the_shader ... FAILED
+
+failures:
+
+---- api::queue::tests::halves_round_trip_the_values_a_byte_holds stdout ----
+
+thread 'api::queue::tests::halves_round_trip_the_values_a_byte_holds' (148199370) panicked at crates/nsh-webgpu/src/api/queue.rs:443:9:
+assertion `left == right` failed
+  left: 15361
+ right: 15360
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- api::compute_pass_encoder::tests::matrix_multiplication_direct_and_indirect stdout ----
+
+thread 'api::compute_pass_encoder::tests::matrix_multiplication_direct_and_indirect' (148199363) panicked at crates/nsh-webgpu/src/api/compute_pass_encoder.rs:400:13:
+assertion `left == right` failed
+  left: [0.0, 0.0]
+ right: [16.0, 16.0]
+
+---- api::compute_pass_encoder::tests::dynamic_offsets_reach_the_shader stdout ----
+
+thread 'api::compute_pass_encoder::tests::dynamic_offsets_reach_the_shader' (148199362) panicked at crates/nsh-webgpu/src/api/compute_pass_encoder.rs:505:13:
+assertion `left == right` failed
+  left: [0, 0, 0, 0]
+ right: [42, 0, 0, 0]
+
+---- api::external_texture::tests::crop_mirror_and_rotation_reach_the_shader stdout ----
+
+thread 'api::external_texture::tests::crop_mirror_and_rotation_reach_the_shader' (148199364) panicked at crates/nsh-webgpu/src/api/external_texture.rs:420:9:
+assertion `left == right` failed
+  left: ((2, 2), [[255, 0, 0, 255], [0, 255, 0, 255], [0, 0, 255, 255], [255, 255, 255, 255]])
+ right: ((2, 2), [[0, 255, 0, 255], [255, 0, 0, 255], [255, 255, 255, 255], [0, 0, 255, 255]])
+
+
+failures:
+    api::compute_pass_encoder::tests::dynamic_offsets_reach_the_shader
+    api::compute_pass_encoder::tests::matrix_multiplication_direct_and_indirect
+    api::external_texture::tests::crop_mirror_and_rotation_reach_the_shader
+    api::queue::tests::halves_round_trip_the_values_a_byte_holds
+
+test result: FAILED. 6 passed; 4 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.09s
+
+error: test failed, to rerun pass `-p nsh-webgpu --lib`
+     Running tests/commands/main.rs (target/debug/deps/commands-de105d001951871d)
+
+running 52 tests
+test bundles::an_invalid_descriptor_is_a_validation_error_and_an_invalid_bundle ... FAILED
+test copies::misaligned_or_out_of_range_buffer_copies_invalidate_the_encoder ... FAILED
+test copies::bytes_per_row_must_be_a_multiple_of_256 ... FAILED
+test draws::a_depth_attachment_without_its_ops_makes_the_encoder_invalid ... FAILED
+test bundles::a_bundle_of_the_wrong_format_fails_the_pass_and_finishing_twice_fails ... FAILED
+test copies::buffer_to_texture_to_texture_to_buffer_round_trips ... ok
+test copies::clear_buffer_zeroes_a_range ... FAILED
+test compute::matrix_multiplication ... FAILED
+test copies::copy_buffer_to_buffer_with_offsets_and_the_short_form ... ok
+test draws::a_null_vertex_buffer_unbinds_a_slot_the_pipeline_does_not_read ... FAILED
+test draws::blend_constant_and_stencil_reference_reach_the_pipeline ... FAILED
+test draws::draw_indirect_with_an_instance_count ... ok
+test draws::alpha_premultiplied_color ... ok
+test draws::viewport_and_scissor_limit_the_draw ... FAILED
+test encoder::a_call_on_a_locked_encoder_invalidates_it ... FAILED
+test bundles::a_bundle_draws_the_triangle ... FAILED
+test encoder::a_second_pass_while_one_is_open_is_invalid ... ok
+test encoder::an_invalid_pass_invalidates_its_encoder ... FAILED
+test encoder::calls_after_end_and_after_finish_are_validation_errors ... ok
+test draws::create_texture_and_read_it ... FAILED
+test encoder::enforce_range_offsets_are_type_errors ... FAILED
+test encoder::unbalanced_debug_groups_make_finish_fail ... ok
+test encoder::finishing_with_a_pass_open_is_a_validation_error ... FAILED
+test encoder::unknown_ids_in_a_descriptor_are_type_errors ... ok
+test external::importing_a_texture_needs_the_device_feature ... FAILED
+test image_bitmap::a_crop_outside_the_image_is_transparent_and_a_negative_size_extends_back ... FAILED
+test draws::triangle_msaa_resolves_into_the_canvas ... FAILED
+test image_bitmap::a_region_outside_the_bitmap_is_an_operation_error ... FAILED
+test image_bitmap::a_display_p3_destination_converts_the_colors ... FAILED
+test draws::draw_indexed_indirect_matches_the_direct_draw ... ok
+test image_bitmap::alpha_conversions_are_bit_exact ... FAILED
+test draws::simple_triangle ... FAILED
+test image_bitmap::destination_formats_get_the_same_colors ... FAILED
+test draws::draw_with_a_step_mode_instance_vertex_buffer ... FAILED
+test image_bitmap::image_data_pixels_make_a_bitmap ... FAILED
+test image_bitmap::options_match_the_reference_clients ... FAILED
+test image_bitmap::undecodable_bytes_are_an_invalid_state_error ... ok
+test image_bitmap::every_alpha_case_matches_its_snapshot ... FAILED
+test image_bitmap::the_destination_needs_render_attachment_and_a_listed_format ... FAILED
+test draws::draw_with_a_non_zero_first_instance ... FAILED
+test queue::write_buffer_checks_its_range_on_the_device ... FAILED
+test queue::on_submitted_work_done_settles_after_the_work ... ok
+test queue::write_texture_respects_the_layout_offset ... FAILED
+test queue::array_buffer_round_trips_through_write_copy_and_map ... ok
+test image_bitmap::the_source_origin_selects_the_region ... FAILED
+test draws::draw_with_an_instance_count ... FAILED
+test bundles::bundles_replay_indexed_and_vertex_buffer_draws ... FAILED
+test image_bitmap::image_data_decodes_like_the_reference ... FAILED
+test draws::draw_indexed_with_an_instance_count ... FAILED
+test external::flip_y_false_does_not_flip ... FAILED
+test external::simple_2_no_flip_y ... FAILED
+test external::simple_1_flip_y ... FAILED
+
+failures:
+
+---- bundles::an_invalid_descriptor_is_a_validation_error_and_an_invalid_bundle stdout ----
+
+thread 'bundles::an_invalid_descriptor_is_a_validation_error_and_an_invalid_bundle' (148200735) panicked at crates/nsh-webgpu/tests/commands/bundles.rs:109:5:
+assertion failed: pop_error(device).is_some()
+
+---- copies::misaligned_or_out_of_range_buffer_copies_invalidate_the_encoder stdout ----
+
+thread 'copies::misaligned_or_out_of_range_buffer_copies_invalidate_the_encoder' (148200744) panicked at crates/nsh-webgpu/tests/commands/copies.rs:48:9:
+Validation Error
+
+Caused by:
+  In a CommandEncoder
+    Buffer offset 2 is not aligned to block size or `COPY_BUFFER_ALIGNMENT`
+
+note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
+
+---- copies::bytes_per_row_must_be_a_multiple_of_256 stdout ----
+
+thread 'copies::bytes_per_row_must_be_a_multiple_of_256' (148200741) panicked at crates/nsh-webgpu/tests/commands/copies.rs:134:5:
+Validation Error
+
+Caused by:
+  In a CommandEncoder
+    Bytes per row does not respect `COPY_BYTES_PER_ROW_ALIGNMENT`
+
+
+---- draws::a_depth_attachment_without_its_ops_makes_the_encoder_invalid stdout ----
+
+thread 'draws::a_depth_attachment_without_its_ops_makes_the_encoder_invalid' (148200745) panicked at crates/nsh-webgpu/tests/commands/draws.rs:512:35:
+a validation error at finish
+
+---- bundles::a_bundle_of_the_wrong_format_fails_the_pass_and_finishing_twice_fails stdout ----
+
+thread 'bundles::a_bundle_of_the_wrong_format_fails_the_pass_and_finishing_twice_fails' (148200734) panicked at crates/nsh-webgpu/tests/commands/bundles.rs:134:31:
+called `Option::unwrap()` on a `None` value
+
+---- copies::clear_buffer_zeroes_a_range stdout ----
+
+thread 'copies::clear_buffer_zeroes_a_range' (148200742) panicked at crates/nsh-webgpu/tests/commands/copies.rs:59:5:
+assertion `left == right` failed
+  left: [1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+ right: [1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, 0, 0]
+
+---- compute::matrix_multiplication stdout ----
+
+thread 'compute::matrix_multiplication' (148200739) panicked at crates/nsh-webgpu/tests/commands/compute.rs:99:13:
+assertion failed: (out[2 + i * 16 + j] - expected).abs() < 1e-4
+
+---- draws::a_null_vertex_buffer_unbinds_a_slot_the_pipeline_does_not_read stdout ----
+
+thread 'draws::a_null_vertex_buffer_unbinds_a_slot_the_pipeline_does_not_read' (148200746) panicked at crates/nsh-webgpu/tests/commands/draws.rs:552:5:
+assertion `left == right` failed
+  left: [0, 0, 0, 255]
+ right: [255, 0, 0, 255]
+
+---- draws::blend_constant_and_stencil_reference_reach_the_pipeline stdout ----
+
+thread 'draws::blend_constant_and_stencil_reference_reach_the_pipeline' (148200938) panicked at crates/nsh-webgpu/tests/commands/draws.rs:481:5:
+assertion `left == right` failed: stencil passes: the blend constant
+  left: [0, 0, 0, 255]
+ right: [0, 0, 255, 255]
+
+---- draws::viewport_and_scissor_limit_the_draw stdout ----
+
+thread 'draws::viewport_and_scissor_limit_the_draw' (148201122) panicked at crates/nsh-webgpu/tests/commands/draws.rs:417:5:
+assertion `left == right` failed: inside both
+  left: [0, 0, 0, 255]
+ right: [0, 255, 0, 255]
+
+---- encoder::a_call_on_a_locked_encoder_invalidates_it stdout ----
+
+thread 'encoder::a_call_on_a_locked_encoder_invalidates_it' (148201128) panicked at crates/nsh-webgpu/tests/commands/encoder.rs:60:14:
+called `Option::unwrap()` on a `None` value
+
+---- bundles::a_bundle_draws_the_triangle stdout ----
+
+thread 'bundles::a_bundle_draws_the_triangle' (148200733) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+triangle.png: 131072 pixels differ (at most 200)
+
+---- encoder::an_invalid_pass_invalidates_its_encoder stdout ----
+
+thread 'encoder::an_invalid_pass_invalidates_its_encoder' (148201140) panicked at crates/nsh-webgpu/tests/commands/encoder.rs:138:19:
+called `Option::unwrap()` on a `None` value
+
+---- draws::create_texture_and_read_it stdout ----
+
+thread 'draws::create_texture_and_read_it' (148200939) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+texture.png: 131072 pixels differ (at most 200)
+
+---- encoder::enforce_range_offsets_are_type_errors stdout ----
+
+thread 'encoder::enforce_range_offsets_are_type_errors' (148201148) panicked at crates/nsh-webgpu/tests/commands/encoder.rs:148:87:
+called `Result::unwrap_err()` on an `Ok` value: ()
+
+---- encoder::finishing_with_a_pass_open_is_a_validation_error stdout ----
+
+thread 'encoder::finishing_with_a_pass_open_is_a_validation_error' (148201150) panicked at crates/nsh-webgpu/tests/commands/encoder.rs:31:19:
+called `Option::unwrap()` on a `None` value
+
+---- external::importing_a_texture_needs_the_device_feature stdout ----
+
+thread 'external::importing_a_texture_needs_the_device_feature' (148201166) panicked at crates/nsh-webgpu/tests/commands/external.rs:130:14:
+called `Result::unwrap_err()` on an `Ok` value: 361
+
+---- image_bitmap::a_crop_outside_the_image_is_transparent_and_a_negative_size_extends_back stdout ----
+
+thread 'image_bitmap::a_crop_outside_the_image_is_transparent_and_a_negative_size_extends_back' (148201175) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:229:5:
+assertion `left == right` failed
+  left: 32
+ right: 8
+
+---- draws::triangle_msaa_resolves_into_the_canvas stdout ----
+
+thread 'draws::triangle_msaa_resolves_into_the_canvas' (148200983) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+triangle-msaa.png: 130560 pixels differ (at most 200)
+
+---- image_bitmap::a_region_outside_the_bitmap_is_an_operation_error stdout ----
+
+thread 'image_bitmap::a_region_outside_the_bitmap_is_an_operation_error' (148201181) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:296:9:
+TypeError: copyExternalImageToTexture: the source copy region (17, 0) + 16 x 32 x 1 is outside the 32 x 32 ImageBitmap
+
+---- image_bitmap::a_display_p3_destination_converts_the_colors stdout ----
+
+thread 'image_bitmap::a_display_p3_destination_converts_the_colors' (148201177) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:428:5:
+[255, 0, 0, 255]
+
+---- image_bitmap::alpha_conversions_are_bit_exact stdout ----
+
+thread 'image_bitmap::alpha_conversions_are_bit_exact' (148201188) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:157:9:
+assertion `left == right` failed
+  left: [64, 64, 64, 128, 4, 8, 12, 64]
+ right: [64, 64, 64, 128, 4, 9, 13, 64]
+
+---- draws::simple_triangle stdout ----
+
+thread 'draws::simple_triangle' (148200978) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+triangle.png: 131072 pixels differ (at most 200)
+
+---- image_bitmap::destination_formats_get_the_same_colors stdout ----
+
+thread 'image_bitmap::destination_formats_get_the_same_colors' (148201192) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:399:9:
+bgra8unorm differs from rgba8unorm
+
+---- draws::draw_with_a_step_mode_instance_vertex_buffer stdout ----
+
+thread 'draws::draw_with_a_step_mode_instance_vertex_buffer' (148200962) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-instanced-step-mode.png: 189728 pixels differ (at most 200)
+
+---- image_bitmap::image_data_pixels_make_a_bitmap stdout ----
+
+thread 'image_bitmap::image_data_pixels_make_a_bitmap' (148201203) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:450:80:
+called `Result::unwrap_err()` on an `Ok` value: Object {"height": Number(1), "id": Number(490), "premultiplied": Bool(true), "width": Number(2)}
+
+---- image_bitmap::options_match_the_reference_clients stdout ----
+
+thread 'image_bitmap::options_match_the_reference_clients' (148201204) panicked at crates/nsh-webgpu/tests/commands/common.rs:231:5:
+assertion `left == right` failed: image-bitmap-options-crop.png: the image sizes differ
+  left: (16, 24)
+ right: (32, 32)
+
+---- image_bitmap::every_alpha_case_matches_its_snapshot stdout ----
+
+thread 'image_bitmap::every_alpha_case_matches_its_snapshot' (148201196) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+image-bitmap-alpha-straight.png: 708 pixels differ (at most 200)
+
+---- image_bitmap::the_destination_needs_render_attachment_and_a_listed_format stdout ----
+
+thread 'image_bitmap::the_destination_needs_render_attachment_and_a_listed_format' (148201209) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:326:9:
+rgba8unorm: 
+
+---- draws::draw_with_a_non_zero_first_instance stdout ----
+
+thread 'draws::draw_with_a_non_zero_first_instance' (148200961) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-instanced-first-instance.png: 159622 pixels differ (at most 200)
+
+---- queue::write_buffer_checks_its_range_on_the_device stdout ----
+
+thread 'queue::write_buffer_checks_its_range_on_the_device' (148201224) panicked at crates/nsh-webgpu/tests/commands/queue.rs:56:78:
+called `Result::unwrap_err()` on an `Ok` value: ()
+
+---- queue::write_texture_respects_the_layout_offset stdout ----
+
+thread 'queue::write_texture_respects_the_layout_offset' (148201228) panicked at crates/nsh-webgpu/tests/commands/queue.rs:103:5:
+assertion `left == right` failed
+  left: [255, 0, 0, 255]
+ right: [0, 255, 0, 255]
+
+---- image_bitmap::the_source_origin_selects_the_region stdout ----
+
+thread 'image_bitmap::the_source_origin_selects_the_region' (148201215) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:275:9:
+assertion `left == right` failed: assets/opaque-gradient.png [8, 4] [16, 20] flip=true
+  left: [66, 33, 189, 255, 74, 33, 181, 255, 82, 33, 173, 255, 90, 33, 165, 255, 99, 33, 156, 255, 107, 33, 148, 255, 115, 33, 140, 255, 123, 33, 132, 255, 132, 33, 123, 255, 140, 33, 115, 255, 148, 33, 107, 255, 156, 33, 99, 255, 165, 33, 90, 255, 173, 33, 82, 255, 181, 33, 74, 255, 189, 33, 66, 255, 66, 41, 189, 255, 74, 41, 181, 255, 82, 41, 173, 255, 90, 41, 165, 255, 99, 41, 156, 255, 107, 41, 148, 255, 115, 41, 140, 255, 123, 41, 132, 255, 132, 41, 123, 255, 140, 41, 115, 255, 148, 41, 107, 255, 156, 41, 99, 255, 165, 41, 90, 255, 173, 41, 82, 255, 181, 41, 74, 255, 189, 41, 66, 255, 66, 49, 189, 255, 74, 49, 181, 255, 82, 49, 173, 255, 90, 49, 165, 255, 99, 49, 156, 255, 107, 49, 148, 255, 115, 49, 140, 255, 123, 49, 132, 255, 132, 49, 123, 255, 140, 49, 115, 255, 148, 49, 107, 255, 156, 49, 99, 255, 165, 49, 90, 255, 173, 49, 82, 255, 181, 49, 74, 255, 189, 49, 66, 255, 66, 58, 189, 255, 74, 58, 181, 255, 82, 58, 173, 255, 90, 58, 165, 255, 99, 58, 156, 255, 107, 58, 148, 255, 115, 58, 140, 255, 123, 58, 132, 255, 132, 58, 123, 255, 140, 58, 115, 255, 148, 58, 107, 255, 156, 58, 99, 255, 165, 58, 90, 255, 173, 58, 82, 255, 181, 58, 74, 255, 189, 58, 66, 255, 66, 66, 189, 255, 74, 66, 181, 255, 82, 66, 173, 255, 90, 66, 165, 255, 99, 66, 156, 255, 107, 66, 148, 255, 115, 66, 140, 255, 123, 66, 132, 255, 132, 66, 123, 255, 140, 66, 115, 255, 148, 66, 107, 255, 156, 66, 99, 255, 165, 66, 90, 255, 173, 66, 82, 255, 181, 66, 74, 255, 189, 66, 66, 255, 66, 74, 189, 255, 74, 74, 181, 255, 82, 74, 173, 255, 90, 74, 165, 255, 99, 74, 156, 255, 107, 74, 148, 255, 115, 74, 140, 255, 123, 74, 132, 255, 132, 74, 123, 255, 140, 74, 115, 255, 148, 74, 107, 255, 156, 74, 99, 255, 165, 74, 90, 255, 173, 74, 82, 255, 181, 74, 74, 255, 189, 74, 66, 255, 66, 82, 189, 255, 74, 82, 181, 255, 82, 82, 173, 255, 90, 82, 165, 255, 99, 82, 156, 255, 107, 82, 148, 255, 115, 82, 140, 255, 123, 82, 132, 255, 132, 82, 123, 255, 140, 82, 115, 255, 148, 82, 107, 255, 156, 82, 99, 255, 165, 82, 90, 255, 173, 82, 82, 255, 181, 82, 74, 255, 189, 82, 66, 255, 66, 90, 189, 255, 74, 90, 181, 255, 82, 90, 173, 255, 90, 90, 165, 255, 99, 90, 156, 255, 107, 90, 148, 255, 115, 90, 140, 255, 123, 90, 132, 255, 132, 90, 123, 255, 140, 90, 115, 255, 148, 90, 107, 255, 156, 90, 99, 255, 165, 90, 90, 255, 173, 90, 82, 255, 181, 90, 74, 255, 189, 90, 66, 255, 66, 99, 189, 255, 74, 99, 181, 255, 82, 99, 173, 255, 90, 99, 165, 255, 99, 99, 156, 255, 107, 99, 148, 255, 115, 99, 140, 255, 123, 99, 132, 255, 132, 99, 123, 255, 140, 99, 115, 255, 148, 99, 107, 255, 156, 99, 99, 255, 165, 99, 90, 255, 173, 99, 82, 255, 181, 99, 74, 255, 189, 99, 66, 255, 66, 107, 189, 255, 74, 107, 181, 255, 82, 107, 173, 255, 90, 107, 165, 255, 99, 107, 156, 255, 107, 107, 148, 255, 115, 107, 140, 255, 123, 107, 132, 255, 132, 107, 123, 255, 140, 107, 115, 255, 148, 107, 107, 255, 156, 107, 99, 255, 165, 107, 90, 255, 173, 107, 82, 255, 181, 107, 74, 255, 189, 107, 66, 255, 66, 115, 189, 255, 74, 115, 181, 255, 82, 115, 173, 255, 90, 115, 165, 255, 99, 115, 156, 255, 107, 115, 148, 255, 115, 115, 140, 255, 123, 115, 132, 255, 132, 115, 123, 255, 140, 115, 115, 255, 148, 115, 107, 255, 156, 115, 99, 255, 165, 115, 90, 255, 173, 115, 82, 255, 181, 115, 74, 255, 189, 115, 66, 255, 66, 123, 189, 255, 74, 123, 181, 255, 82, 123, 173, 255, 90, 123, 165, 255, 99, 123, 156, 255, 107, 123, 148, 255, 115, 123, 140, 255, 123, 123, 132, 255, 132, 123, 123, 255, 140, 123, 115, 255, 148, 123, 107, 255, 156, 123, 99, 255, 165, 123, 90, 255, 173, 123, 82, 255, 181, 123, 74, 255, 189, 123, 66, 255, 66, 132, 189, 255, 74, 132, 181, 255, 82, 132, 173, 255, 90, 132, 165, 255, 99, 132, 156, 255, 107, 132, 148, 255, 115, 132, 140, 255, 123, 132, 132, 255, 132, 132, 123, 255, 140, 132, 115, 255, 148, 132, 107, 255, 156, 132, 99, 255, 165, 132, 90, 255, 173, 132, 82, 255, 181, 132, 74, 255, 189, 132, 66, 255, 66, 140, 189, 255, 74, 140, 181, 255, 82, 140, 173, 255, 90, 140, 165, 255, 99, 140, 156, 255, 107, 140, 148, 255, 115, 140, 140, 255, 123, 140, 132, 255, 132, 140, 123, 255, 140, 140, 115, 255, 148, 140, 107, 255, 156, 140, 99, 255, 165, 140, 90, 255, 173, 140, 82, 255, 181, 140, 74, 255, 189, 140, 66, 255, 66, 148, 189, 255, 74, 148, 181, 255, 82, 148, 173, 255, 90, 148, 165, 255, 99, 148, 156, 255, 107, 148, 148, 255, 115, 148, 140, 255, 123, 148, 132, 255, 132, 148, 123, 255, 140, 148, 115, 255, 148, 148, 107, 255, 156, 148, 99, 255, 165, 148, 90, 255, 173, 148, 82, 255, 181, 148, 74, 255, 189, 148, 66, 255, 66, 156, 189, 255, 74, 156, 181, 255, 82, 156, 173, 255, 90, 156, 165, 255, 99, 156, 156, 255, 107, 156, 148, 255, 115, 156, 140, 255, 123, 156, 132, 255, 132, 156, 123, 255, 140, 156, 115, 255, 148, 156, 107, 255, 156, 156, 99, 255, 165, 156, 90, 255, 173, 156, 82, 255, 181, 156, 74, 255, 189, 156, 66, 255, 66, 165, 189, 255, 74, 165, 181, 255, 82, 165, 173, 255, 90, 165, 165, 255, 99, 165, 156, 255, 107, 165, 148, 255, 115, 165, 140, 255, 123, 165, 132, 255, 132, 165, 123, 255, 140, 165, 115, 255, 148, 165, 107, 255, 156, 165, 99, 255, 165, 165, 90, 255, 173, 165, 82, 255, 181, 165, 74, 255, 189, 165, 66, 255, 66, 173, 189, 255, 74, 173, 181, 255, 82, 173, 173, 255, 90, 173, 165, 255, 99, 173, 156, 255, 107, 173, 148, 255, 115, 173, 140, 255, 123, 173, 132, 255, 132, 173, 123, 255, 140, 173, 115, 255, 148, 173, 107, 255, 156, 173, 99, 255, 165, 173, 90, 255, 173, 173, 82, 255, 181, 173, 74, 255, 189, 173, 66, 255, 66, 181, 189, 255, 74, 181, 181, 255, 82, 181, 173, 255, 90, 181, 165, 255, 99, 181, 156, 255, 107, 181, 148, 255, 115, 181, 140, 255, 123, 181, 132, 255, 132, 181, 123, 255, 140, 181, 115, 255, 148, 181, 107, 255, 156, 181, 99, 255, 165, 181, 90, 255, 173, 181, 82, 255, 181, 181, 74, 255, 189, 181, 66, 255, 66, 189, 189, 255, 74, 189, 181, 255, 82, 189, 173, 255, 90, 189, 165, 255, 99, 189, 156, 255, 107, 189, 148, 255, 115, 189, 140, 255, 123, 189, 132, 255, 132, 189, 123, 255, 140, 189, 115, 255, 148, 189, 107, 255, 156, 189, 99, 255, 165, 189, 90, 255, 173, 189, 82, 255, 181, 189, 74, 255, 189, 189, 66, 255]
+ right: [66, 189, 189, 255, 74, 189, 181, 255, 82, 189, 173, 255, 90, 189, 165, 255, 99, 189, 156, 255, 107, 189, 148, 255, 115, 189, 140, 255, 123, 189, 132, 255, 132, 189, 123, 255, 140, 189, 115, 255, 148, 189, 107, 255, 156, 189, 99, 255, 165, 189, 90, 255, 173, 189, 82, 255, 181, 189, 74, 255, 189, 189, 66, 255, 66, 181, 189, 255, 74, 181, 181, 255, 82, 181, 173, 255, 90, 181, 165, 255, 99, 181, 156, 255, 107, 181, 148, 255, 115, 181, 140, 255, 123, 181, 132, 255, 132, 181, 123, 255, 140, 181, 115, 255, 148, 181, 107, 255, 156, 181, 99, 255, 165, 181, 90, 255, 173, 181, 82, 255, 181, 181, 74, 255, 189, 181, 66, 255, 66, 173, 189, 255, 74, 173, 181, 255, 82, 173, 173, 255, 90, 173, 165, 255, 99, 173, 156, 255, 107, 173, 148, 255, 115, 173, 140, 255, 123, 173, 132, 255, 132, 173, 123, 255, 140, 173, 115, 255, 148, 173, 107, 255, 156, 173, 99, 255, 165, 173, 90, 255, 173, 173, 82, 255, 181, 173, 74, 255, 189, 173, 66, 255, 66, 165, 189, 255, 74, 165, 181, 255, 82, 165, 173, 255, 90, 165, 165, 255, 99, 165, 156, 255, 107, 165, 148, 255, 115, 165, 140, 255, 123, 165, 132, 255, 132, 165, 123, 255, 140, 165, 115, 255, 148, 165, 107, 255, 156, 165, 99, 255, 165, 165, 90, 255, 173, 165, 82, 255, 181, 165, 74, 255, 189, 165, 66, 255, 66, 156, 189, 255, 74, 156, 181, 255, 82, 156, 173, 255, 90, 156, 165, 255, 99, 156, 156, 255, 107, 156, 148, 255, 115, 156, 140, 255, 123, 156, 132, 255, 132, 156, 123, 255, 140, 156, 115, 255, 148, 156, 107, 255, 156, 156, 99, 255, 165, 156, 90, 255, 173, 156, 82, 255, 181, 156, 74, 255, 189, 156, 66, 255, 66, 148, 189, 255, 74, 148, 181, 255, 82, 148, 173, 255, 90, 148, 165, 255, 99, 148, 156, 255, 107, 148, 148, 255, 115, 148, 140, 255, 123, 148, 132, 255, 132, 148, 123, 255, 140, 148, 115, 255, 148, 148, 107, 255, 156, 148, 99, 255, 165, 148, 90, 255, 173, 148, 82, 255, 181, 148, 74, 255, 189, 148, 66, 255, 66, 140, 189, 255, 74, 140, 181, 255, 82, 140, 173, 255, 90, 140, 165, 255, 99, 140, 156, 255, 107, 140, 148, 255, 115, 140, 140, 255, 123, 140, 132, 255, 132, 140, 123, 255, 140, 140, 115, 255, 148, 140, 107, 255, 156, 140, 99, 255, 165, 140, 90, 255, 173, 140, 82, 255, 181, 140, 74, 255, 189, 140, 66, 255, 66, 132, 189, 255, 74, 132, 181, 255, 82, 132, 173, 255, 90, 132, 165, 255, 99, 132, 156, 255, 107, 132, 148, 255, 115, 132, 140, 255, 123, 132, 132, 255, 132, 132, 123, 255, 140, 132, 115, 255, 148, 132, 107, 255, 156, 132, 99, 255, 165, 132, 90, 255, 173, 132, 82, 255, 181, 132, 74, 255, 189, 132, 66, 255, 66, 123, 189, 255, 74, 123, 181, 255, 82, 123, 173, 255, 90, 123, 165, 255, 99, 123, 156, 255, 107, 123, 148, 255, 115, 123, 140, 255, 123, 123, 132, 255, 132, 123, 123, 255, 140, 123, 115, 255, 148, 123, 107, 255, 156, 123, 99, 255, 165, 123, 90, 255, 173, 123, 82, 255, 181, 123, 74, 255, 189, 123, 66, 255, 66, 115, 189, 255, 74, 115, 181, 255, 82, 115, 173, 255, 90, 115, 165, 255, 99, 115, 156, 255, 107, 115, 148, 255, 115, 115, 140, 255, 123, 115, 132, 255, 132, 115, 123, 255, 140, 115, 115, 255, 148, 115, 107, 255, 156, 115, 99, 255, 165, 115, 90, 255, 173, 115, 82, 255, 181, 115, 74, 255, 189, 115, 66, 255, 66, 107, 189, 255, 74, 107, 181, 255, 82, 107, 173, 255, 90, 107, 165, 255, 99, 107, 156, 255, 107, 107, 148, 255, 115, 107, 140, 255, 123, 107, 132, 255, 132, 107, 123, 255, 140, 107, 115, 255, 148, 107, 107, 255, 156, 107, 99, 255, 165, 107, 90, 255, 173, 107, 82, 255, 181, 107, 74, 255, 189, 107, 66, 255, 66, 99, 189, 255, 74, 99, 181, 255, 82, 99, 173, 255, 90, 99, 165, 255, 99, 99, 156, 255, 107, 99, 148, 255, 115, 99, 140, 255, 123, 99, 132, 255, 132, 99, 123, 255, 140, 99, 115, 255, 148, 99, 107, 255, 156, 99, 99, 255, 165, 99, 90, 255, 173, 99, 82, 255, 181, 99, 74, 255, 189, 99, 66, 255, 66, 90, 189, 255, 74, 90, 181, 255, 82, 90, 173, 255, 90, 90, 165, 255, 99, 90, 156, 255, 107, 90, 148, 255, 115, 90, 140, 255, 123, 90, 132, 255, 132, 90, 123, 255, 140, 90, 115, 255, 148, 90, 107, 255, 156, 90, 99, 255, 165, 90, 90, 255, 173, 90, 82, 255, 181, 90, 74, 255, 189, 90, 66, 255, 66, 82, 189, 255, 74, 82, 181, 255, 82, 82, 173, 255, 90, 82, 165, 255, 99, 82, 156, 255, 107, 82, 148, 255, 115, 82, 140, 255, 123, 82, 132, 255, 132, 82, 123, 255, 140, 82, 115, 255, 148, 82, 107, 255, 156, 82, 99, 255, 165, 82, 90, 255, 173, 82, 82, 255, 181, 82, 74, 255, 189, 82, 66, 255, 66, 74, 189, 255, 74, 74, 181, 255, 82, 74, 173, 255, 90, 74, 165, 255, 99, 74, 156, 255, 107, 74, 148, 255, 115, 74, 140, 255, 123, 74, 132, 255, 132, 74, 123, 255, 140, 74, 115, 255, 148, 74, 107, 255, 156, 74, 99, 255, 165, 74, 90, 255, 173, 74, 82, 255, 181, 74, 74, 255, 189, 74, 66, 255, 66, 66, 189, 255, 74, 66, 181, 255, 82, 66, 173, 255, 90, 66, 165, 255, 99, 66, 156, 255, 107, 66, 148, 255, 115, 66, 140, 255, 123, 66, 132, 255, 132, 66, 123, 255, 140, 66, 115, 255, 148, 66, 107, 255, 156, 66, 99, 255, 165, 66, 90, 255, 173, 66, 82, 255, 181, 66, 74, 255, 189, 66, 66, 255, 66, 58, 189, 255, 74, 58, 181, 255, 82, 58, 173, 255, 90, 58, 165, 255, 99, 58, 156, 255, 107, 58, 148, 255, 115, 58, 140, 255, 123, 58, 132, 255, 132, 58, 123, 255, 140, 58, 115, 255, 148, 58, 107, 255, 156, 58, 99, 255, 165, 58, 90, 255, 173, 58, 82, 255, 181, 58, 74, 255, 189, 58, 66, 255, 66, 49, 189, 255, 74, 49, 181, 255, 82, 49, 173, 255, 90, 49, 165, 255, 99, 49, 156, 255, 107, 49, 148, 255, 115, 49, 140, 255, 123, 49, 132, 255, 132, 49, 123, 255, 140, 49, 115, 255, 148, 49, 107, 255, 156, 49, 99, 255, 165, 49, 90, 255, 173, 49, 82, 255, 181, 49, 74, 255, 189, 49, 66, 255, 66, 41, 189, 255, 74, 41, 181, 255, 82, 41, 173, 255, 90, 41, 165, 255, 99, 41, 156, 255, 107, 41, 148, 255, 115, 41, 140, 255, 123, 41, 132, 255, 132, 41, 123, 255, 140, 41, 115, 255, 148, 41, 107, 255, 156, 41, 99, 255, 165, 41, 90, 255, 173, 41, 82, 255, 181, 41, 74, 255, 189, 41, 66, 255, 66, 33, 189, 255, 74, 33, 181, 255, 82, 33, 173, 255, 90, 33, 165, 255, 99, 33, 156, 255, 107, 33, 148, 255, 115, 33, 140, 255, 123, 33, 132, 255, 132, 33, 123, 255, 140, 33, 115, 255, 148, 33, 107, 255, 156, 33, 99, 255, 165, 33, 90, 255, 173, 33, 82, 255, 181, 33, 74, 255, 189, 33, 66, 255]
+
+---- draws::draw_with_an_instance_count stdout ----
+
+thread 'draws::draw_with_an_instance_count' (148200972) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-instanced.png: 239432 pixels differ (at most 200)
+
+---- bundles::bundles_replay_indexed_and_vertex_buffer_draws stdout ----
+
+thread 'bundles::bundles_replay_indexed_and_vertex_buffer_draws' (148200738) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-indexed-instanced.png: 376996 pixels differ (at most 200)
+
+---- image_bitmap::image_data_decodes_like_the_reference stdout ----
+
+thread 'image_bitmap::image_data_decodes_like_the_reference' (148201201) panicked at crates/nsh-webgpu/tests/commands/image_bitmap.rs:72:5:
+assertion failed: WgpuImageBitmap::pixels(id).is_err()
+
+---- draws::draw_indexed_with_an_instance_count stdout ----
+
+thread 'draws::draw_indexed_with_an_instance_count' (148200946) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+draw-indexed-instanced.png: 376996 pixels differ (at most 200)
+
+---- external::flip_y_false_does_not_flip stdout ----
+
+thread 'external::flip_y_false_does_not_flip' (148201162) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+f2.png: 257131 pixels differ (at most 200)
+
+---- external::simple_2_no_flip_y stdout ----
+
+thread 'external::simple_2_no_flip_y' (148201170) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+f2.png: 257131 pixels differ (at most 200)
+
+---- external::simple_1_flip_y stdout ----
+
+thread 'external::simple_1_flip_y' (148201167) panicked at crates/nsh-webgpu/tests/commands/common.rs:237:5:
+f.png: 257132 pixels differ (at most 200)
+
+
+failures:
+    bundles::a_bundle_draws_the_triangle
+    bundles::a_bundle_of_the_wrong_format_fails_the_pass_and_finishing_twice_fails
+    bundles::an_invalid_descriptor_is_a_validation_error_and_an_invalid_bundle
+    bundles::bundles_replay_indexed_and_vertex_buffer_draws
+    compute::matrix_multiplication
+    copies::bytes_per_row_must_be_a_multiple_of_256
+    copies::clear_buffer_zeroes_a_range
+    copies::misaligned_or_out_of_range_buffer_copies_invalidate_the_encoder
+    draws::a_depth_attachment_without_its_ops_makes_the_encoder_invalid
+    draws::a_null_vertex_buffer_unbinds_a_slot_the_pipeline_does_not_read
+    draws::blend_constant_and_stencil_reference_reach_the_pipeline
+    draws::create_texture_and_read_it
+    draws::draw_indexed_with_an_instance_count
+    draws::draw_with_a_non_zero_first_instance
+    draws::draw_with_a_step_mode_instance_vertex_buffer
+    draws::draw_with_an_instance_count
+    draws::simple_triangle
+    draws::triangle_msaa_resolves_into_the_canvas
+    draws::viewport_and_scissor_limit_the_draw
+    encoder::a_call_on_a_locked_encoder_invalidates_it
+    encoder::an_invalid_pass_invalidates_its_encoder
+    encoder::enforce_range_offsets_are_type_errors
+    encoder::finishing_with_a_pass_open_is_a_validation_error
+    external::flip_y_false_does_not_flip
+    external::importing_a_texture_needs_the_device_feature
+    external::simple_1_flip_y
+    external::simple_2_no_flip_y
+    image_bitmap::a_crop_outside_the_image_is_transparent_and_a_negative_size_extends_back
+    image_bitmap::a_display_p3_destination_converts_the_colors
+    image_bitmap::a_region_outside_the_bitmap_is_an_operation_error
+    image_bitmap::alpha_conversions_are_bit_exact
+    image_bitmap::destination_formats_get_the_same_colors
+    image_bitmap::every_alpha_case_matches_its_snapshot
+    image_bitmap::image_data_decodes_like_the_reference
+    image_bitmap::image_data_pixels_make_a_bitmap
+    image_bitmap::options_match_the_reference_clients
+    image_bitmap::the_destination_needs_render_attachment_and_a_listed_format
+    image_bitmap::the_source_origin_selects_the_region
+    queue::write_buffer_checks_its_range_on_the_device
+    queue::write_texture_respects_the_layout_offset
+
+test result: FAILED. 12 passed; 40 failed; 0 ignored; 0 measured; 0 filtered out; finished in 1.15s
+
+error: test failed, to rerun pass `-p nsh-webgpu --test commands`
+error: 2 targets failed:
+    `-p nsh-webgpu --lib`
+    `-p nsh-webgpu --test commands`
