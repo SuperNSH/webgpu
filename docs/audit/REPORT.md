@@ -43,4 +43,4 @@ Every runtime export of the reference is present. Gaps: I5; `NativeProps` type m
 
 ## Publish readiness
 
-About 30 MB of evidence logs/PNGs tracked; `/Users/hmziq` paths only in evidence files; `AGENTS.md`, `CONTRIBUTING.md`, `PLAN.md`, `inventory.md` describe private local checkouts; no secrets; `.gitignore` fine; crates.io blocked by git deps (N11).
+About 30 MB of evidence logs/PNGs tracked; `~` paths only in evidence files; `AGENTS.md`, `CONTRIBUTING.md`, `PLAN.md`, `inventory.md` describe private local checkouts; no secrets; `.gitignore` fine; crates.io blocked by git deps (N11).
