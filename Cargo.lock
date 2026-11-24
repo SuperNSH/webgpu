@@ -1812,7 +1812,7 @@ dependencies = [
 [[package]]
 name = "nsh-base"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "chrono",
  "html5ever",
@@ -1831,7 +1831,7 @@ dependencies = [
 [[package]]
 name = "nsh-core"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "cap-std",
  "chrono",
@@ -1863,7 +1863,7 @@ dependencies = [
 [[package]]
 name = "nsh-engine"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "crossbeam-channel",
  "env_filter",
@@ -1881,7 +1881,7 @@ dependencies = [
 [[package]]
 name = "nsh-macros"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "imagesize",
  "proc-macro2",
@@ -1894,7 +1894,7 @@ dependencies = [
 [[package]]
 name = "nsh-platform-android"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "jni",
  "libc",
@@ -1912,7 +1912,7 @@ dependencies = [
 [[package]]
 name = "nsh-platform-apple"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "block2",
  "cc",
@@ -1936,7 +1936,7 @@ dependencies = [
 [[package]]
 name = "nsh-platform-ios"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "block2",
  "dispatch2",
@@ -1964,7 +1964,7 @@ dependencies = [
 [[package]]
 name = "nsh-platform-linux"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "crossbeam-channel",
  "gtk4",
@@ -1983,7 +1983,7 @@ dependencies = [
 [[package]]
 name = "nsh-platform-macos"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "block2",
  "crossbeam-channel",
@@ -2012,7 +2012,7 @@ dependencies = [
 [[package]]
 name = "nsh-platform-windows"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "crossbeam-channel",
  "image",
@@ -2032,7 +2032,7 @@ dependencies = [
 [[package]]
 name = "nsh-updater"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
+source = "git+https://github.com/longbridge/nsh?rev=2964346c285f57004f2531fb768cc9840b8d7ff5#2964346c285f57004f2531fb768cc9840b8d7ff5"
 dependencies = [
  "base64 0.22.1",
  "ed25519-dalek",
@@ -2982,9 +2982,9 @@ dependencies = [
 
 [[package]]
 name = "taffy"
-version = "0.15.0"
+version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3c8480887e8803986d96a7173729565520d4bbb721ad6b7ad6941a22897207aa"
+checksum = "cae92eb1b204bfd239b5c463e1bd2c3ce4913d2d3abfb5c64f5cfee9d65e5c68"
 dependencies = [
  "serde",
  "slotmap",

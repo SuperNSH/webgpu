@@ -3,7 +3,8 @@ name: On screen
 # `<Canvas>` in a real window: examples/canvas-apple (the reference's Triangle
 # and rotating Cube) with `nsh run` on each desktop, checked by screenshot
 # (scripts/onscreen.py). Software GPUs on Linux (lavapipe) and Windows (WARP),
-# the runner's paravirtualized one on macOS. The screenshots are the artifacts.
+# the runner's paravirtualized one on macOS. Then the gallery, the same way,
+# with `nsh test --target`. The screenshots are the artifacts.
 
 on:
   push:
@@ -24,13 +25,13 @@ defaults:
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
-  NSH_COMMIT: 589a60f7569c14023c262c126f50279f27ddf470
+  NSH_COMMIT: 2964346c285f57004f2531fb768cc9840b8d7ff5
 
 jobs:
   desktop:
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 150
+    timeout-minutes: 300
     strategy:
       fail-fast: false
       matrix:
@@ -52,7 +53,9 @@ jobs:
           toolchain: stable
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
         with:
-          workspaces: examples/canvas-apple/native
+          workspaces: |
+            examples/canvas-apple/native
+            examples/gallery/native
           key: onscreen
       - run: echo "NSH_HOME=$(cd "$RUNNER_TEMP" && pwd)/nsh-home" >> "$GITHUB_ENV"
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
@@ -85,8 +88,31 @@ jobs:
         run: |
           xvfb-run -a -s "-screen 0 1280x800x24" bash -c \
             'openbox & sleep 1; GDK_BACKEND=x11 dbus-run-session python3 scripts/onscreen.py linux examples/canvas-apple out'
+      # The gallery: its tests (every demo draws, without GPU errors) and a
+      # picture of the window on each page, in the platform's own host.
+      - name: Gallery
+        if: ${{ !cancelled() }}
+        working-directory: examples/gallery
+        run: |
+          mkdir -p tour
+          run() {
+            if [ "$RUNNER_OS" = Linux ]; then
+              xvfb-run -a -s "-screen 0 1280x800x24" bash -c \
+                'openbox & sleep 1; GDK_BACKEND=x11 dbus-run-session "$@"' _ "$@"
+            else
+              "$@"
+            fi
+          }
+          code=0
+          for file in gallery tour; do
+            run nsh test --target ${{ matrix.target }} $file.test.tsx > tour/$file.log 2>&1 || code=1
+            grep -v '^PNG' tour/$file.log | cut -c1-300 | tail -n 250
+          done
+          exit $code
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
           name: onscreen-${{ matrix.target }}
-          path: out
+          path: |
+            out
+            examples/gallery/tour

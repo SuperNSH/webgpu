@@ -1,11 +1,14 @@
 // The on-screen tour for the evidence (not a check): with
-// `nsh test --target ios tour.test.tsx` it opens every Home entry in the
-// simulator on the real clock, waits for the demo to draw, logs
-// `TOUR <entry>` and holds the page for a while; a script outside watches
-// the log and takes `xcrun simctl io <udid> screenshot` at each line
-// (docs/evidence/gallery/). On a phone target `open` refuses a viewport
-// width (ERR_NSH_TEST_UNSUPPORTED); headless it takes one, and the test
-// returns at once, so plain `nsh test` does not tour.
+// `nsh test --target <platform> tour.test.tsx` it opens every Home entry in
+// the platform's host on the real clock and waits for the demo to draw.
+// - macos, linux, windows: it saves a picture of the window of each page to
+//   `tour/<entry>.png` (make the `tour` directory first).
+// - ios, android: it logs `TOUR <entry>` and holds the page for a while; a
+//   script outside watches the log and takes the device's screenshot at each
+//   line (docs/evidence/gallery/). On a phone `open` refuses a viewport
+//   width (ERR_NSH_TEST_UNSUPPORTED).
+// Headless there is no picture to take and the test returns at once, so plain
+// `nsh test` does not tour.
 
 import { open, test } from "nsh/test";
 
@@ -43,20 +46,27 @@ const DIAGNOSTICS = ["SurfaceChurn", "RenderAfterUnmount", "ContextEdgeCases"];
 const HOLD_MS = 3000;
 
 test(
-  "tour: every demo on screen, for the screenshots (phone targets only)",
+  "tour: every demo on screen, for the screenshots (real platforms only)",
   async () => {
+    let desktop = true;
     try {
-      const headless = await open("./App.tsx", { width: 390 });
-      headless.dispose();
-      console.log("tour skipped: not on a phone target");
-      return;
+      const probe = await open("./App.tsx", { width: 390 });
+      try {
+        await probe.screenshot();
+      } catch {
+        console.log("tour skipped: headless");
+        return;
+      } finally {
+        probe.dispose();
+      }
     } catch {
-      // A phone: tour.
+      desktop = false;
     }
-    const app = await open("./App.tsx", { network: "live" });
+    const app = await open("./App.tsx", desktop ? { network: "live", width: 480, height: 640 } : { network: "live" });
     const shoot = async (name: string) => {
       console.log(`TOUR ${name}`);
-      await app.wait(HOLD_MS);
+      if (desktop) await app.screenshot(`tour/${name}.png`);
+      else await app.wait(HOLD_MS);
     };
     await app.wait(1500);
     await shoot("Home");
