@@ -417,6 +417,8 @@ for (const [screen, diagnostic] of Object.entries(DIAGNOSTICS)) {
     const lines = app.texts().filter((t) => t.startsWith("[") || /threw|frame|epoch|cleanup|device/.test(t));
     console.log(`${screen}: ${lines.join(" | ")}`);
     expect(app.texts().some((t) => t.startsWith("[uncaptured]"))).toBe(false);
+    // A device the page destroys is lost as "destroyed"; any other loss is the GPU's.
+    expect(app.texts().filter((t) => t.startsWith("[device lost] unknown"))).toEqual([]);
     const never = diagnostic.never;
     if (never) expect(app.texts().filter((t) => never.test(t))).toEqual([]);
   }, TIMEOUT);

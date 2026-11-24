@@ -25,6 +25,8 @@ pub struct View {
     pub width: u32,
     /// Height in physical pixels.
     pub height: u32,
+    /// The device the surface was last configured with ([`configured_with`]).
+    device: Option<wgpu::Device>,
 }
 
 static VIEWS: Mutex<BTreeMap<u32, View>> = Mutex::new(BTreeMap::new());
@@ -42,6 +44,7 @@ pub fn attach(context_id: u32, surface: wgpu::Surface<'static>, width: u32, heig
             surface: Arc::new(surface),
             width,
             height,
+            device: None,
         },
     );
     // Dropped outside the lock, as `detach` drops: a surface's drop reaches
@@ -75,4 +78,21 @@ pub(crate) fn take(context_id: u32) -> Option<View> {
 /// The view of context `context_id`, if one is attached.
 pub fn get(context_id: u32) -> Option<View> {
     views().get(&context_id).cloned()
+}
+
+/// `surface`, of context `context_id`'s view, is about to be configured with
+/// `device`: the device it was configured with before, when that is another.
+pub(crate) fn configured_with(
+    context_id: u32,
+    surface: &Arc<wgpu::Surface<'static>>,
+    device: &wgpu::Device,
+) -> Option<wgpu::Device> {
+    let mut all = views();
+    let view = all.get_mut(&context_id)?;
+    if !Arc::ptr_eq(&view.surface, surface) {
+        return None;
+    }
+    view.device
+        .replace(device.clone())
+        .filter(|before| before != device)
 }

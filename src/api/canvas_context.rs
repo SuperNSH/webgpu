@@ -462,24 +462,71 @@ fn log_error(context_id: u32, error: &str) {
     eprintln!("nsh-webgpu: canvas {context_id}: {error}");
 }
 
-/// Copies `offscreen` onto the surface's next texture and presents it.
 /// Configures `surface`, the one of `context_id`'s view, with `config`.
 fn configure_view(
     context_id: u32,
-    surface: &wgpu::Surface<'static>,
+    surface: &Arc<wgpu::Surface<'static>>,
     config: &Config,
     extra: wgpu::TextureUsages,
 ) {
-    expire_frames(context_id);
-    surface.configure(&config.device, &config.surface(surface, extra));
+    reconfigure(context_id, surface, config, extra);
     // A composition visual shows its frame 1:1: it scales to the view.
     #[cfg(windows)]
     crate::surface::windows::buffer_size(context_id, config.width, config.height);
 }
 
+/// [`configure_view`], of the same size.
+fn reconfigure(
+    context_id: u32,
+    surface: &Arc<wgpu::Surface<'static>>,
+    config: &Config,
+    extra: wgpu::TextureUsages,
+) {
+    expire_frames(context_id);
+    if let Some(before) = views::configured_with(context_id, surface, &config.device) {
+        release_swap_chain(surface, &before);
+    }
+    surface.configure(&config.device, &config.surface(surface, extra));
+}
+
+/// `surface` lets go of the swap chain it has for `device`: the next
+/// configure is another device's. A swap chain belongs to the device that
+/// made it (on DX12, to its queue), and wgpu's `configure` keeps the one it
+/// has: the other device would then draw into buffers that are not its own,
+/// for which Windows removes the GPU device, every `GPUDevice` with it.
+/// Metal's layer has no swap chain of a device.
+fn release_swap_chain(surface: &wgpu::Surface<'static>, device: &wgpu::Device) {
+    #[cfg(any(windows, target_os = "android"))]
+    {
+        use wgpu::hal::{Api, Surface as _, api};
+
+        fn release<A: Api>(surface: &wgpu::Surface<'static>, device: &wgpu::Device) {
+            // SAFETY: neither is destroyed here.
+            let (surface, device) = unsafe { (surface.as_hal::<A>(), device.as_hal::<A>()) };
+            if let (Some(surface), Some(device)) = (surface, device) {
+                // SAFETY: the device the surface was configured with; its
+                // work is done (the poll below) and its frames expired.
+                unsafe { surface.unconfigure(&device) };
+            }
+        }
+        // A lost device has nothing to wait for; a hung one is not waited for.
+        let _ = device.poll(wgpu::PollType::Wait {
+            submission_index: None,
+            timeout: Some(std::time::Duration::from_secs(5)),
+        });
+        #[cfg(windows)]
+        release::<api::Dx12>(surface, device);
+        release::<api::Vulkan>(surface, device);
+        release::<api::Gles>(surface, device);
+    }
+    #[cfg(not(any(windows, target_os = "android")))]
+    let _ = (surface, device);
+}
+
+/// Copies `offscreen` onto the surface's next texture and presents it.
 fn blit_and_present(
     context_id: u32,
-    surface: &wgpu::Surface<'static>,
+    surface: &Arc<wgpu::Surface<'static>>,
     config: &Config,
     offscreen: &wgpu::Texture,
 ) {
@@ -909,7 +956,7 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
 /// window is occluded.
 fn acquire(
     context_id: u32,
-    surface: &wgpu::Surface<'static>,
+    surface: &Arc<wgpu::Surface<'static>>,
     config: &Config,
 ) -> Option<wgpu::SurfaceTexture> {
     for attempt in 0..2 {
@@ -921,11 +968,7 @@ fn acquire(
             wgpu::CurrentSurfaceTexture::Outdated | wgpu::CurrentSurfaceTexture::Lost
                 if attempt == 0 =>
             {
-                expire_frames(context_id);
-                surface.configure(
-                    &config.device,
-                    &config.surface(surface, wgpu::TextureUsages::empty()),
-                );
+                reconfigure(context_id, surface, config, wgpu::TextureUsages::empty());
             }
             _ => return None,
         }

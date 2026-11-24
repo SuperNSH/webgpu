@@ -1,7 +1,6 @@
 // PNG in and out, for the probe (harness/probe.ts): encoding a canvas
 // capture for the logs (the evidence), decoding a reference snapshot to
-// compare with. 8-bit, non-interlaced only, which is what the reference's
-// snapshots are.
+// compare with (8-bit, non-interlaced) or a window's picture (16-bit on Linux).
 
 import { deflateSync, inflateSync } from "zlib";
 
@@ -66,13 +65,14 @@ export function encodePng(image: Image): Uint8Array {
   return out;
 }
 
-/** Decodes an 8-bit, non-interlaced PNG (gray, RGB, gray + alpha or RGBA). */
+/** Decodes a non-interlaced PNG of 8 or 16 bits (gray, RGB, gray + alpha or RGBA), to 8 bits. */
 export function decodePng(bytes: Uint8Array): Image {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   let offset = 8;
   let width = 0;
   let height = 0;
   let colorType = 0;
+  let depth = 1;
   const idat: Uint8Array[] = [];
   while (offset < bytes.length) {
     const length = view.getUint32(offset);
@@ -81,7 +81,10 @@ export function decodePng(bytes: Uint8Array): Image {
     if (type === "IHDR") {
       width = view.getUint32(offset + 8);
       height = view.getUint32(offset + 12);
-      if (data[8] !== 8 || data[12] !== 0) throw new Error("only 8-bit non-interlaced PNGs");
+      if ((data[8] !== 8 && data[8] !== 16) || data[12] !== 0) {
+        throw new Error("only 8- or 16-bit non-interlaced PNGs");
+      }
+      depth = data[8] / 8;
       colorType = data[9];
     } else if (type === "IDAT") {
       idat.push(data);
@@ -99,15 +102,16 @@ export function decodePng(bytes: Uint8Array): Image {
     at += d.length;
   }
   const raw = new Uint8Array(inflateSync(compressed));
-  const stride = width * channels;
+  const size = channels * depth;
+  const stride = width * size;
   const pixels = new Uint8Array(stride * height);
   for (let y = 0; y < height; y++) {
     const filter = raw[y * (stride + 1)];
     const line = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1));
     for (let x = 0; x < stride; x++) {
-      const a = x >= channels ? pixels[y * stride + x - channels] : 0;
+      const a = x >= size ? pixels[y * stride + x - size] : 0;
       const b = y > 0 ? pixels[(y - 1) * stride + x] : 0;
-      const c = x >= channels && y > 0 ? pixels[(y - 1) * stride + x - channels] : 0;
+      const c = x >= size && y > 0 ? pixels[(y - 1) * stride + x - size] : 0;
       let predictor = 0;
       if (filter === 1) predictor = a;
       else if (filter === 2) predictor = b;
@@ -124,12 +128,13 @@ export function decodePng(bytes: Uint8Array): Image {
   }
   const rgba = new Uint8Array(width * height * 4);
   for (let i = 0; i < width * height; i++) {
-    const s = i * channels;
+    // The first byte of a 16-bit value is its high one.
+    const s = i * size;
     const gray = channels < 3;
     rgba[i * 4] = pixels[s];
-    rgba[i * 4 + 1] = gray ? pixels[s] : pixels[s + 1];
-    rgba[i * 4 + 2] = gray ? pixels[s] : pixels[s + 2];
-    rgba[i * 4 + 3] = channels === 4 ? pixels[s + 3] : channels === 2 ? pixels[s + 1] : 255;
+    rgba[i * 4 + 1] = gray ? pixels[s] : pixels[s + depth];
+    rgba[i * 4 + 2] = gray ? pixels[s] : pixels[s + 2 * depth];
+    rgba[i * 4 + 3] = channels === 4 ? pixels[s + 3 * depth] : channels === 2 ? pixels[s + depth] : 255;
   }
   return { width, height, rgba };
 }

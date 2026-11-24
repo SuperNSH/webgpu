@@ -130,6 +130,8 @@ test(
       }
       await app.wait(3000);
       await shoot(`diag-${screen}`);
+      // A device the page destroys is lost as "destroyed"; any other loss is the GPU's.
+      expect(app.texts().filter((t) => t.startsWith("[device lost] unknown"))).toEqual([]);
       await app.back();
     }
     await home();
@@ -137,6 +139,7 @@ test(
     await app.wait(3000);
     // Not on Vulkan or GL: wgpu 29 has external textures on Metal and DX12 only.
     await shoot("ImportExternalTexture");
+    expect(app.texts().filter((t) => / failed/.test(t) && !t.includes("ERR_WEBGPU_UNSUPPORTED"))).toEqual([]);
     console.log("TOUR done");
   },
   20 * 60_000,

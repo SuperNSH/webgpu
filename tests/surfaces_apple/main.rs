@@ -406,3 +406,63 @@ fn a_view_going_with_an_unpresented_frame_does_not_panic() {
         drop(layer);
     }
 }
+
+/// A canvas configured with one device and then another: a swap chain is of
+/// one device's queue, and drawing into it from another's had Windows remove
+/// the GPU device (found by the gallery's Context Edge Cases, which asks for
+/// a device per button). The surface is a composition surface handle's, as
+/// the Windows canvas view's.
+#[cfg(windows)]
+#[test]
+fn a_canvas_moves_from_one_device_to_another() {
+    use nsh_webgpu::surface::views;
+    use windows::Win32::Graphics::DirectComposition::DCompositionCreateSurfaceHandle;
+
+    // `COMPOSITIONOBJECT_ALL_ACCESS`.
+    // SAFETY: a plain call; the handle lives as long as the process.
+    let handle = unsafe { DCompositionCreateSurfaceHandle(0x3, None) }.expect("a handle");
+    // SAFETY: as above.
+    let surface = unsafe {
+        nsh_webgpu::instance::instance()
+            .create_surface_unsafe(wgpu::SurfaceTargetUnsafe::SurfaceHandle(handle.0))
+    }
+    .expect("a surface for the handle");
+    let id = WgpuCanvasContext::allocate_context_id();
+    WgpuCanvasContext::make(id).unwrap();
+    views::attach(id, surface, 64, 64);
+
+    let (first, second) = (device(), device());
+    for (device, size) in [
+        (first, 64),
+        (second, 64),
+        (second, 48),
+        (first, 1),
+        (second, 64),
+    ] {
+        WgpuCanvasContext::configure(id, configuration(device, json!({}), size, size)).unwrap();
+        for _ in 0..4 {
+            let frame = WgpuCanvasContext::get_current_texture(id, size, size).unwrap();
+            assert_eq!(
+                clear_and_read(device, frame, size, [1.0, 0.0, 0.0, 1.0], 0, 0),
+                [255, 0, 0, 255],
+            );
+            WgpuCanvasContext::present(id).unwrap();
+        }
+        // A frame that is never presented.
+        WgpuCanvasContext::get_current_texture(id, size, size).unwrap();
+    }
+    for device in [first, second] {
+        let entry = nsh_webgpu::api::device::DeviceEntry::get(device).expect("the device");
+        assert!(
+            entry
+                .device
+                .poll(wgpu::PollType::wait_indefinitely())
+                .is_ok()
+        );
+    }
+    // The GPU device is still there for a new one.
+    device();
+    canvas_context::view_gone(id);
+    WgpuCanvasContext::destroy_context(id);
+    WgpuCanvasContext::release(id);
+}
