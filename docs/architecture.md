@@ -189,7 +189,7 @@ Animation scales a drawable. `offscreen.rs` also keeps its own context functions
 | macOS | `NSView` hosting a `CAMetalLayer` (`surface/macos.rs`, `apple.rs`) | `SurfaceTargetUnsafe::CoreAnimationLayer`; drawable = bounds × backing scale |
 | iOS | `UIView` whose `+layerClass` is `CAMetalLayer` (`surface/ios.rs`, `apple.rs`) | same |
 | Android | `FrameLayout` with a `TextureView` (default) or `SurfaceView` (`surface/android.rs`); lifecycle followed on `AChoreographer` (no Java in an nshm) | `ANativeWindow_fromSurface` → `RawHandle` (AndroidNdk); the instance has one backend (`instance.rs`) |
-| Windows | child `HWND` (`surface/windows.rs`); `WM_NCHITTEST` → `HTTRANSPARENT` | `RawHandle` (Win32) |
+| Windows | a DirectComposition visual (`surface/windows.rs`); a child `HWND` without a DX12 adapter or with `WGPU_BACKEND` set | `SurfaceHandle` (DX12), else `RawHandle` (Win32) |
 | Linux | `gtk::Picture` (`surface/linux.rs`) | none: offscreen frames read back, shown as `gdk::MemoryTexture` |
 | Web | `<canvas>` in the view's element (`tsx/surface/web.tsx`) | the browser's WebGPU context, no wgpu |
 
@@ -226,8 +226,8 @@ else GL (emulators), unless `WGPU_BACKEND` is set (`android_backends`, tested on
   falls back to a `TextureView`. (surfaces-other)
 - **GTK 4 widgets have no native window or `wl_surface`**: Linux shows offscreen frames read back each `present()`
   (one GPU→CPU→GPU copy a frame; wgpu 29 cannot export a texture as dmabuf). (surfaces-other)
-- **NSH's Windows native components are child `HWND`s**: the canvas sits above whatever NSH draws over it
-  (airspace). (surfaces-other)
+- **Windows without DX12**: the canvas is a child `HWND`, opaque and above whatever NSH draws over it (airspace).
+  With DX12 it is a composition visual and has neither limit. (surfaces-other)
 - **macOS window pictures**: `app.screenshot()` returns a black picture and `screencapture` fails without Screen
   Recording permission, so the macOS canvas is verified by reading its drawables back. (surfaces-apple)
 - **NDK 29.0.14206865's `llvm-ar` on this Mac execs itself**: `nsh run --target android` hangs in `zstd-sys`'s build;

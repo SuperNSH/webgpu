@@ -1,8 +1,9 @@
 //! The process's one `wgpu::Instance`, as Dawn's `wgpu::Instance` is
 //! RNWebGPU's: every adapter, and every surface the canvas makes, comes
 //! from it. Backends follow wgpu's defaults for the platform (Metal on
-//! Apple, Vulkan/DX12 on Windows, Vulkan/GL on Linux), and `WGPU_BACKEND`
-//! and the other `WGPU_*` variables override them.
+//! Apple, Vulkan/GL on Linux; on Windows DX12 alone when it yields an
+//! adapter), and `WGPU_BACKEND` and the other `WGPU_*` variables override
+//! them.
 //!
 //! Android takes one backend per instance ([`android_backends`]): Vulkan
 //! when it yields an adapter, else GL.

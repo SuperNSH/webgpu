@@ -1,4 +1,4 @@
-# NSH nightly 589a60f (macOS/Windows shots: f577c51, run 45330513842; repeated on 589a60f by the next On screen run).
+# NSH nightly 589a60f. macOS, Windows: GitHub runners, On screen run 45337700042; Linux: the container below, and On screen run 45337293945.
 # android, ios: nsh run on this Mac (emulator-5590, AVD nsh-webgpu-surfaces-other; simulator nsh-webgpu-gallery). linux: ubuntu 24.04 arm64 container, Xvfb, lavapipe.
 ## macos.log
 ✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (6m 21s)

@@ -40,6 +40,7 @@ The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for
 - NSH nightly `589a60f`: on Linux, `requestAnimationFrame` fires (it never did on `f577c51`).
 - Linux and Android: concurrent `requestAdapter()` calls no longer panic in wgpu's EGL code.
 - Windows, Linux and Android: a device's memory blocks start at 8 MB and grow (wgpu's default takes 256 MB + 64 MB at once).
+- Windows: with DX12 the canvas is a composition visual: `alphaMode: "premultiplied"` works and NSH draws over it. The instance there is DX12's alone when it yields an adapter.
 - Rust 1.100: no warning in the crate or its manifest.
 
 ### Fixed (phase 4a)

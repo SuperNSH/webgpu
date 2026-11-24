@@ -101,7 +101,7 @@ Linux (Vulkan on lavapipe) (the platform table in `docs/architecture.md`).
 | macOS | `NSView` hosting a `CAMetalLayer` | run on screen (CI) |
 | iOS | `UIView` whose layer is a `CAMetalLayer` | run on screen (simulator) |
 | Android | `FrameLayout` holding a `TextureView` or `SurfaceView`, `ANativeWindow` → surface | run on screen (emulator, GL) after phase 3: the view itself (`examples/canvas-native`) and `<Canvas>` + `GPUCanvasContext` (`examples/canvas-apple`, the rAF Cube) |
-| Windows | child `HWND` | run on screen (CI, DX12 on WARP); opaque: `alphaMode: "premultiplied"` shows black where the canvas is transparent |
+| Windows | a DirectComposition visual (DX12); a child `HWND`, opaque and on top, without a DX12 adapter or with `WGPU_BACKEND` set | run on screen (CI, DX12 on WARP); the child window was too |
 | Linux | `gtk::Picture` fed by offscreen frames read back at each `present()` | run on screen (CI and a container, Vulkan on lavapipe) |
 | Web | `<canvas>` in the view, the browser's WebGPU | run on screen (browser; an app using the package, `docs/evidence/platforms/web-readme-app.jpg`) |
 | wasm build of the crate | wgpu's WebGPU backend | `cargo clippy --target wasm32-unknown-unknown` passes; linked into the app's web runtime, where the browser's own WebGPU is used instead |
