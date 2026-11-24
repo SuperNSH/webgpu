@@ -3,7 +3,7 @@ name: CI
 # The gates of AGENTS.md on GitHub's runners: format, Clippy and the tests on
 # macOS (Metal), Linux (Mesa's software Vulkan) and Windows (DX12 on WARP), Clippy
 # for the cross targets, and the TSX gates in examples/headless with the NSH
-# nightly the crate is pinned to (f577c51).
+# nightly the crate is pinned to (589a60f).
 #
 # Actions are pinned by commit; the comment after each SHA names the tag or
 # branch it was resolved from (`gh api repos/<owner>/<repo>/commits/<ref>`).
@@ -30,7 +30,7 @@ env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
   # The NSH build the crates' `rev` and examples/*/native are pinned to.
-  NSH_COMMIT: f577c51901a2857956f8ba0580da4db9ce3a3311
+  NSH_COMMIT: 589a60f7569c14023c262c126f50279f27ddf470
 
 jobs:
   format:
@@ -140,9 +140,9 @@ jobs:
     runs-on: macos-latest
     timeout-minutes: 75
     env:
-      # The nightly asset built from NSH_COMMIT (`.sha256` of the release on 2026-11-23).
+      # The nightly asset built from NSH_COMMIT (`.sha256` of the release on 2026-11-24).
       NSH_ASSET: nsh-macos-arm64.tar.gz
-      NSH_ASSET_SHA256: c243a77a300e673da03fac8db9e4e403fbc93fe5c357f814d32301c12abb9f8f
+      NSH_ASSET_SHA256: 0e4a883a241e3f8694432b7420d610fde88cfe16ca6071880a94b3e57403caa9
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master

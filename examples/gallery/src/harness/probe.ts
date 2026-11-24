@@ -156,11 +156,13 @@ export class Probe {
   }
 
   async report(image: Image, frame: number, snapshot?: Snapshot): Promise<void> {
+    await turn();
     let line = `probe ${this.name}: ${image.width}x${image.height} frame=${frame} err=${this.errors().length} ${summarize(image)}`;
     logPng(snapshot ? `${this.name}-snapshot` : this.name, image);
     if (snapshot) {
+      await turn();
       const reference = decodePng(new Uint8Array(await (await fetch(snapshot.url)).arrayBuffer()));
-      const { differ, total } = compare(over(image, snapshot.clear), reference);
+      const { differ, total } = await compare(image, snapshot.clear, reference);
       line += ` snapshot=${snapshot.file}:${differ}/${total}`;
     }
     this.status.set(line);
@@ -247,29 +249,41 @@ export function summarize(image: Image): string {
   return `distinct=${counts.size} top=${top.join(",")}`;
 }
 
-/** `image` (premultiplied) composited over `clear`. */
-function over(image: Image, clear: [number, number, number, number]): Image {
-  const rgba = new Uint8Array(image.rgba.length);
-  for (let i = 0; i < rgba.length; i += 4) {
-    const a = image.rgba[i + 3] / 255;
-    for (let c = 0; c < 4; c++) rgba[i + c] = Math.round(image.rgba[i + c] + (1 - a) * clear[c] * 255);
-  }
-  return { width: image.width, height: image.height, rgba };
-}
+/**
+ * Ends this call into JS and goes on in the next one: NSH's tests run an app
+ * with a budget per call (2 s), which a whole image's pixels can pass.
+ */
+const turn = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
-/** Pixels whose channels differ by more than the tolerance; a size mismatch differs everywhere. */
-function compare(a: Image, b: Image): { differ: number; total: number } {
-  const total = b.width * b.height;
-  if (a.width !== b.width || a.height !== b.height) return { differ: total, total };
+/** Pixels compared per call into JS. */
+const PIXELS_PER_TURN = 1 << 17;
+
+/**
+ * Pixels of `image` (premultiplied, composited over `clear`) whose channels
+ * differ from `reference`'s by more than the tolerance; a size mismatch
+ * differs everywhere.
+ */
+async function compare(
+  image: Image,
+  clear: [number, number, number, number],
+  reference: Image,
+): Promise<{ differ: number; total: number }> {
+  const total = reference.width * reference.height;
+  if (image.width !== reference.width || image.height !== reference.height) return { differ: total, total };
+  const a = image.rgba;
+  const b = reference.rgba;
   let differ = 0;
-  for (let i = 0; i < a.rgba.length; i += 4) {
-    if (
-      Math.abs(a.rgba[i] - b.rgba[i]) > CHANNEL_TOLERANCE ||
-      Math.abs(a.rgba[i + 1] - b.rgba[i + 1]) > CHANNEL_TOLERANCE ||
-      Math.abs(a.rgba[i + 2] - b.rgba[i + 2]) > CHANNEL_TOLERANCE ||
-      Math.abs(a.rgba[i + 3] - b.rgba[i + 3]) > CHANNEL_TOLERANCE
-    ) {
-      differ++;
+  for (let start = 0; start < a.length; start += PIXELS_PER_TURN * 4) {
+    await turn();
+    const end = Math.min(a.length, start + PIXELS_PER_TURN * 4);
+    for (let i = start; i < end; i += 4) {
+      const rest = (1 - a[i + 3] / 255) * 255;
+      for (let c = 0; c < 4; c++) {
+        if (Math.abs(Math.round(a[i + c] + rest * clear[c]) - b[i + c]) > CHANNEL_TOLERANCE) {
+          differ++;
+          break;
+        }
+      }
     }
   }
   return { differ, total };

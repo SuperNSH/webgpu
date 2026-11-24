@@ -35,6 +35,13 @@ The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for
 - `createTestVideoFrame(width, height)` has the reference export's signature.
 - Overflow-checked buffer ranges, the Android window released after its surface is replaced, a replaced surface dropped outside the views lock, `Wgpu.release` guarded, a ticket dropped when its wait gives up; Cargo metadata.
 
+### Fixed (every platform on screen)
+
+- NSH nightly `589a60f`: on Linux, `requestAnimationFrame` fires (it never did on `f577c51`).
+- Linux and Android: concurrent `requestAdapter()` calls no longer panic in wgpu's EGL code.
+- Windows, Linux and Android: a device's memory blocks start at 8 MB and grow (wgpu's default takes 256 MB + 64 MB at once).
+- Rust 1.100: no warning in the crate or its manifest.
+
 ### Fixed (phase 4a)
 
 - The crate is the repository's root (`Cargo.toml`, `nsh.json`), so `nsh add github:SuperNSH/webgpu` and `nsh add --path <checkout>` read it.
@@ -42,4 +49,3 @@ The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for
 - Unmounting `<Canvas>` no longer unconfigures its context: it renders offscreen, as the reference's.
 - `createRenderPipelineAsync` / `createComputePipelineAsync` compile off the JS thread.
 - `createImageBitmap` is declared in the package's types.
-- Windows and Linux are compile-checked only.

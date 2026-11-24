@@ -52,7 +52,7 @@ destructure because the children only mount once the device exists, as in the re
 | `adoptTexture(pointer)` | `ERR_WEBGPU_UNSUPPORTED` | adopts a Dawn `WGPUTexture*`; same reason |
 | Types (`types.ts`) | match the reference | `NativeCanvas` (with the no-op DOM stubs), `RNCanvasContext`, `CanvasRef`, `NativeBuffer` (`handle`, `acquireFenceFd`), `NativeBufferPixelFormat`, `NativeBufferColorSpace`, `GPUExtent2D`, `GPUNativeExternalTextureDescriptor`, `VideoPlayer`, `GPUCopyExternalNativeFrameSourceInfo`, `CreateVideoPlayerOptions`, `GPUDrawElementImageSourceView` (`React.Component` → `object`), `GPUDrawElementImageSource`, `GPUDrawElementImageDestination`, `GPUSharedTextureMemoryDescriptor`, `GPUSharedFenceType`, `GPUSharedFenceDescriptor`, `GPUSharedFenceExportInfo`, `GPUSharedFence`, `GPUSharedFenceState`, `GPUSharedTextureMemoryEndAccessState`, `GPUDawnTogglesDescriptor`, `GPUSharedTextureMemory`, `CreateNativeBufferOptions`. The stub's wrong shapes (`NativeBuffer.pointer`, `VideoPlayer.nextFrame/seek`, `CreateVideoPlayerOptions.source/loop`) were replaced. |
 
-## Evidence (macOS, Metal, nightly `nsh 0.6.0 (f577c51 nightly 2026-11-22)`)
+## Evidence (macOS, Metal, nightly `nsh 0.6.0 (589a60f nightly 2026-11-23)`)
 
 | Claim | Command (in `examples/headless`, `NSH_HOME=$PWD/../../.nsh-home`) | Output |
 |---|---|---|

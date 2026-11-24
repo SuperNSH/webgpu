@@ -1,0 +1,31 @@
+# NSH nightly 589a60f (macOS/Windows shots: f577c51, run 45330513842; repeated on 589a60f by the next On screen run).
+# android, ios: nsh run on this Mac (emulator-5590, AVD nsh-webgpu-surfaces-other; simulator nsh-webgpu-gallery). linux: ubuntu 24.04 arm64 container, Xvfb, lavapipe.
+## macos.log
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (6m 21s)
+✓ built App.tsx (156.4 KB js, 437.3 KB bytecode, 116ms)
+✓ built the development host for macOS (7m 25s)
+• macOS (sat12-dp152-e23bfc74-6c89-4b01-88b9-11ba36860e81-7A7F99553282) connected, build 1
+## windows.log
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (10m 7s)
+✓ built App.tsx (156.3 KB js, 437.2 KB bytecode, 54ms)
+✓ built the development host for Windows (13m 16s)
+• Windows (runnervmbpeip) connected, build 1
+## linux.log
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (36.9s)
+✓ built App.tsx (156.3 KB js, 437.1 KB bytecode, 27ms)
+✓ built the development host for Linux (1m 5s)
+• Linux (4c9d454a9af5) connected, build 1
+## run-canvas-apple-android.log
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (347ms)
+✓ built App.tsx (156.4 KB js, 437.3 KB bytecode, 25ms)
+✓ installed `android` (1.3s)
+✓ built libnsh.so of webgpu-canvas-native, nsh-webgpu for arm64-v8a (1m 5s)
+✓ built the Android development host (1.2s)
+✓ installed the Android development host on emulator-5590 (518ms)
+• Android Emulator (sdk_gphone16k_arm64) connected, build 1
+## run-canvas-apple-ios.log
+✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (278ms)
+✓ built App.tsx (156.4 KB js, 437.3 KB bytecode, 25ms)
+✓ built the development host for the iOS simulator (2m 14s)
+• iOS Simulator (nsh-webgpu-gallery) connected, build 1
+linux: red pixels [19188, 19188], changed pixels 52610

@@ -53,7 +53,7 @@ on macOS and iOS, against react-native-webgpu at 06599f9 (`src/Canvas.tsx`, `src
 ## Verified
 
 macOS 27.2 (Apple M3 Max), iOS 27.0 simulator `nsh-webgpu-iphone` (iPhone 18 Pro), nightly
-`nsh 0.6.0 (f577c51 nightly 2026-11-22)`, wgpu 29.0.4. Evidence in `docs/evidence/surfaces-apple/`:
+`nsh 0.6.0 (589a60f nightly 2026-11-23)`, wgpu 29.0.4. Evidence in `docs/evidence/surfaces-apple/`:
 
 - iOS simulator, on screen: `ios-simulator-screen.png`, `ios-simulator-screen-2.png` (`xcrun simctl io …
   screenshot` while `nsh run --target ios` ran `examples/canvas-apple`; looked at: red Triangle on the `#3498db`

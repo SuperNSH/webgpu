@@ -57,8 +57,8 @@ Both `TextureView` and `SurfaceView` were seen on screen on an emulator with the
 
 ## Other platforms
 
-- Windows: a child `HWND`; it sits above anything NSH draws over the canvas. Compile-checked only.
-- Linux: a `gtk::Picture` showing offscreen frames, one GPU→CPU→GPU copy per presented frame (GTK 4 gives a widget no window of its own, and wgpu cannot export a dmabuf). Compile-checked only.
+- Windows: a child `HWND`; it sits above anything NSH draws over the canvas.
+- Linux: a `gtk::Picture` showing offscreen frames, one GPU→CPU→GPU copy per presented frame (GTK 4 gives a widget no window of its own, and wgpu cannot export a dmabuf).
 - Web: the browser's own WebGPU and `<canvas>` (id `rnwgpu-canvas-<id>`), with a no-op `present()` and a drawing buffer of the layout size times `devicePixelRatio`, as the reference's web build.
 
 `docs/parity/surfaces-apple.md` and `docs/parity/surfaces-other.md` have every row.

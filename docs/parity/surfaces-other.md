@@ -40,7 +40,7 @@ the contract of `src/surface/views.rs`: make a `wgpu::Surface<'static>` from `cr
 | Web: canvas DOM id | `rnwgpu-canvas-<id>`; the host view carries it as `data-testid` | NSH has no `<canvas>` element and shows no native component on the web; a `testID` passed to `<Canvas>` on the web is replaced |
 | `GPUOffscreenCanvas.getImageData` readback | any width (rows padded to 256 and unpadded natively) | the reference's `bytesPerRow = width * 4` only works for widths that are multiples of 64 |
 
-## Facts found (NSH nightly f577c51, wgpu 29)
+## Facts found (NSH nightly 589a60f, wgpu 29)
 
 - The web player runs a TSX app's modules in a same-origin iframe realm (`nsh-platform-web/web/browser/realm.js`)
   while the views are elements of the page: `globalThis.document` is the iframe's, empty. `web.tsx` uses

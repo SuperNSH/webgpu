@@ -1,7 +1,7 @@
 # Parity with react-native-webgpu
 
 Every export of react-native-webgpu (commit `06599f9`, `packages/webgpu/src`; the list is `docs/inventory.md` §1–2)
-and what nsh-webgpu does with it, on wgpu 29.0.4 and the NSH nightly `f577c51`. One table per area. Status:
+and what nsh-webgpu does with it, on wgpu 29.0.4 and the NSH nightly `589a60f`. One table per area. Status:
 
 - **done**: the reference's name, signature, defaults and errors.
 - **partial**: works, with the difference given.
@@ -14,8 +14,8 @@ The area files hold the design, the tests ported from `packages/webgpu/src/__tes
 [surfaces-other](parity/surfaces-other.md), [react-parity](parity/react-parity.md). Where an area file and this
 page disagree, this page is current (phase 3, `docs/evidence/integration/`).
 
-Verified on macOS 27.2 (Apple M3 Max, Metal), the iOS 27 simulator, an Android emulator (GL) and a browser; Windows
-and Linux are compile-checked only (the platform table in `docs/architecture.md`).
+Verified on macOS 27.2 (Apple M3 Max, Metal), the iOS 27 simulator, an Android emulator (GL) a browser, and on screen in CI on macOS, Windows (DX12 on WARP) and
+Linux (Vulkan on lavapipe) (the platform table in `docs/architecture.md`).
 
 ## `navigator.gpu`, adapter, device (foundation)
 
@@ -98,13 +98,13 @@ and Linux are compile-checked only (the platform table in `docs/architecture.md`
 
 | Platform | Canvas | Status |
 |---|---|---|
-| macOS | `NSView` hosting a `CAMetalLayer` | run (drawables read back; the window itself not captured) |
+| macOS | `NSView` hosting a `CAMetalLayer` | run on screen (CI) |
 | iOS | `UIView` whose layer is a `CAMetalLayer` | run on screen (simulator) |
 | Android | `FrameLayout` holding a `TextureView` or `SurfaceView`, `ANativeWindow` → surface | run on screen (emulator, GL) after phase 3: the view itself (`examples/canvas-native`) and `<Canvas>` + `GPUCanvasContext` (`examples/canvas-apple`, the rAF Cube) |
-| Windows | child `HWND` | compile-checked only |
-| Linux | `gtk::Picture` fed by offscreen frames read back at each `present()` | compile-checked only (GTK faked); the canvas context's offscreen path to it is tested on macOS |
-| Web | `<canvas>` in the view, the browser's WebGPU | run on screen (browser, `examples/canvas-web`) |
-| wasm build of the crate | wgpu's WebGPU backend | `cargo clippy --target wasm32-unknown-unknown` passes; not run |
+| Windows | child `HWND` | run on screen (CI, DX12 on WARP); opaque: `alphaMode: "premultiplied"` shows black where the canvas is transparent |
+| Linux | `gtk::Picture` fed by offscreen frames read back at each `present()` | run on screen (CI and a container, Vulkan on lavapipe) |
+| Web | `<canvas>` in the view, the browser's WebGPU | run on screen (browser; an app using the package, `docs/evidence/platforms/web-readme-app.jpg`) |
+| wasm build of the crate | wgpu's WebGPU backend | `cargo clippy --target wasm32-unknown-unknown` passes; linked into the app's web runtime, where the browser's own WebGPU is used instead |
 
 ## React API and extensions (area e)
 
@@ -149,8 +149,8 @@ Found by the audit (`docs/audit/REPORT.md`) and left as they are, with the reaso
 |---|---|---|
 | N2 | An error made off the JS thread (a blocking poll in `Wgpu.wait`) lands in the device's innermost open error scope at that moment, which may be a scope the JS thread pushed after the call that caused it. | The error scopes are kept per device (wgpu's are per thread), and wgpu reports such an error without saying which call made it. In practice the work that waits (`mapAsync`, `onSubmittedWorkDone`) reports its own errors on the JS thread first. |
 | N3 | The UI thread's attach (`surface_attached`) and the JS thread's first `getCurrentTexture()` may both configure the surface. | Each holds the context lock while it configures, so the two configurations are whole and the second wins with the same values; the cost is one redundant `configure`. |
-| N5 | On wasm, `requestAdapter`/`requestDevice` run their wgpu future through `pollster::block_on` in place, which would never finish on the browser's event loop. | The wasm build of the crate is compile-checked only and used by nothing: on the web, nsh-webgpu uses the browser's own WebGPU from TSX (`tsx/surface/web.tsx`). |
-| N8 | Linux reads each presented frame back to the CPU on an OS thread of its own. | Linux shows offscreen frames in a `gtk::Picture` (GTK 4 gives a widget no native surface); the path is compile-checked only. A pool belongs with running it on Linux, which nobody has done. |
+| N5 | On wasm, `requestAdapter`/`requestDevice` run their wgpu future through `pollster::block_on` in place, which would never finish on the browser's event loop. | No app calls them on wasm: on the web, nsh-webgpu uses the browser's own WebGPU from TSX (`tsx/surface/web.tsx`). |
+| N8 | Linux reads each presented frame back to the CPU on an OS thread of its own. | Linux shows offscreen frames in a `gtk::Picture` (GTK 4 gives a widget no native surface); a thread pool would save the threads. |
 | | `Wgpu.wait` gives up after 8 polls of an unfinished ticket; its ticket is dropped then (N7, fixed), and the `mapAsync` it served rejects with an `OperationError`. | |
 | | The `RNWebGPU` and `__webgpuAnimationFrames` globals are not installed or declared. | Their functions are the package's exports and NSH's frame clock. |
 | | A destroyed device's wgpu handle stays (out of the registry, its GPU memory freed by `destroy()`) until its `GPUDevice` is collected. | Its objects (queues, buffers, encoders) find their device by id and must keep behaving as a lost device's objects do, without exceptions. |

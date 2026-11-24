@@ -6,6 +6,6 @@ edition = "2024"
 publish = false
 
 [dependencies]
-nsh-core = { git = "https://github.com/longbridge/nsh", rev = "f577c51901a2857956f8ba0580da4db9ce3a3311" }
+nsh-core = { git = "https://github.com/longbridge/nsh", rev = "589a60f7569c14023c262c126f50279f27ddf470" }
 
 [workspace]

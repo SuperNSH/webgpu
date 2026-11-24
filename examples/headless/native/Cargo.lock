@@ -654,7 +654,7 @@ dependencies = [
 [[package]]
 name = "nsh-core"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=f577c51901a2857956f8ba0580da4db9ce3a3311#f577c51901a2857956f8ba0580da4db9ce3a3311"
+source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
 dependencies = [
  "cap-std",
  "chrono",
@@ -685,7 +685,7 @@ dependencies = [
 [[package]]
 name = "nsh-macros"
 version = "0.6.0"
-source = "git+https://github.com/longbridge/nsh?rev=f577c51901a2857956f8ba0580da4db9ce3a3311#f577c51901a2857956f8ba0580da4db9ce3a3311"
+source = "git+https://github.com/longbridge/nsh?rev=589a60f7569c14023c262c126f50279f27ddf470#589a60f7569c14023c262c126f50279f27ddf470"
 dependencies = [
  "imagesize",
  "proc-macro2",

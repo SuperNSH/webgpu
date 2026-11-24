@@ -17,7 +17,7 @@ from pathlib import Path
 
 from PIL import ImageGrab
 
-CONNECT_SECONDS = 1500  # the first run builds the host
+CONNECT_SECONDS = 2700  # the first run builds the host
 
 
 def red(image):

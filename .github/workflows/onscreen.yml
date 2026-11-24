@@ -24,13 +24,13 @@ defaults:
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
-  NSH_COMMIT: f577c51901a2857956f8ba0580da4db9ce3a3311
+  NSH_COMMIT: 589a60f7569c14023c262c126f50279f27ddf470
 
 jobs:
   desktop:
     name: ${{ matrix.target }}
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 120
+    timeout-minutes: 150
     strategy:
       fail-fast: false
       matrix:

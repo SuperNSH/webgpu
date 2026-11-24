@@ -6,7 +6,7 @@ nsh-webgpu brings the [WebGPU API](https://www.w3.org/TR/webgpu/) to NSH apps on
 
 | | Needed |
 |---|---|
-| NSH | the nightly built from `f577c51` (`nsh 0.6.0 (f577c51 nightly 2026-11-22)`). The 0.6.0 release does not work: the crate takes NSH from Git at that commit |
+| NSH | the nightly built from `589a60f` (`nsh 0.6.0 (589a60f nightly 2026-11-23)`). The 0.6.0 release does not work: the crate takes NSH from Git at that commit |
 | Rust | stable; the workspace declares `rust-version = "1.97"`. Every app using the package builds Rust |
 | App | a crate of its own pinned to the same NSH commit (below) |
 
@@ -14,12 +14,12 @@ The backend per platform is the one wgpu picks there:
 
 | Platform | Backend | State |
 |---|---|---|
-| macOS | Metal | tested (cargo, `nsh test`, the canvas's drawable) |
+| macOS | Metal | tested (cargo, `nsh test`), on screen in CI |
 | iOS | Metal | on screen in the simulator; no physical device |
 | Android | Vulkan, else GLES (one backend per instance) | the merged code on screen in an emulator, on GLES (`examples/canvas-native`, `examples/canvas-apple`); no physical device |
 | Web | the browser's WebGPU, not wgpu | on screen in Chrome |
-| Windows | DX12, Vulkan, GL | compile-checked only |
-| Linux | Vulkan, GL | compile-checked only |
+| Windows | DX12, Vulkan, GL | on screen in CI, DX12 on WARP (software) |
+| Linux | Vulkan, GL | on screen in CI, Vulkan on lavapipe (software) |
 
 The evidence for each row is in the README's "Status".
 
@@ -30,11 +30,11 @@ curl -fsSL https://nsh.dev/install.sh | sh -s -- --nightly
 nsh --version
 ```
 
-The nightly release is rebuilt from `main` every night it changes and keeps no older builds. If `nsh --version` names another commit than `f577c51`, build the CLI from that commit instead: clone `https://github.com/longbridge/nsh`, check out `f577c51901a2857956f8ba0580da4db9ce3a3311`, run `cargo build --release --locked -p nsh-cli`, and use `target/release/nsh`. A CLI built in a checkout builds its hosts from that checkout. CI does the same when the nightly has moved (`.github/workflows/ci.yml`, job `typescript`).
+The nightly release is rebuilt from `main` every night it changes and keeps no older builds. If `nsh --version` names another commit than `589a60f`, build the CLI from that commit instead: clone `https://github.com/longbridge/nsh`, check out `589a60f7569c14023c262c126f50279f27ddf470`, run `cargo build --release --locked -p nsh-cli`, and use `target/release/nsh`. A CLI built in a checkout builds its hosts from that checkout. CI does the same when the nightly has moved (`.github/workflows/ci.yml`, job `typescript`).
 
 ## Add the package
 
-Create a TSX app with `nsh init my-app --template ts`, or use an existing one. (`--template mixed` does not fit as generated: its crate is an nshm of the app's (`ext/<name>-native`, by path), not the app's own `"rust"` crate, so even pinned to `f577c51` the hosts still build against crates.io's `nsh-core` and fail with two of them; `docs/evidence/fixes-audit/template-mixed-probe.txt`. Use `ts` and add the crate below.) Then, in its directory:
+Create a TSX app with `nsh init my-app --template ts`, or use an existing one. (`--template mixed` does not fit as generated: its crate is an nshm of the app's (`ext/<name>-native`, by path), not the app's own `"rust"` crate, so even pinned to `589a60f` the hosts still build against crates.io's `nsh-core` and fail with two of them; `docs/evidence/fixes-audit/template-mixed-probe.txt`. Use `ts` and add the crate below.) Then, in its directory:
 
 ```sh
 nsh add github:SuperNSH/webgpu
@@ -51,7 +51,7 @@ nsh add --path ../webgpu
 
 ## Give the app its own crate
 
-A TSX app whose only Rust is a Git-pinned nshm gets hosts built against crates.io's `nsh-core` 0.6.0, and the build fails with two `nsh-core`s (`expected Registry, found nsh_core::element::component::Registry`). An app crate pinned to `f577c51` makes nsh take every NSH crate from that checkout ([docs/architecture.md](../../architecture.md), "Blockers"). Copy `examples/headless/native` and rename it:
+A TSX app whose only Rust is a Git-pinned nshm gets hosts built against crates.io's `nsh-core` 0.6.0, and the build fails with two `nsh-core`s (`expected Registry, found nsh_core::element::component::Registry`). An app crate pinned to `589a60f` makes nsh take every NSH crate from that checkout ([docs/architecture.md](../../architecture.md), "Blockers"). Copy `examples/headless/native` and rename it:
 
 `nsh.json`:
 
@@ -80,7 +80,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
-nsh-core = { git = "https://github.com/longbridge/nsh", rev = "f577c51901a2857956f8ba0580da4db9ce3a3311" }
+nsh-core = { git = "https://github.com/longbridge/nsh", rev = "589a60f7569c14023c262c126f50279f27ddf470" }
 
 [workspace]
 ```
@@ -94,7 +94,7 @@ use nsh_core::prelude::*;
 fn native(_registry: &mut Registry) {}
 ```
 
-Keep `examples/headless/native/Cargo.lock` beside it. It was seeded from NSH's lock at `f577c51`; newer patch releases of NSH's dependencies have broken the build before (`rolldown_std_utils` 1.3.3).
+Keep `examples/headless/native/Cargo.lock` beside it. It was seeded from NSH's lock at `589a60f`; newer patch releases of NSH's dependencies have broken the build before (`rolldown_std_utils` 1.3.3).
 
 The samples app in `examples/headless/samples/` is set up this way and passes `nsh check`, `nsh build` and `nsh test`.
 
@@ -120,6 +120,6 @@ On a machine without a GPU, wgpu may offer a software adapter (lavapipe, WARP) o
 ## Troubleshooting
 
 - **`no [package] name` from `nsh add`**: the path is not the repository's root (an older checkout kept the crate in `crates/nsh-webgpu`; pass that directory there).
-- **E0308 `expected Registry, found ...Registry` while building hosts**: the app has no crate of its own pinned to `f577c51`. See above.
+- **E0308 `expected Registry, found ...Registry` while building hosts**: the app has no crate of its own pinned to `589a60f`. See above.
 - **Android emulators**: wgpu found no Vulkan adapter on the emulator used here and ran on GLES. `warnIfNotHardwareAccelerated` warns when the adapter is a software fallback.
 - **`nsh run --target android` hangs in `zstd-sys`'s build script**: seen with NDK 29.0.14206865's `llvm-ar` on one Mac; `ANDROID_NDK_HOME` pointing at NDK 28.2 worked (`docs/parity/surfaces-other.md`).

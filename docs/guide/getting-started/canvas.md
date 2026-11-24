@@ -56,8 +56,8 @@ Per platform:
 
 - macOS and iOS: wgpu's Metal surfaces offer only opaque and post-multiplied alpha. nsh-webgpu maps `"premultiplied"` to a non-opaque `CAMetalLayer`, which Core Animation composites as premultiplied: what the spec means. Seen on screen in the iOS simulator (`docs/evidence/surfaces-apple/ios-simulator-screen.png`).
 - Android: as in the reference, the backing view decides. A `TextureView` (the default) composites with alpha unless `android={{ opaque: true }}`; a `SurfaceView` is opaque unless `opaque: false`.
-- Linux: `"opaque"` frames are shown without alpha, `"premultiplied"` as premultiplied. Not run.
-- Windows: the canvas is a child window, which sits above anything NSH draws over it (airspace). Not run.
+- Linux: `"opaque"` frames are shown without alpha, `"premultiplied"` as premultiplied.
+- Windows: the canvas is a child window, which sits above anything NSH draws over it (airspace) and is opaque: `"premultiplied"` shows black where the canvas is transparent.
 
 ## Color space
 

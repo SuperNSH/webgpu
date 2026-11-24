@@ -4,9 +4,9 @@
 
 ## Toolchain
 
-- The NSH nightly built from [`longbridge/nsh` at `f577c51`](https://github.com/longbridge/nsh/tree/f577c51901a2857956f8ba0580da4db9ce3a3311), kept in the checkout at `.nsh-nightly/nsh/bin/nsh` (`nsh 0.6.0 (f577c51 nightly 2026-11-22)`; the directory is ignored by git). Unpack the nightly release asset there while the nightly is still `f577c51`, or build the CLI from that commit (`cargo build --release --locked -p nsh-cli`), as CI does. Do not use another `nsh` on `PATH`, and do not run `nsh update`.
+- The NSH nightly built from [`longbridge/nsh` at `589a60f`](https://github.com/longbridge/nsh/tree/589a60f7569c14023c262c126f50279f27ddf470), kept in the checkout at `.nsh-nightly/nsh/bin/nsh` (`nsh 0.6.0 (589a60f nightly 2026-11-23)`; the directory is ignored by git). Unpack the nightly release asset there while the nightly is still `589a60f`, or build the CLI from that commit (`cargo build --release --locked -p nsh-cli`), as CI does. Do not use another `nsh` on `PATH`, and do not run `nsh update`.
 - `NSH_HOME="$PWD/.nsh-home"` for every `nsh` command, so installs and build caches stay in the checkout. The `justfile` sets it.
-- Every `nsh-*` crate comes from Git at `rev = "f577c51901a2857956f8ba0580da4db9ce3a3311"`, in the crate and in each example's `native/` crate. Keep the `Cargo.lock` files: they were seeded from NSH's own lock at that commit.
+- Every `nsh-*` crate comes from Git at `rev = "589a60f7569c14023c262c126f50279f27ddf470"`, in the crate and in each example's `native/` crate. Keep the `Cargo.lock` files: they were seeded from NSH's own lock at that commit.
 - Rust stable, with the targets you check: `wasm32-unknown-unknown`, `aarch64-linux-android` (and an NDK), `aarch64-apple-ios-sim`.
 
 ## Areas and worktrees

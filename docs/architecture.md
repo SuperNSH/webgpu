@@ -10,7 +10,7 @@ verified" for where it runs.
 ```text
 Cargo.toml                         the nshm's crate `nsh-webgpu` (keywords = ["nshm"], MIT) and its workspace
                                    (members = ["."]; examples/ and docs/upstream/ excluded); nsh crates from Git
-                                   at f577c51, wgpu 29
+                                   at 589a60f, wgpu 29
 nsh.json                           { "exports": { "nsh-webgpu": "tsx/index.tsx" } }
 src/lib.rs                         #[native_module("nsh-webgpu/native")]: the module list
 src/registry.rs                    the handle registry
@@ -193,6 +193,10 @@ Animation scales a drawable. `offscreen.rs` also keeps its own context functions
 | Linux | `gtk::Picture` (`surface/linux.rs`) | none: offscreen frames read back, shown as `gdk::MemoryTexture` |
 | Web | `<canvas>` in the view's element (`tsx/surface/web.tsx`) | the browser's WebGPU context, no wgpu |
 
+`instance.rs`, `request_adapter`: on Linux and Android adapters are enumerated once and kept. wgpu-hal's GL adapters
+share one EGL context but each locks it apart, so enumerating again while another thread enumerates, drops an adapter
+or uses a GL device panicked (`EGL_BAD_ACCESS`).
+
 `instance.rs`: on Android an `ANativeWindow` takes one producer API, and a surface made for Vulkan and GL at once
 connects the window for Vulkan, so GL's EGL surface fails. The instance there has Vulkan when it yields an adapter,
 else GL (emulators), unless `WGPU_BACKEND` is set (`android_backends`, tested on the host).
@@ -211,7 +215,7 @@ else GL (emulators), unless `WGPU_BACKEND` is set (`android_backends`, tested on
 - `#[module]` recognizes `Result` by name: a type alias returning `Result` fails to compile with "`Result<..>: Ret`
   is not satisfied".
 - Cargo resolves newer patch versions than NSH tested (rolldown_std_utils 1.3.3 broke nsh-bundler 1.2.13): the
-  workspace's `Cargo.lock` was seeded from NSH's own at f577c51; keep it, and seed `examples/headless/native` the same.
+  workspace's `Cargo.lock` was seeded from NSH's own at 589a60f; keep it, and seed `examples/headless/native` the same.
 - **The web player runs a TSX app's modules in a same-origin iframe realm** (`nsh-platform-web/web/browser/realm.js`)
   while the views are elements of the page: `globalThis.document` is the iframe's, empty; `tsx/surface/web.tsx` uses
   `parent.document` / `parent.navigator.gpu`. The first `onLayout` comes before the DOM runtime inserted the view's
@@ -263,11 +267,12 @@ Rules that keep the sets disjoint:
 
 ## What is verified
 
-On macOS 27.2, Apple Silicon, Metal, nightly `nsh 0.6.0 (f577c51 nightly 2026-11-22)`, rustc 1.99.1, after phase 3
+On macOS 27.2, Apple Silicon, Metal, nightly `nsh 0.6.0 (589a60f nightly 2026-11-23)`, rustc 1.99.1, after phase 3
 (`docs/evidence/integration/`): `cargo fmt`, `cargo clippy --workspace --all-targets -D warnings`, `cargo test
 --workspace`; clippy `-D warnings` for `wasm32-unknown-unknown`, `aarch64-linux-android`, `x86_64-pc-windows-gnu`,
 `aarch64-apple-ios-sim` and (GTK faked) `x86_64-unknown-linux-gnu`; `nsh check` / `nsh build` / `nsh test` in
 `examples/headless`, `canvas-apple`, `canvas-native`, `canvas-web`. Each phase 3 change has a test seen failing on
 purpose (`broken-on-purpose-*.txt`). On screen: the iOS simulator and a browser (area evidence) and an Android
-emulator (GL; `android-canvas-native.png`, `android-canvas-apple.png`: the view, and `<Canvas>` with the rAF Cube). Not verified: Windows and Linux at run time, any GPU but this Mac's and the emulator's, Vulkan and DX12
-paths, a physical phone.
+emulator (GL; `android-canvas-native.png`, `android-canvas-apple.png`: the view, and `<Canvas>` with the rAF Cube). The state today is in
+the README's Status: every platform on screen, the desktops in CI (`.github/workflows/onscreen.yml`). Not verified: a
+hardware GPU on Windows, Linux or Android, and a physical phone.
