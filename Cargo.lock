@@ -2071,6 +2071,8 @@ dependencies = [
  "serde_json",
  "tokio",
  "wgpu",
+ "windows",
+ "windows-numerics",
 ]
 
 [[package]]

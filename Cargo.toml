@@ -98,6 +98,9 @@ objc2-ui-kit = { version = "0.3.2", default-features = false, features = ["std",
 [target.'cfg(windows)'.dependencies]
 nsh-platform-windows = { git = "https://github.com/longbridge/nsh", rev = "589a60f7569c14023c262c126f50279f27ddf470", default-features = false }
 log = "0.4"
+# The versions nsh-platform-windows re-exports: the composition surface handle needs Win32_Security.
+windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Security", "Win32_Graphics_Direct2D_Common", "Win32_Graphics_DirectComposition", "Win32_Graphics_Dxgi_Common"] }
+windows-numerics = "0.3"
 
 [target.'cfg(target_os = "linux")'.dependencies]
 nsh-platform-linux = { git = "https://github.com/longbridge/nsh", rev = "589a60f7569c14023c262c126f50279f27ddf470", default-features = false }

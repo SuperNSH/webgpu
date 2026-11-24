@@ -21,8 +21,30 @@ static INSTANCE: LazyLock<wgpu::Instance> = LazyLock::new(|| {
     }) {
         desc.backends = backends;
     }
+    #[cfg(windows)]
+    if dx12_only() {
+        desc.backends = wgpu::Backends::DX12;
+    }
     wgpu::Instance::new(desc)
 });
+
+/// Whether the instance is DX12's alone: on Windows, when it yields an
+/// adapter (Dawn's choice there) and `WGPU_BACKEND` does not say otherwise.
+/// A canvas is then a composition visual, with transparency, which only
+/// DX12 presents to; else a child window (`surface/windows.rs`).
+#[cfg(windows)]
+pub fn dx12_only() -> bool {
+    static DX12: LazyLock<bool> = LazyLock::new(|| {
+        if std::env::var_os("WGPU_BACKEND").is_some() {
+            return false;
+        }
+        let mut probe = wgpu::InstanceDescriptor::new_without_display_handle();
+        probe.backends = wgpu::Backends::DX12;
+        let dx12 = wgpu::Instance::new(probe);
+        !pollster::block_on(dx12.enumerate_adapters(wgpu::Backends::DX12)).is_empty()
+    });
+    *DX12
+}
 
 /// The instance.
 pub fn instance() -> &'static wgpu::Instance {

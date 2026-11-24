@@ -4,7 +4,7 @@
     python scripts/onscreen.py <target: macos|linux|windows> <app dir> <output dir>
 
 Takes two screenshots a second apart (needs Pillow) and passes when the red
-triangle is on both and the rotating cube moved between them. The log and
+triangle is on both, over the view its transparent canvas lies on, and the rotating cube moved between them. The log and
 the screenshots stay in the output dir either way. `NSH` names the CLI.
 """
 
@@ -23,6 +23,11 @@ CONNECT_SECONDS = 2700  # the first run builds the host
 def red(image):
     """Pixels of the triangle's red, give or take the display's color profile."""
     return sum(n for n, (r, g, b) in image.getcolors(1 << 24) if r > 200 and g < 80 and b < 80)
+
+
+def through(image):
+    """Pixels of the view under the triangle's transparent canvas (#3498db)."""
+    return sum(n for n, (r, g, b) in image.getcolors(1 << 24) if r < 100 and 120 < g < 180 and b > 190)
 
 
 def moved(a, b):
@@ -60,6 +65,8 @@ def main():
     print("\n".join(l[:300] for l in lines[-40:]))
     if min(reds) < 2000:
         sys.exit("no red triangle on screen")
+    if min(through(s) for s in shots) < 50000:
+        sys.exit("the view under the transparent canvas does not show")
     if changed < 2000:
         sys.exit("the cube did not move")
 

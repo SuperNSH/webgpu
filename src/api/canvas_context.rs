@@ -342,8 +342,7 @@ pub fn surface_attached(context_id: u32) {
         } else {
             wgpu::TextureUsages::empty()
         };
-        view.surface
-            .configure(&config.device, &config.surface(&view.surface, extra));
+        configure_view(context_id, &view.surface, &config, extra);
         ctx.configured = Some(Arc::clone(&view.surface));
         ctx.offscreen_presented = false;
         drop(all);
@@ -416,6 +415,21 @@ fn log_error(context_id: u32, error: &str) {
 }
 
 /// Copies `offscreen` onto the surface's next texture and presents it.
+/// Configures `surface`, the one of `context_id`'s view, with `config`.
+fn configure_view(
+    context_id: u32,
+    surface: &wgpu::Surface<'static>,
+    config: &Config,
+    extra: wgpu::TextureUsages,
+) {
+    surface.configure(&config.device, &config.surface(surface, extra));
+    // A composition visual shows its frame 1:1: it scales to the view.
+    #[cfg(windows)]
+    crate::surface::windows::buffer_size(context_id, config.width, config.height);
+    #[cfg(not(windows))]
+    let _ = context_id;
+}
+
 fn blit_and_present(surface: &wgpu::Surface<'static>, config: &Config, offscreen: &wgpu::Texture) {
     let texture = match surface.get_current_texture() {
         wgpu::CurrentSurfaceTexture::Success(t) | wgpu::CurrentSurfaceTexture::Suboptimal(t) => t,
@@ -622,9 +636,11 @@ impl WgpuCanvasContext {
             };
             drop(ended);
             if let Some(view) = view {
-                view.surface.configure(
-                    &config.device,
-                    &config.surface(&view.surface, wgpu::TextureUsages::empty()),
+                configure_view(
+                    context,
+                    &view.surface,
+                    &config,
+                    wgpu::TextureUsages::empty(),
                 );
             }
             Ok(())
@@ -756,10 +772,7 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
     drop(ended);
     let surface = view.map(|v| v.surface);
     if let (Some(surface), true) = (&surface, configure_surface) {
-        surface.configure(
-            &config.device,
-            &config.surface(surface, wgpu::TextureUsages::empty()),
-        );
+        configure_view(context, surface, &config, wgpu::TextureUsages::empty());
     }
     let acquired = surface.as_ref().and_then(|s| {
         acquire(s, &config).map(|texture| SurfaceFrame {
