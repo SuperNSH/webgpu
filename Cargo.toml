@@ -51,6 +51,11 @@ image = { version = "0.25", default-features = false, features = ["png"] }
 [lints]
 workspace = true
 
+[features]
+# Windows: wgpu's statically linked DXC compiles the shaders (a library of some MB, downloaded and checked by
+# SHA-256 when the app builds) instead of the system's FXC, which refuses some valid WGSL. x86_64 MSVC only.
+static-dxc = ["wgpu/static-dxc"]
+
 [dependencies]
 nsh-core.workspace = true
 wgpu.workspace = true

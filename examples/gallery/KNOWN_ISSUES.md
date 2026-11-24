@@ -17,7 +17,7 @@ behaviour (`docs/evidence/fixes/gallery-flipped-tests.txt`, each seen failing wi
 | `createImageBitmap` had no TypeScript declaration | declared in the crate's `tsx/types/dom.d.ts`; the gallery's own `src/globals.d.ts` is gone | `nsh check` in this directory |
 
 Async Runner Starvation still says "blocked" when the driver has the pipeline cached: it is ready in a millisecond
-or two, before any timer or frame is due. The test accepts that only for a time under 10 ms.
+or two, before any timer or frame is due. The test accepts that only for a time under a frame (17 ms).
 
 ## Not as in the reference
 

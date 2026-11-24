@@ -49,7 +49,7 @@ use serde::Deserialize;
 use serde_json::json;
 
 use crate::{
-    api::{device::DeviceEntry, texture::TextureEntry},
+    api::{device::DeviceEntry, texture::TextureEntry, texture_view::expire_frames},
     convert::parse,
     error::{ErrorName, GpuErrorKind, NativeError, guard},
     registry::{self, Id},
@@ -422,12 +422,11 @@ fn configure_view(
     config: &Config,
     extra: wgpu::TextureUsages,
 ) {
+    expire_frames(context_id);
     surface.configure(&config.device, &config.surface(surface, extra));
     // A composition visual shows its frame 1:1: it scales to the view.
     #[cfg(windows)]
     crate::surface::windows::buffer_size(context_id, config.width, config.height);
-    #[cfg(not(windows))]
-    let _ = context_id;
 }
 
 fn blit_and_present(surface: &wgpu::Surface<'static>, config: &Config, offscreen: &wgpu::Texture) {
@@ -775,7 +774,7 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
         configure_view(context, surface, &config, wgpu::TextureUsages::empty());
     }
     let acquired = surface.as_ref().and_then(|s| {
-        acquire(s, &config).map(|texture| SurfaceFrame {
+        acquire(context, s, &config).map(|texture| SurfaceFrame {
             texture,
             surface: Arc::clone(s),
         })
@@ -799,9 +798,11 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
             (texture, Source::Offscreen)
         }
     };
+    let frame_of = matches!(source, Source::Surface(_)).then_some(context);
     let id = registry::insert(TextureEntry {
         texture,
         device: config.device_id,
+        frame_of,
     });
     ctx.frame = Some(Frame { id, source });
     Ok(id)
@@ -810,7 +811,11 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
 /// The surface's next texture; once more after reconfiguring when it is
 /// outdated or lost; `None` (render offscreen) when it times out or the
 /// window is occluded.
-fn acquire(surface: &wgpu::Surface<'static>, config: &Config) -> Option<wgpu::SurfaceTexture> {
+fn acquire(
+    context_id: u32,
+    surface: &wgpu::Surface<'static>,
+    config: &Config,
+) -> Option<wgpu::SurfaceTexture> {
     for attempt in 0..2 {
         match surface.get_current_texture() {
             wgpu::CurrentSurfaceTexture::Success(t)
@@ -820,6 +825,7 @@ fn acquire(surface: &wgpu::Surface<'static>, config: &Config) -> Option<wgpu::Su
             wgpu::CurrentSurfaceTexture::Outdated | wgpu::CurrentSurfaceTexture::Lost
                 if attempt == 0 =>
             {
+                expire_frames(context_id);
                 surface.configure(
                     &config.device,
                     &config.surface(surface, wgpu::TextureUsages::empty()),

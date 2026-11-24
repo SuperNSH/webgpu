@@ -30,6 +30,8 @@ interface Expectation {
   clock?: OpenOptions["clock"];
   /** The demo fails with this message (a known crate bug), instead of drawing. */
   failure?: RegExp;
+  /** The demo may fail with this message instead of drawing: what wgpu lacks on some backends. */
+  unsupported?: RegExp;
   /** Steps on the demo's page before its frame is drawn (a button that draws). */
   before?: (app: App) => Promise<void>;
 }
@@ -146,7 +148,11 @@ const DEMOS: Record<string, Expectation> = {
   // Random sizes and colors on every run: only the count of colors is stable.
   StorageBufferVertices: { distinct: 20 },
   // createTestVideoFrame's pattern, sampled through a GPUExternalTexture.
-  ImportExternalTexture: { distinct: 100 },
+  // wgpu 29 has external textures on Metal and DX12, not on Vulkan or GL.
+  ImportExternalTexture: {
+    distinct: 100,
+    unsupported: /ERR_WEBGPU_UNSUPPORTED: importExternalTexture on a device without wgpu's EXTERNAL_TEXTURE feature/,
+  },
   SixteenBitTextures: { colors: [{ rgba: "#334f", min: 20 }] },
 };
 
@@ -304,7 +310,14 @@ for (const [screen, expectation] of Object.entries(DEMOS)) {
       expect(message).toMatch(expectation.failure);
       return;
     }
-    check(screen, await probe(app, screen, expectation.before), expectation);
+    let report: Report;
+    try {
+      report = await probe(app, screen, expectation.before);
+    } catch (error) {
+      if (error instanceof ProbeFailure && expectation.unsupported?.test(error.message)) return;
+      throw error;
+    }
+    check(screen, report, expectation);
   }, TIMEOUT);
 }
 
@@ -360,12 +373,13 @@ test("MNISTInference: a stroke drawn on the pad runs the network", async () => {
 const DIAGNOSTICS: Record<string, { press?: string[]; ready?: RegExp; expect: RegExp; never?: RegExp }> = {
   // Its timers and frames run while the pipeline compiles, off the JS
   // thread. A pipeline the driver has compiled before (a second run) is
-  // ready within a millisecond or two, before a timer or a frame is due:
+  // ready within a millisecond or two, before a timer or a frame is due (at
+  // 60 Hz: 16 ms, which is a Windows timer's tick too):
   // the screen then says "blocked" with that time, which is only a real
   // block when it is long (the old JS-thread compile of a cold cache took
   // hundreds of ms). webgpu.test.tsx (examples/headless) checks the
   // off-thread compile with a shader slow to compile.
-  AsyncStarvation: { expect: /Event loop remained responsive|Partial responsiveness|Event loop was blocked!.*\(\d ms\)/ },
+  AsyncStarvation: { expect: /Event loop remained responsive|Partial responsiveness|Event loop was blocked!.*\((\d|1[0-6]) ms\)/ },
   DeviceLostHang: { expect: /forceLossForTesting is unavailable/ },
   ContextEdgeCases: {
     press: ["edge-unconfigured", "edge-zero", "edge-unconfigure"],

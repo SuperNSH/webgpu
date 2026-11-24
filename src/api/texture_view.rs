@@ -23,6 +23,8 @@ pub struct TextureViewEntry {
     pub view: wgpu::TextureView,
     /// Its texture's device.
     pub device: Id,
+    /// The canvas context whose surface its texture is a frame of.
+    pub frame_of: Option<u32>,
 }
 
 /// `GPUTextureViewDescriptor`.
@@ -59,7 +61,49 @@ impl TextureViewEntry {
                 .texture
                 .create_view(&wgpu::TextureViewDescriptor::default()),
             device: texture.device,
+            frame_of: texture.frame_of,
         }
+    }
+}
+
+/// Lets go of the views of context `context`'s past frames, which JS may
+/// hold until it collects them: each becomes a view of a destroyed texture,
+/// so using it stays the validation error an expired canvas texture is. A
+/// DX12 swap chain cannot be resized while a view of one of its buffers
+/// lives (`ResizeBuffers`: `DXGI_ERROR_INVALID_CALL`).
+pub(crate) fn expire_frames(context: u32) {
+    let held = registry::find(|v: &TextureViewEntry| {
+        (v.frame_of == Some(context)).then(|| (v.device, v.view.texture().format()))
+    });
+    for (id, (device, format)) in held {
+        let Ok(entry) = DeviceEntry::get(device) else {
+            registry::release(id);
+            continue;
+        };
+        let texture = entry.device.create_texture(&wgpu::TextureDescriptor {
+            label: Some("an expired canvas frame"),
+            size: wgpu::Extent3d {
+                width: 1,
+                height: 1,
+                depth_or_array_layers: 1,
+            },
+            mip_level_count: 1,
+            sample_count: 1,
+            dimension: wgpu::TextureDimension::D2,
+            format,
+            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+            view_formats: &[],
+        });
+        let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
+        texture.destroy();
+        registry::replace(
+            id,
+            TextureViewEntry {
+                view,
+                device,
+                frame_of: None,
+            },
+        );
     }
 }
 
@@ -111,6 +155,7 @@ impl WgpuTextureView {
             Ok(registry::insert(TextureViewEntry {
                 view,
                 device: entry.device,
+                frame_of: entry.frame_of,
             }))
         })
     }

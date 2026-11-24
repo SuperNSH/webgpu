@@ -5,7 +5,8 @@
   "build": 1,
   "dependencies": {
     "nsh-webgpu": {
-      "path": "../.."
+      "path": "../..",
+      "features": ["static-dxc"]
     }
   },
   "rust": "native"

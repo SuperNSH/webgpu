@@ -116,6 +116,24 @@ pub(crate) fn take<T: Any + Send>(id: Id) -> Option<T> {
         .map(|e| *e)
 }
 
+/// What `f` answers for the entries of kind `T`, with their ids. Runs with
+/// the table locked: `f` only reads.
+pub(crate) fn find<T: Any + Send, R>(f: impl Fn(&T) -> Option<R>) -> Vec<(Id, R)> {
+    objects()
+        .iter()
+        .filter_map(|(id, e)| Some((*id, f(e.downcast_ref::<T>()?)?)))
+        .collect()
+}
+
+/// Puts `entry` in the place of entry `id`, when it is still there.
+pub(crate) fn replace<T: Any + Send>(id: Id, entry: T) {
+    let old = objects()
+        .get_mut(&id)
+        .map(|e| std::mem::replace(e, Box::new(entry)));
+    // Dropped outside the lock, as in `release`.
+    drop(old);
+}
+
 /// How many entries of kind `T` the table holds.
 pub(crate) fn count<T: Any + Send>() -> usize {
     objects().values().filter(|e| e.is::<T>()).count()

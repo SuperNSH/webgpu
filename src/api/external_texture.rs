@@ -325,6 +325,7 @@ mod tests {
         let source = registry::insert(TextureEntry {
             texture,
             device: id,
+            frame_of: None,
         });
         let mut desc = desc;
         desc["source"] = json!(source);

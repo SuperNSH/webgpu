@@ -303,6 +303,49 @@ fn attach_layer(id: u32) -> objc2::rc::Retained<objc2_quartz_core::CAMetalLayer>
     layer
 }
 
+/// A view of a past frame that JS has not collected does not outlive the
+/// next configuration: DX12 cannot resize a swap chain while one lives
+/// (found on Windows by the gallery's Context Edge Cases). It stays a view,
+/// of a destroyed texture.
+#[cfg(target_os = "macos")]
+#[test]
+fn a_past_frames_view_expires_when_the_canvas_is_reconfigured() {
+    use nsh_webgpu::api::texture_view::{TextureViewEntry, WgpuTextureView};
+
+    let device = device();
+    let id = WgpuCanvasContext::allocate_context_id();
+    WgpuCanvasContext::make(id).unwrap();
+    WgpuCanvasContext::configure(id, configuration(device, json!({}), 64, 64)).unwrap();
+    let _layer = attach_layer(id);
+    let size = |view: u32| {
+        let entry = TextureViewEntry::lookup(view).expect("the view stays");
+        entry.view.texture().size().width
+    };
+    let frame = WgpuCanvasContext::get_current_texture(id, 64, 64).unwrap();
+    let held = WgpuTextureView::create(frame, json!({})).unwrap();
+    WgpuCanvasContext::present(id).unwrap();
+    // The same size: nothing is reconfigured.
+    WgpuCanvasContext::get_current_texture(id, 64, 64).unwrap();
+    assert_eq!(size(held), 64);
+    WgpuCanvasContext::present(id).unwrap();
+    // Another size: it is.
+    let resized = WgpuCanvasContext::get_current_texture(id, 48, 40).unwrap();
+    assert_eq!(
+        size(held),
+        1,
+        "the past frame's view still holds its buffer"
+    );
+    let current = WgpuTextureView::create(resized, json!({})).unwrap();
+    assert_eq!(size(current), 48);
+    WgpuCanvasContext::present(id).unwrap();
+    // configure() expires them too.
+    WgpuCanvasContext::configure(id, configuration(device, json!({}), 48, 40)).unwrap();
+    assert_eq!(size(current), 1);
+    WgpuCanvasContext::destroy_context(id);
+    canvas_context::view_gone(id);
+    WgpuCanvasContext::release(id);
+}
+
 /// The crash of docs/evidence/gallery/crash-*.txt: a page left while its
 /// frame was acquired from the layer and not presented. The view's teardown
 /// (`apple::detach`, from the view's `dealloc` on the main thread) used to

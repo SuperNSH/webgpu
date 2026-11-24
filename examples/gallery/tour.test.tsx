@@ -68,6 +68,11 @@ test(
       if (desktop) await app.screenshot(`tour/${name}.png`);
       else await app.wait(HOLD_MS);
     };
+    // A demo that draws slowly (a software GPU) takes a while to let go of the page.
+    const home = async () => {
+      await app.back();
+      await app.waitUntil(() => app.texts().includes("WebGPU Gallery"), { timeout: 60_000 });
+    };
     await app.wait(1500);
     await shoot("Home");
     for (const screen of DEMOS) {
@@ -89,13 +94,17 @@ test(
         // Shot as it is (a download that did not come, say).
       }
       await app.wait(1000);
+      if (screen === "OcclusionQuery") {
+        // Its camera looks past every cube now and then: the labels say which it sees.
+        await app.waitUntil(() => app.texts().some((t) => /^(🟥|🟨|🟩|🟧|🟦|🟪)+$/u.test(t)), { timeout: 30_000 });
+      }
       await shoot(screen);
-      await app.back();
+      await home();
     }
     for (const screen of SKIPPED) {
       await app.press(`id:open-${screen}`);
       await shoot(`skip-${screen}`);
-      await app.back();
+      await home();
     }
     await app.press("id:open-Diagnostics");
     await shoot("Diagnostics");
@@ -111,13 +120,10 @@ test(
       await shoot(`diag-${screen}`);
       await app.back();
     }
-    // Last: Import External Texture fails its first frame (a crate bug), and
-    // leaving the page then aborts the host (KNOWN_ISSUES.md), so the tour
-    // ends on it.
-    await app.back();
-    await app.back();
+    await home();
     await app.press("id:open-ImportExternalTexture");
     await app.wait(3000);
+    // Not on Vulkan or GL: wgpu 29 has external textures on Metal and DX12 only.
     await shoot("ImportExternalTexture");
     console.log("TOUR done");
   },

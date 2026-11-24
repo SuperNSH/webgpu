@@ -40,6 +40,8 @@ pub struct TextureEntry {
     pub texture: wgpu::Texture,
     /// Its device.
     pub device: Id,
+    /// The canvas context whose surface it is a frame of.
+    pub frame_of: Option<u32>,
 }
 
 /// `GPUTextureDescriptor`.
@@ -117,7 +119,11 @@ impl WgpuTexture {
                 usage,
                 view_formats: &desc.view_formats,
             });
-            Ok(registry::insert(TextureEntry { texture, device }))
+            Ok(registry::insert(TextureEntry {
+                texture,
+                device,
+                frame_of: None,
+            }))
         })
     }
 
