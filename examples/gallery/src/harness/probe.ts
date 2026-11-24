@@ -205,6 +205,18 @@ export function copyOut(device: GPUDevice, encoder: GPUCommandEncoder, texture: 
       }
       return { width, height, rgba };
     }
+    if (format === "rgb10a2unorm") {
+      const view = new DataView(padded.buffer);
+      for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+          const v = view.getUint32(y * bytesPerRow + x * 4, true);
+          const d = (y * width + x) * 4;
+          for (let c = 0; c < 3; c++) rgba[d + c] = Math.round((((v >>> (c * 10)) & 0x3ff) * 255) / 1023);
+          rgba[d + 3] = (v >>> 30) * 85;
+        }
+      }
+      return { width, height, rgba };
+    }
     const bgra = format.startsWith("bgra");
     for (let y = 0; y < height; y++) {
       for (let x = 0; x < width; x++) {

@@ -107,9 +107,9 @@ function App() {
     context.configure({ device, format });
     const afterConfigure = context.getCurrentTexture();
     report("new texture after configure", afterConfigure !== afterPresent);
-    context.canvas.width = 16;
+    context.canvas.width = 16.9;
     const afterResize = context.getCurrentTexture();
-    report("after resize", `${afterResize !== afterConfigure} ${afterResize.width}x${afterResize.height}`);
+    report("after resize", `${afterResize !== afterConfigure} ${afterResize.width}x${afterResize.height} of ${context.canvas.width}`);
     context.unconfigure();
     report("configuration after unconfigure", context.getConfiguration());
     report("texture after unconfigure", thrown(() => context.getCurrentTexture()).split(":")[0]);

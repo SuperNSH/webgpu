@@ -34,27 +34,46 @@ fn serde_path_to_string<T: DeserializeOwned>(
     serde_json::from_value(value)
 }
 
+/// A `GPUIntegerCoordinate` (`[EnforceRange] unsigned long`): a fraction is
+/// truncated (a canvas of 411.43 points at 2.625 pixels each is 1079.99…
+/// wide), what is not a finite number of that range is a `TypeError`.
+#[derive(Debug, Clone, Copy, Default)]
+pub(crate) struct Coordinate(u32);
+
+impl<'de> Deserialize<'de> for Coordinate {
+    fn deserialize<D: serde::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        let n = f64::deserialize(deserializer)?.trunc();
+        if (0.0..=f64::from(u32::MAX)).contains(&n) {
+            Ok(Self(n as u32))
+        } else {
+            Err(serde::de::Error::custom(
+                "outside the range of unsigned long",
+            ))
+        }
+    }
+}
+
 /// `GPUExtent3D`: `[width, height?, depthOrArrayLayers?]` or the dictionary.
 #[derive(Debug, Clone, Deserialize)]
 #[serde(untagged)]
 pub(crate) enum Extent3d {
     /// The sequence form.
-    Seq(Vec<u32>),
+    Seq(Vec<Coordinate>),
     /// The dictionary form.
     Dict {
         /// Width.
-        width: u32,
+        width: Coordinate,
         /// Height (1).
         #[serde(default = "one")]
-        height: u32,
+        height: Coordinate,
         /// Depth or layers (1).
         #[serde(default = "one", rename = "depthOrArrayLayers")]
-        depth_or_array_layers: u32,
+        depth_or_array_layers: Coordinate,
     },
 }
 
-fn one() -> u32 {
-    1
+fn one() -> Coordinate {
+    Coordinate(1)
 }
 
 impl Extent3d {
@@ -62,9 +81,9 @@ impl Extent3d {
     pub(crate) fn to_wgpu(&self) -> Result<wgpu::Extent3d, NativeError> {
         match self {
             Extent3d::Seq(v) if (1..=3).contains(&v.len()) => Ok(wgpu::Extent3d {
-                width: v[0],
-                height: v.get(1).copied().unwrap_or(1),
-                depth_or_array_layers: v.get(2).copied().unwrap_or(1),
+                width: v[0].0,
+                height: v.get(1).map_or(1, |c| c.0),
+                depth_or_array_layers: v.get(2).map_or(1, |c| c.0),
             }),
             Extent3d::Seq(v) => Err(NativeError::type_error(format!(
                 "a GPUExtent3D sequence has 1 to 3 members, not {}",
@@ -75,9 +94,9 @@ impl Extent3d {
                 height,
                 depth_or_array_layers,
             } => Ok(wgpu::Extent3d {
-                width: *width,
-                height: *height,
-                depth_or_array_layers: *depth_or_array_layers,
+                width: width.0,
+                height: height.0,
+                depth_or_array_layers: depth_or_array_layers.0,
             }),
         }
     }
@@ -88,18 +107,18 @@ impl Extent3d {
 #[serde(untagged)]
 pub(crate) enum Origin3d {
     /// The sequence form.
-    Seq(Vec<u32>),
+    Seq(Vec<Coordinate>),
     /// The dictionary form.
     Dict {
         /// x.
         #[serde(default)]
-        x: u32,
+        x: Coordinate,
         /// y.
         #[serde(default)]
-        y: u32,
+        y: Coordinate,
         /// z.
         #[serde(default)]
-        z: u32,
+        z: Coordinate,
     },
 }
 
@@ -114,18 +133,18 @@ impl Origin3d {
     pub(crate) fn to_wgpu(&self) -> Result<wgpu::Origin3d, NativeError> {
         match self {
             Origin3d::Seq(v) if v.len() <= 3 => Ok(wgpu::Origin3d {
-                x: v.first().copied().unwrap_or(0),
-                y: v.get(1).copied().unwrap_or(0),
-                z: v.get(2).copied().unwrap_or(0),
+                x: v.first().map_or(0, |c| c.0),
+                y: v.get(1).map_or(0, |c| c.0),
+                z: v.get(2).map_or(0, |c| c.0),
             }),
             Origin3d::Seq(v) => Err(NativeError::type_error(format!(
                 "a GPUOrigin3D sequence has at most 3 members, not {}",
                 v.len()
             ))),
             Origin3d::Dict { x, y, z } => Ok(wgpu::Origin3d {
-                x: *x,
-                y: *y,
-                z: *z,
+                x: x.0,
+                y: y.0,
+                z: z.0,
             }),
         }
     }
@@ -225,4 +244,27 @@ pub(crate) struct TexelCopyTextureInfo {
     /// Aspect (`"all"`).
     #[serde(default)]
     pub(crate) aspect: wgpu::TextureAspect,
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::{Extent3d, Origin3d, parse};
+
+    /// WebIDL's `[EnforceRange]`: a fraction is truncated.
+    #[test]
+    fn coordinates_are_truncated() {
+        let extent = |v| parse::<Extent3d>("GPUExtent3D", v).and_then(|e| e.to_wgpu());
+        let size = extent(json!([1079.9999, 2029.5])).expect("a size");
+        assert_eq!((size.width, size.height), (1079, 2029));
+        let size = extent(json!({ "width": 3.7, "depthOrArrayLayers": 2.0 })).expect("a size");
+        assert_eq!((size.width, size.height), (3, 1));
+        assert_eq!(size.depth_or_array_layers, 2);
+        assert!(extent(json!([-1])).is_err());
+        assert!(extent(json!([4_294_967_296_u64])).is_err());
+        let origin = parse::<Origin3d>("GPUOrigin3D", json!([0.5, 2.9])).and_then(|o| o.to_wgpu());
+        let origin = origin.expect("an origin");
+        assert_eq!((origin.x, origin.y, origin.z), (0, 2, 0));
+    }
 }

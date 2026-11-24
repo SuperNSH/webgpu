@@ -130,6 +130,15 @@ struct Shown {
     blitter: Arc<wgpu::util::TextureBlitter>,
 }
 
+impl Shown {
+    fn new(device: &wgpu::Device, format: wgpu::TextureFormat) -> Self {
+        Self {
+            format,
+            blitter: Arc::new(wgpu::util::TextureBlitter::new(device, format)),
+        }
+    }
+}
+
 /// The surface's format for a canvas of `format` that the platform would
 /// show wrongly. Windows takes a 16-bit float swap chain's values as linear
 /// light (scRGB), and a canvas's are sRGB-encoded: such a canvas shows in 10
@@ -148,7 +157,65 @@ fn shown_as(
     })
 }
 
+/// What a canvas asks of its surface, and what a surface offers.
+struct Fit<'a> {
+    format: wgpu::TextureFormat,
+    usage: wgpu::TextureUsages,
+    view_formats: bool,
+    opaque: bool,
+    formats: &'a [wgpu::TextureFormat],
+    usages: wgpu::TextureUsages,
+    surface_view_formats: bool,
+}
+
+/// The surface's format for a canvas the surface cannot show as it is: it
+/// lacks the canvas's format, a usage (Android's GL surfaces: render
+/// attachment only, so no `COPY_SRC`) or view formats. `None`: it can.
+fn fitted(fit: &Fit) -> Option<wgpu::TextureFormat> {
+    use wgpu::TextureFormat::{Bgra8Unorm, Rgb10a2Unorm, Rgba8Unorm};
+
+    let has_format = fit.formats.contains(&fit.format);
+    if fit.formats.is_empty()
+        || !fit.usages.contains(wgpu::TextureUsages::RENDER_ATTACHMENT)
+        || (has_format
+            && fit.usages.contains(fit.usage)
+            && (!fit.view_formats || fit.surface_view_formats))
+    {
+        return None;
+    }
+    if has_format {
+        return Some(fit.format);
+    }
+    let deep = fit.opaque.then_some(Rgb10a2Unorm);
+    deep.into_iter()
+        .chain([Bgra8Unorm, Rgba8Unorm])
+        .find(|format| fit.formats.contains(format))
+}
+
 impl Config {
+    /// Decides how frames reach `surface`: as they are, or drawn onto it
+    /// ([`Shown`]), when it attaches or the configuration changes.
+    fn fit(&mut self, surface: &wgpu::Surface<'static>) {
+        let opaque = self.alpha_mode == wgpu::CompositeAlphaMode::Opaque;
+        let format = shown_as(self.format, self.alpha_mode).or_else(|| {
+            let adapter = self.adapter.as_ref()?;
+            let caps = surface.get_capabilities(adapter);
+            fitted(&Fit {
+                format: self.format,
+                usage: self.usage,
+                view_formats: !self.view_formats.is_empty(),
+                opaque,
+                formats: &caps.formats,
+                usages: caps.usages,
+                surface_view_formats: adapter
+                    .get_downlevel_capabilities()
+                    .flags
+                    .contains(wgpu::DownlevelFlags::SURFACE_VIEW_FORMATS),
+            })
+        });
+        self.shown = format.map(|format| Shown::new(&self.device, format));
+    }
+
     /// The configuration of `surface`, with `extra` usage (`COPY_DST` for
     /// the blit on attach). An `alphaMode` the surface cannot do is the one
     /// it can: opaque when offered, else its first. react-native-webgpu
@@ -176,25 +243,11 @@ impl Config {
                 view_formats: Vec::new(),
             };
         }
-        let mut usage = self.usage | extra;
-        // A usage the spec allows a canvas but this surface lacks (Android's
-        // GL surfaces: render attachment only) is dropped, with a validation
-        // error naming it, so the canvas still renders; using the texture
-        // that way then fails as any missing usage does.
-        if let Some(caps) = &caps
-            && !caps.usages.contains(usage)
-        {
-            let lacking = self.usage - caps.usages;
-            usage &= caps.usages;
-            if !lacking.is_empty()
-                && let Ok(entry) = DeviceEntry::get(self.device_id)
-            {
-                entry.report(
-                    GpuErrorKind::Validation,
-                    format!("configure: this canvas's surface cannot be used as {lacking:?}; the canvas renders without it"),
-                );
-            }
-        }
+        // Its usage is the surface's (`fit`); the blit's may not be.
+        let usage = match &caps {
+            Some(caps) => self.usage | (extra & caps.usages),
+            None => self.usage | extra,
+        };
         wgpu::SurfaceConfiguration {
             usage,
             format: self.format,
@@ -221,15 +274,11 @@ impl Config {
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
             format: self.format,
-            // COPY_SRC for the blit onto a surface that attaches later,
-            // TEXTURE_BINDING for the one that converts.
+            // For the blit onto a surface: COPY_SRC when it can be copied
+            // to, TEXTURE_BINDING to be drawn.
             usage: self.usage
                 | wgpu::TextureUsages::COPY_SRC
-                | if self.shown.is_some() {
-                    wgpu::TextureUsages::TEXTURE_BINDING
-                } else {
-                    wgpu::TextureUsages::empty()
-                },
+                | wgpu::TextureUsages::TEXTURE_BINDING,
             view_formats: &self.view_formats,
         })
     }
@@ -282,6 +331,9 @@ struct Frame {
 struct Context {
     /// First, so it drops before the surface below (fields drop in order).
     frame: Option<Frame>,
+    /// The surface frame in flight when the view went: JS may be drawing it,
+    /// so it stays a texture until the frame ends, and is not presented.
+    orphan: Option<Frame>,
     config: Option<Config>,
     /// The surface last configured, to tell when another one attached.
     configured: Option<Arc<wgpu::Surface<'static>>>,
@@ -377,13 +429,15 @@ pub fn surface_attached(context_id: u32) {
         let Some(ctx) = all.get_mut(&context_id) else {
             return Ok(());
         };
-        let Some(config) = ctx.config.clone() else {
-            return Ok(());
-        };
         if ctx.frame.is_some() {
             // Adopted at the frame's end instead (getCurrentTexture).
             return Ok(());
         }
+        let Some(config) = ctx.config.as_mut() else {
+            return Ok(());
+        };
+        config.fit(&view.surface);
+        let config = config.clone();
         let blit = ctx.offscreen.clone().filter(|_| ctx.offscreen_presented);
         let extra = if blit.is_some() {
             wgpu::TextureUsages::COPY_DST
@@ -408,9 +462,9 @@ pub fn surface_attached(context_id: u32) {
 /// view's teardown (on the UI thread), in place of [`views::detach`].
 ///
 /// In order, as the reference's `SurfaceInfo::detach`: the frame in flight
-/// is ended (an acquired, unpresented surface texture is discarded while its
-/// surface still exists), the surface is detached and dropped, and the
-/// context renders offscreen from then on, keeping its configuration, so a
+/// is set aside (JS may be drawing it: it ends when the JS thread next asks
+/// for a frame, presents or configures, and keeps its surface until then),
+/// the surface is detached and dropped, and the context renders offscreen from then on, keeping its configuration, so a
 /// render loop that outlives its `<Canvas>` keeps working. The context
 /// itself goes only when its `<Canvas>` unmounted and no context object
 /// holds it. Never panics: a panic here would unwind into a platform
@@ -432,28 +486,27 @@ fn detach_view(context_id: u32) {
     natives().remove(&context_id);
     // Under the contexts lock (the order everywhere: contexts, then views),
     // so a frame the JS thread acquires meanwhile sees the view gone.
-    let (frame, view, gone) = {
+    let (view, gone) = {
         let mut all = contexts();
-        let frame = all.get_mut(&context_id).and_then(|ctx| {
+        if let Some(ctx) = all.get_mut(&context_id) {
             ctx.configured = None;
-            // Only a surface frame: an offscreen one stays valid.
-            match ctx.frame {
-                Some(Frame {
-                    source: Source::Surface(_),
-                    ..
-                }) => ctx.end_frame(),
-                _ => None,
+            // Only a surface frame: an offscreen one stays the frame.
+            if let Some(Frame {
+                source: Source::Surface(_),
+                ..
+            }) = ctx.frame
+            {
+                ctx.orphan = ctx.frame.take();
             }
-        });
+        }
         let view = views::take(context_id);
         let gone = match all.get(&context_id) {
             Some(ctx) if ctx.retired(context_id) => all.remove(&context_id),
             _ => None,
         };
-        (frame, view, gone)
+        (view, gone)
     };
-    // The texture, then its surface.
-    drop(frame);
+    // A frame, then its surface.
     drop(gone);
     drop(view);
 }
@@ -536,21 +589,24 @@ fn blit_and_present(
     if texture.texture.size() != offscreen.size() {
         return;
     }
-    // The surface may lack COPY_DST (Android's GL surfaces): nothing to show then.
-    if config.shown.is_none()
-        && !texture
+    // Drawn when the surface is of another format, or lacks COPY_DST.
+    let drawn = match &config.shown {
+        Some(shown) => Some(shown.clone()),
+        None if texture
             .texture
             .usage()
-            .contains(wgpu::TextureUsages::COPY_DST)
-    {
-        return;
-    }
+            .contains(wgpu::TextureUsages::COPY_DST) =>
+        {
+            None
+        }
+        None => Some(Shown::new(&config.device, texture.texture.format())),
+    };
     let mut encoder = config
         .device
         .create_command_encoder(&wgpu::CommandEncoderDescriptor {
             label: Some("canvas blit"),
         });
-    match &config.shown {
+    match &drawn {
         Some(shown) => show(
             shown,
             &config.device,
@@ -601,13 +657,16 @@ fn checked_usage(entry: &DeviceEntry, usage: u32) -> wgpu::TextureUsages {
 
 /// The formats a canvas may be configured with (the spec's "supported
 /// context formats").
+/// Android's 10-bit one, which is not the spec's, is what
+/// `getPreferredHighBitDepthCanvasFormat()` names there, as the reference.
 fn canvas_format(format: wgpu::TextureFormat) -> bool {
-    matches!(
-        format,
-        wgpu::TextureFormat::Bgra8Unorm
-            | wgpu::TextureFormat::Rgba8Unorm
-            | wgpu::TextureFormat::Rgba16Float
-    )
+    cfg!(target_os = "android") && format == wgpu::TextureFormat::Rgb10a2Unorm
+        || matches!(
+            format,
+            wgpu::TextureFormat::Bgra8Unorm
+                | wgpu::TextureFormat::Rgba8Unorm
+                | wgpu::TextureFormat::Rgba16Float
+        )
 }
 
 /// The native half of `GPUCanvasContext` (and of the `RNWebGPU` canvas
@@ -738,11 +797,7 @@ impl WgpuCanvasContext {
             }
             let entry = DeviceEntry::get(c.device)?;
             let usage = checked_usage(&entry, c.usage);
-            let shown = shown_as(c.format, alpha_mode).map(|format| Shown {
-                format,
-                blitter: Arc::new(wgpu::util::TextureBlitter::new(&entry.device, format)),
-            });
-            let config = Config {
+            let mut config = Config {
                 device_id: c.device,
                 device: entry.device.clone(),
                 queue: entry.queue.clone(),
@@ -753,13 +808,16 @@ impl WgpuCanvasContext {
                 alpha_mode,
                 width: c.width.max(1),
                 height: c.height.max(1),
-                shown,
+                shown: None,
             };
             let view = views::get(context);
+            if let Some(view) = &view {
+                config.fit(&view.surface);
+            }
             let ended = {
                 let mut all = contexts();
                 let ctx = all.entry(context).or_default();
-                let ended = ctx.end_frame();
+                let ended = (ctx.end_frame(), ctx.orphan.take());
                 ctx.offscreen = None;
                 ctx.offscreen_presented = false;
                 ctx.config = Some(config.clone());
@@ -789,7 +847,7 @@ impl WgpuCanvasContext {
                 ctx.offscreen = None;
                 ctx.offscreen_presented = false;
                 ctx.configured = None;
-                ctx.end_frame()
+                (ctx.end_frame(), ctx.orphan.take())
             };
             drop(ended);
             Ok(())
@@ -809,7 +867,7 @@ impl WgpuCanvasContext {
     /// attaches later. Ends the frame.
     pub fn present(context: u32) -> Result<(), String> {
         guard(|| {
-            let (frame, offscreen) = {
+            let (frame, offscreen, orphan) = {
                 let mut all = contexts();
                 let Some(ctx) = all.get_mut(&context) else {
                     return Ok(());
@@ -826,8 +884,9 @@ impl WgpuCanvasContext {
                     ctx.offscreen_presented = true;
                     offscreen = ctx.offscreen.clone().zip(ctx.config.clone());
                 }
-                (frame, offscreen)
+                (frame, offscreen, ctx.orphan.take())
             };
+            drop(orphan);
             if let Some(Frame {
                 source: Source::Surface(SurfaceFrame { texture, surface }),
                 ..
@@ -865,6 +924,7 @@ impl WgpuCanvasContext {
 
 fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeError> {
     let view = views::get(context);
+    let orphan;
     let (config, ended, configure_surface) = {
         let mut all = contexts();
         let ctx = all.entry(context).or_default();
@@ -889,7 +949,8 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
         if let Some(frame) = &ctx.frame {
             return Ok(frame.id);
         }
-        let config = ctx.config.clone().expect("checked above");
+        // One whose view went ends here.
+        orphan = ctx.orphan.take();
         let configure_surface = match &view {
             // A surface attached since the last frame, or the size changed:
             // (re)configure it at this frame boundary.
@@ -899,6 +960,9 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
                     .as_ref()
                     .is_some_and(|c| Arc::ptr_eq(c, &v.surface));
                 ctx.configured = Some(Arc::clone(&v.surface));
+                if new && let Some(config) = ctx.config.as_mut() {
+                    config.fit(&v.surface);
+                }
                 new || resized
             }
             None => {
@@ -906,9 +970,10 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
                 false
             }
         };
+        let config = ctx.config.clone().expect("checked above");
         (config, ended, configure_surface)
     };
-    drop(ended);
+    drop((ended, orphan));
     let surface = view.map(|v| v.surface);
     if let (Some(surface), true) = (&surface, configure_surface) {
         configure_view(context, surface, &config, wgpu::TextureUsages::empty());
@@ -989,9 +1054,7 @@ pub fn context_count() -> usize {
 
 #[cfg(test)]
 mod tests {
-    use std::sync::Arc;
-
-    use super::{Shown, alpha_mode, show, shown_as};
+    use super::{Fit, Shown, alpha_mode, fitted, show, shown_as};
     use wgpu::CompositeAlphaMode as A;
 
     /// A 16-bit float canvas's values are sRGB-encoded, as any canvas's:
@@ -1032,10 +1095,7 @@ mod tests {
             })
         };
         let target_format = F::Rgba8Unorm;
-        let shown = Shown {
-            format: target_format,
-            blitter: Arc::new(wgpu::util::TextureBlitter::new(&device, target_format)),
-        };
+        let shown = Shown::new(&device, target_format);
         let frame = texture(
             F::Rgba16Float,
             wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
@@ -1094,6 +1154,45 @@ mod tests {
         for (got, want) in pixel.iter().zip([55, 128, 255, 64]) {
             assert!((got - want).abs() <= 1, "{pixel:?}");
         }
+    }
+
+    /// A canvas whose surface lacks what it asks for is drawn onto it.
+    #[test]
+    fn a_canvas_is_fitted_to_its_surface() {
+        use wgpu::{TextureFormat as F, TextureUsages as U};
+
+        let gl = [F::Rgba8Unorm, F::Rgba8UnormSrgb];
+        let fit = |format, usage, view_formats, formats: &[F], usages, surface_view_formats| {
+            fitted(&Fit {
+                format,
+                usage,
+                view_formats,
+                opaque: true,
+                formats,
+                usages,
+                surface_view_formats,
+            })
+        };
+        let draw = U::RENDER_ATTACHMENT;
+        // As it is.
+        assert_eq!(fit(F::Rgba8Unorm, draw, false, &gl, draw, false), None);
+        // A usage, view formats, or a format the surface lacks.
+        let read = draw | U::COPY_SRC;
+        let shown = Some(F::Rgba8Unorm);
+        assert_eq!(fit(F::Rgba8Unorm, read, false, &gl, draw, false), shown);
+        assert_eq!(fit(F::Rgba8Unorm, draw, true, &gl, draw, false), shown);
+        assert_eq!(fit(F::Rgba8Unorm, draw, true, &gl, draw, true), None);
+        assert_eq!(fit(F::Rgba16Float, draw, false, &gl, draw, false), shown);
+        let deep = [F::Bgra8Unorm, F::Rgb10a2Unorm];
+        assert_eq!(
+            fit(F::Rgba16Float, draw, false, &deep, draw, true),
+            Some(F::Rgb10a2Unorm)
+        );
+        // Nothing known of the surface.
+        assert_eq!(
+            fit(F::Rgba16Float, read, true, &[], U::empty(), false),
+            None
+        );
     }
 
     #[test]

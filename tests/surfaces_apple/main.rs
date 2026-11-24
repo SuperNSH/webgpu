@@ -407,6 +407,31 @@ fn a_view_going_with_an_unpresented_frame_does_not_panic() {
     }
 }
 
+/// A frame the JS thread is drawing when its view goes (the UI thread's
+/// doing, at any time) stays a texture until the frame ends: drawing it was
+/// a validation error (found by the gallery's Render After Unmount on iOS).
+#[cfg(target_os = "macos")]
+#[test]
+fn a_frame_in_flight_outlives_its_view() {
+    let device = device();
+    let id = WgpuCanvasContext::allocate_context_id();
+    WgpuCanvasContext::make(id).unwrap();
+    WgpuCanvasContext::configure(id, configuration(device, json!({}), 64, 64)).unwrap();
+    let layer = attach_layer(id);
+    let frame = WgpuCanvasContext::get_current_texture(id, 64, 64).unwrap();
+    canvas_context::view_gone(id);
+    assert_eq!(
+        clear_and_read(device, frame, 64, [1.0, 0.0, 0.0, 1.0], 1, 1),
+        [255, 0, 0, 255]
+    );
+    WgpuCanvasContext::present(id).unwrap();
+    let next = WgpuCanvasContext::get_current_texture(id, 64, 64).unwrap();
+    assert_ne!(next, frame);
+    WgpuCanvasContext::destroy_context(id);
+    WgpuCanvasContext::release(id);
+    drop(layer);
+}
+
 /// A canvas configured with one device and then another: a swap chain is of
 /// one device's queue, and drawing into it from another's had Windows remove
 /// the GPU device (found by the gallery's Context Edge Cases, which asks for

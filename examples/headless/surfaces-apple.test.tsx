@@ -52,8 +52,8 @@ test("the current texture: one per frame, and the triangle drawn into it", async
   expect(r.get("triangle")).toBe("center=255,0,0,255 corner=0,0,0,0");
   expect(r.get("new texture after present")).toBe("true");
   expect(r.get("new texture after configure")).toBe("true");
-  // canvas.width = 16 resizes the drawing buffer at the next getCurrentTexture.
-  expect(r.get("after resize")).toBe("true 16x64");
+  // canvas.width = 16.9 (a fractional pixel ratio) is 16 and resizes the drawing buffer at the next getCurrentTexture.
+  expect(r.get("after resize")).toBe("true 16x64 of 16");
 });
 
 test("requestAnimationFrame drives a render loop", async () => {

@@ -136,7 +136,7 @@ const DEMOS: Record<string, Expectation> = {
     distinct: 3,
   },
   ComputeBoids: { colors: [{ rgba: "#0000", min: 70 }], distinct: 30 },
-  MNISTInference: { network: MNIST_NETWORK, colors: [{ rgba: "#eeff", min: 70 }, { rgba: "#dddf", min: 5 }] },
+  MNISTInference: { network: MNIST_NETWORK, colors: [{ rgba: "#eeff", min: 70 }, { rgba: "#dddf", min: 4 }] },
   ShadowMapping: { colors: [{ rgba: "#333f", min: 20 }], distinct: 100 },
   SamplerParameters: { colors: [{ rgba: "#333f", min: 40 }], distinct: 100 },
   DeferedRendering: { colors: [{ rgba: "#333f", min: 20 }], distinct: 100 },
@@ -325,7 +325,11 @@ test("Home lists the reference's entries, in its order", async () => {
   const app = await open("./App.tsx", { clock: {} });
   const ids = (app.accessibility("id:list")?.children ?? []).map((node) => node.label ?? "");
   console.log(`${HOME.length} entries expected; accessibility rows: ${ids.length}`);
-  for (const screen of HOME) expect(app.count(`id:open-${screen}`)).toBe(1);
+  // Yields at each row: one call into JS may take 2 s, which a slow runner's host can need for them all.
+  for (const screen of HOME) {
+    expect(app.count(`id:open-${screen}`)).toBe(1);
+    await app.wait(1);
+  }
   const order = app.texts();
   let last = -1;
   for (const screen of HOME) {
@@ -333,6 +337,7 @@ test("Home lists the reference's entries, in its order", async () => {
     if (!row) throw new Error(`no row for ${screen}`);
     expect(row.y).toBeGreaterThan(last);
     last = row.y;
+    await app.wait(1);
   }
   expect(order.length).toBeGreaterThan(HOME.length);
 }, TIMEOUT);

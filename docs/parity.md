@@ -90,7 +90,8 @@ Linux (Vulkan on lavapipe) (the platform table in `docs/architecture.md`).
 | `GPUCanvasContext.getConfiguration` | done | missing in the reference; here per spec |
 | `alphaMode: "premultiplied"` on Apple | partial | wgpu's Metal surfaces offer `PostMultiplied`, a non-opaque `CAMetalLayer` that Core Animation composites premultiplied |
 | `alphaMode` a surface cannot do (Android's GL surfaces offer `Opaque` only) | partial | the surface's own mode instead (opaque when offered), as the reference honours `alphaMode` on Apple only (phase 3; before, `configure` failed and nothing showed on Android) |
-| `configure({ usage })` with a usage the surface lacks (Android GL: render attachment only, so no `COPY_SRC`) | partial | the usage is dropped with a validation error naming it, and the canvas renders; using the texture that way then fails as a missing usage does |
+| `configure` with a usage, view formats or a format the surface lacks (Android GL: render attachment only, so no `COPY_SRC`) | done | the canvas renders offscreen and is drawn onto the surface at `present()` |
+| `configure({ format: "rgb10a2unorm" })` on Android | done | not the spec's; what `getPreferredHighBitDepthCanvasFormat()` names there, as the reference |
 | `colorSpace: "display-p3"`, `toneMapping: "extended"` | partial | tagged on the Apple layer at mount; `rgba16float` with `"standard"` is not clipped (wgpu sets EDR from the format); Android ignores them, as the reference |
 | `getCurrentTexture().destroy()` within a frame | partial (not verified) | wgpu reports destroying a surface texture as an error |
 | `RNWebGPU.MakeWebGPUCanvasContextFromNativeWindow` | unsupported (not exported) | NSH has no `RNWebGPU` global; would be `create_surface_unsafe` on a caller's layer/window |

@@ -165,14 +165,16 @@ offscreen texture. A platform view tells it what it has:
 |---|---|
 | `views::attach(id, surface, w, h)`, then `canvas_context::surface_attached(id)` | a `wgpu::Surface<'static>` (from `crate::instance()`) shows the context; a configured context configures it at once and blits the frame presented offscreen meanwhile |
 | `views::resize(id, w, h)` | the view's size in pixels changed |
-| `canvas_context::view_gone(id)` | the view went: the frame in flight ends (its surface texture is discarded while the surface exists), then the surface is detached and dropped; never panics (a panic in a `dealloc` aborts). The context renders offscreen from then on and goes once its `<Canvas>` unmounted and no context object holds it |
+| `canvas_context::view_gone(id)` | the view went: the frame in flight is set aside (JS may be drawing it; it ends at JS's next `present`, `getCurrentTexture` or `configure`, and keeps its surface until then), then the surface is detached and dropped; never panics (a panic in a `dealloc` aborts). The context renders offscreen from then on and goes once its `<Canvas>` unmounted and no context object holds it |
 | `canvas_context::set_native(id, pointer, width, height, scale)` | what `getNativeSurface()` reports: the layer or window pointer, the size in points, the scale |
 | `offscreen::show(id, presenter, w, h)` / `resize` / `hide` | a view with no surface of its own shows the context's frames (Linux) |
 
 Every surface platform (Apple, Android, Windows) makes these calls; Linux makes `offscreen::show` and
-`set_native` (no pointer). `configure` fits the request to the surface: an `alphaMode` or a usage the surface does
-not offer (Android's GL surfaces: `Opaque` and render attachment only) is replaced by what it offers, a usage with a
-validation error naming it; the surface's capabilities come from the device's adapter, which the device entry keeps.
+`set_native` (no pointer). `configure` fits the canvas to the surface: an `alphaMode` the surface does not offer is
+replaced by one it does, and a canvas whose format, usage or view formats it lacks (Android's GL surfaces: render
+attachment only, no view formats) renders offscreen and is drawn onto it at `present()` (`Shown`, wgpu's
+`TextureBlitter`); the surface's capabilities come from the device's adapter, which the device entry keeps. A surface
+configured with another device first lets go of the swap chain of the one before (`release_swap_chain`).
 
 Where a frame goes: a context whose id has a surface in `views` presents it (`SurfaceTexture::present`); one with
 none renders into its own offscreen texture, and `present()` hands that texture to `offscreen::deliver`, which reads

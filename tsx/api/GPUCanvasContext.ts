@@ -78,6 +78,12 @@ export function forgetContext(contextId: number): void {
   shared.delete(contextId);
 }
 
+/** A canvas size as a `<canvas>` keeps it: a whole number of pixels, 0 for what is not a number. */
+function pixels(value: number): number {
+  const n = Math.trunc(Number(value));
+  return n > 0 && Number.isFinite(n) ? n : 0;
+}
+
 /**
  * The canvas a context draws into (react-native-webgpu's `Canvas` host
  * object, `NativeCanvas`): `width` / `height` are the drawing buffer's
@@ -87,10 +93,8 @@ export function forgetContext(contextId: number): void {
  * takes it.
  */
 export class CanvasElement {
-  /** The drawing buffer's width in pixels. */
-  width: number;
-  /** The drawing buffer's height in pixels. */
-  height: number;
+  #width = 0;
+  #height = 0;
   /** The view's width in points. */
   clientWidth: number;
   /** The view's height in points. */
@@ -104,6 +108,22 @@ export class CanvasElement {
     this.height = height;
     this.clientWidth = width;
     this.clientHeight = height;
+  }
+
+  /** The drawing buffer's width in pixels: an integer, a fraction is truncated (the reference's `int`). */
+  get width(): number {
+    return this.#width;
+  }
+  set width(value: number) {
+    this.#width = pixels(value);
+  }
+
+  /** The drawing buffer's height in pixels, as {@link width}. */
+  get height(): number {
+    return this.#height;
+  }
+  set height(value: number) {
+    this.#height = pixels(value);
   }
 
   /** The native surface (the `CAMetalLayer *` on Apple), `0n` before the view attached. */

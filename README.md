@@ -13,8 +13,8 @@ Part of the SuperNSH capability set. Guides in [docs/guide/](docs/guide/README.m
 | Platform | GPU it ran on | What was checked | Evidence |
 |---|---|---|---|
 | macOS | Apple Silicon (Metal) | `cargo test`; `nsh test` in `examples/headless` (89), `examples/canvas-apple` (1) and `examples/gallery` (45); the Triangle and the rotating Cube, and the whole gallery (44 tests), in a window, in CI | `docs/evidence/platforms/macos-canvas.png`, `gallery-macos.jpg` |
-| iOS 27 simulator | Metal | the Triangle and the rotating Cube on screen | `docs/evidence/platforms/ios-canvas.png` |
-| Android emulator | GLES | the same | `docs/evidence/platforms/android-canvas.png` |
+| iOS 27 simulator | Metal | the Triangle and the rotating Cube on screen; the whole gallery (44 tests) | `docs/evidence/platforms/ios-canvas.png` |
+| Android emulator | GLES | the Triangle and the rotating Cube; 29 of the gallery's 44 tests (the emulator's GLES has no compute shaders, storage buffers, depth `textureLoad` or texture view formats, which the other 15 use) | `docs/evidence/platforms/android-canvas.png` |
 | Windows | DX12 on WARP (software) | `cargo test`; the same in a window, in CI, with DXC (`static-dxc`) | `docs/evidence/platforms/windows-canvas.png`, `gallery-windows.jpg` |
 | Linux | Vulkan on lavapipe (software) | `cargo test`, in CI and in an arm64 container; the same in a window, in CI (not Import External Texture: wgpu 29 has none on Vulkan) | `docs/evidence/platforms/linux-canvas.png`, `gallery-linux.jpg` |
 | Web | the browser's WebGPU | the README's example as an app that uses the package, in Chromium | `docs/evidence/platforms/web-readme-app.jpg` |

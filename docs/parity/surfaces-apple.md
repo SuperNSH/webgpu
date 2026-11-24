@@ -17,7 +17,7 @@ on macOS and iOS, against react-native-webgpu at 06599f9 (`src/Canvas.tsx`, `src
    makes `instance().create_surface_unsafe(SurfaceTargetUnsafe::CoreAnimationLayer(layer))`, and
    `views::attach`es it (`src/surface/apple.rs`). Size and backing scale changes (`setFrameSize:`,
    `viewDidChangeBackingProperties`, `layoutSubviews`, `didMoveToWindow`) go to `views::resize`; dropping the
-   component calls `canvas_context::view_gone`, which ends the frame in flight before it drops the surface.
+   component calls `canvas_context::view_gone`, which sets the frame in flight aside (it keeps its surface until it ends).
 3. `src/api/canvas_context.rs` keeps the swap chain per context id (the reference's `SurfaceInfo`): configure,
    frame, present, an offscreen texture while no surface is attached, and the blit of the last presented offscreen
    frame onto a surface that attaches later (`surface_attached`, called by the view on the main thread).
@@ -43,7 +43,7 @@ on macOS and iOS, against react-native-webgpu at 06599f9 (`src/Canvas.tsx`, `src
 | `GPUCanvasContext.unconfigure` | implemented | wgpu has no surface unconfigure: the surface stays configured, the context drops its configuration and frame (`getCurrentTexture` then throws `InvalidStateError`). |
 | `GPUCanvasContext.getConfiguration` | implemented | Missing in the reference (inventory: "Missing"); here per spec, with defaults filled. |
 | `GPUCanvasContext.getCurrentTexture` | implemented | Same object until `present()`, `configure()`, `unconfigure()` or a new `canvas.width`/`height` (which reconfigures); `InvalidStateError` before `configure()`. Without a surface (not attached yet, headless, view gone) an offscreen texture of the same format and size, as the reference. |
-| `GPUCanvasContext.present()` | implemented | Presents a surface texture; keeps an offscreen frame, which is blitted to the surface when it attaches (needs `COPY_DST` on the surface; wgpu reports and skips otherwise). |
+| `GPUCanvasContext.present()` | implemented | Presents a surface texture; keeps an offscreen frame, which is shown on the surface when it attaches (copied, or drawn where the surface lacks `COPY_DST`). |
 | `canvas.clientWidth` / `clientHeight` | implemented | Updated from the view's size in points at each new texture. |
 | `getCurrentTexture().destroy()` within a frame | not verified | The reference allows it (`CanvasContext.spec`); wgpu reports destroying a surface texture as an error. |
 | `requestAnimationFrame` / `cancelAnimationFrame` | NSH's | NSH's globals, paced by NSH's frame clock (display link on iOS); the reference uses the runtime's own on macOS too. One timestamp per frame. No worklet runtimes in NSH. |

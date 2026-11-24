@@ -44,6 +44,10 @@ The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for
 
 - Windows: reconfiguring or resizing a canvas no longer fails (`ResizeBuffers`, "window is in use") while JS still holds a past frame's texture or view; they expire, as the spec says.
 - Windows and Android: a canvas can be configured with one device and then another. The swap chain stayed the first device's, for which Windows removed the GPU device and every later `requestAdapter` found none.
+- Android (GLES): a canvas with a usage (`COPY_SRC`), view formats or a format its surface lacks renders offscreen and is drawn onto it, instead of losing the usage or failing to configure. `rgb10a2unorm`, what `getPreferredHighBitDepthCanvasFormat()` names there, is a canvas format.
+- A canvas whose view goes while JS draws its frame no longer reports a validation error.
+- `GPUExtent3D` and `GPUOrigin3D` truncate fractions (`[canvas.width, canvas.height]` on a fractional pixel ratio), as the spec says.
+- `canvas.width` / `height` are whole numbers of pixels, as a `<canvas>`'s and the reference's.
 - Windows: an `rgba16float` canvas shows its colors as they are (a float swap chain takes them as linear light: 55 showed as 128).
 - Windows: the crate feature `static-dxc` compiles shaders with DXC; the system's FXC refuses some valid WGSL (the gallery's Wireframe).
 

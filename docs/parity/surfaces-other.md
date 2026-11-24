@@ -50,8 +50,11 @@ the contract of `src/surface/views.rs`: make a `wgpu::Surface<'static>` from `cr
   again every 16 ms (up to a second).
 - Android: `vkCreateAndroidSurfaceKHR` connects the `ANativeWindow` (API EGL); a `wgpu::Surface` made for Vulkan
   *and* GL then fails GL's `eglCreateWindowSurface` (`EGL_BAD_ALLOC`, "already connected"), and `configure` on a GL
-  device reports "Invalid surface". The emulator has a Vulkan driver but wgpu finds no Vulkan adapter on it, so GL is
+  device reports "Invalid surface". The emulator has a Vulkan driver (gfxstream), which wgpu hides (it declares no
+  conformance version) and which crashes in `vkQueueSubmit` when used anyway, with no surface too, so GL is
   the only adapter while the Vulkan surface still connects the window. Fix: one backend per instance on Android.
+- The emulator's GLES 3.0 has no compute shaders, storage buffers, `textureLoad` from depth textures or texture view
+  formats: the gallery's demos that use them report validation errors there (15 of its 44 tests). Phones have Vulkan.
 - NDK 29.0.14206865's `llvm-ar` on this Mac is a shell script that execs itself (dated Nov 9, not ours): `nsh run
   --target android` hangs in `zstd-sys`'s build script with it. `ANDROID_NDK_HOME=.../ndk/28.2.13676358` works.
 - `cargo clippy --target aarch64-linux-android` failed `-D warnings` in `api/device.rs:39` and `error.rs:199`
