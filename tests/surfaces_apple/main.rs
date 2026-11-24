@@ -303,14 +303,17 @@ fn attach_layer(id: u32) -> objc2::rc::Retained<objc2_quartz_core::CAMetalLayer>
     layer
 }
 
-/// A view of a past frame that JS has not collected does not outlive the
-/// next configuration: DX12 cannot resize a swap chain while one lives
-/// (found on Windows by the gallery's Context Edge Cases). It stays a view,
-/// of a destroyed texture.
+/// A past frame's texture or view that JS has not collected does not outlive
+/// the next configuration: DX12 cannot resize a swap chain while one lives
+/// (found on Windows by the gallery's Context Edge Cases). It stays a texture
+/// or a view, a destroyed one.
 #[cfg(target_os = "macos")]
 #[test]
-fn a_past_frames_view_expires_when_the_canvas_is_reconfigured() {
-    use nsh_webgpu::api::texture_view::{TextureViewEntry, WgpuTextureView};
+fn a_past_frame_expires_when_the_canvas_is_reconfigured() {
+    use nsh_webgpu::api::{
+        texture::TextureEntry,
+        texture_view::{TextureViewEntry, WgpuTextureView},
+    };
 
     let device = device();
     let id = WgpuCanvasContext::allocate_context_id();
@@ -321,12 +324,15 @@ fn a_past_frames_view_expires_when_the_canvas_is_reconfigured() {
         let entry = TextureViewEntry::lookup(view).expect("the view stays");
         entry.view.texture().size().width
     };
+    let texture = |id: u32| TextureEntry::lookup(id).expect("the texture stays").texture;
     let frame = WgpuCanvasContext::get_current_texture(id, 64, 64).unwrap();
+    let drawable = texture(frame);
     let held = WgpuTextureView::create(frame, json!({})).unwrap();
     WgpuCanvasContext::present(id).unwrap();
     // The same size: nothing is reconfigured.
     WgpuCanvasContext::get_current_texture(id, 64, 64).unwrap();
     assert_eq!(size(held), 64);
+    assert_eq!(texture(frame), drawable);
     WgpuCanvasContext::present(id).unwrap();
     // Another size: it is.
     let resized = WgpuCanvasContext::get_current_texture(id, 48, 40).unwrap();
@@ -335,6 +341,12 @@ fn a_past_frames_view_expires_when_the_canvas_is_reconfigured() {
         1,
         "the past frame's view still holds its buffer"
     );
+    assert_ne!(
+        texture(frame),
+        drawable,
+        "the past frame's texture still holds its buffer"
+    );
+    assert_eq!(texture(frame).size(), drawable.size());
     let current = WgpuTextureView::create(resized, json!({})).unwrap();
     assert_eq!(size(current), 48);
     WgpuCanvasContext::present(id).unwrap();

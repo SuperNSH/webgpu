@@ -10,7 +10,8 @@
 // Headless there is no picture to take and the test returns at once, so plain
 // `nsh test` does not tour.
 
-import { open, test } from "nsh/test";
+import { expect, open, test } from "nsh/test";
+import { decodePng } from "./src/harness/png";
 
 /** Every demo of the Home list, then the Diagnostics list's ported screens. */
 const DEMOS = [
@@ -99,6 +100,17 @@ test(
         await app.waitUntil(() => app.texts().some((t) => /^(🟥|🟨|🟩|🟧|🟦|🟪)+$/u.test(t)), { timeout: 30_000 });
       }
       await shoot(screen);
+      if (desktop && screen === "SixteenBitTextures") {
+        // The same colors in an 8-bit and a 16-bit float canvas: the window shows them alike.
+        const picture = decodePng(await app.screenshot());
+        const at = (x: number) => {
+          const i = (Math.round(picture.height * 0.4) * picture.width + Math.round(picture.width * x)) * 4;
+          return [...picture.rgba.slice(i, i + 3)];
+        };
+        const [eight, sixteen] = [at(0.25), at(0.75)];
+        console.log(`16-bit canvas: ${sixteen}, 8-bit: ${eight}`);
+        for (let c = 0; c < 3; c++) expect(Math.abs(eight[c] - sixteen[c])).toBeLessThan(12);
+      }
       await home();
     }
     for (const screen of SKIPPED) {

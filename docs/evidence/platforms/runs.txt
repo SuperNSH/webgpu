@@ -1,31 +1,9 @@
-# NSH nightly 589a60f. macOS, Windows: GitHub runners, On screen run 45337700042; Linux: the container below, and On screen run 45337293945.
-# android, ios: nsh run on this Mac (emulator-5590, AVD nsh-webgpu-surfaces-other; simulator nsh-webgpu-gallery). linux: ubuntu 24.04 arm64 container, Xvfb, lavapipe.
-## macos.log
-✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (6m 21s)
-✓ built App.tsx (156.4 KB js, 437.3 KB bytecode, 116ms)
-✓ built the development host for macOS (7m 25s)
-• macOS (sat12-dp152-e23bfc74-6c89-4b01-88b9-11ba36860e81-7A7F99553282) connected, build 1
-## windows.log
-✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (10m 7s)
-✓ built App.tsx (156.3 KB js, 437.2 KB bytecode, 54ms)
-✓ built the development host for Windows (13m 16s)
-• Windows (runnervmbpeip) connected, build 1
-## linux.log
-✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (36.9s)
-✓ built App.tsx (156.3 KB js, 437.1 KB bytecode, 27ms)
-✓ built the development host for Linux (1m 5s)
-• Linux (4c9d454a9af5) connected, build 1
-## run-canvas-apple-android.log
-✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (347ms)
-✓ built App.tsx (156.4 KB js, 437.3 KB bytecode, 25ms)
-✓ installed `android` (1.3s)
-✓ built libnsh.so of webgpu-canvas-native, nsh-webgpu for arm64-v8a (1m 5s)
-✓ built the Android development host (1.2s)
-✓ installed the Android development host on emulator-5590 (518ms)
-• Android Emulator (sdk_gphone16k_arm64) connected, build 1
-## run-canvas-apple-ios.log
-✓ built the Rust crates webgpu-canvas-native, nsh-webgpu (278ms)
-✓ built App.tsx (156.4 KB js, 437.3 KB bytecode, 25ms)
-✓ built the development host for the iOS simulator (2m 14s)
-• iOS Simulator (nsh-webgpu-gallery) connected, build 1
-linux: red pixels [19188, 19188], changed pixels 52610
+# NSH nightly 2964346 (nsh 0.6.0, 2026-11-24)
+macos, linux, windows: GitHub runners, On screen run 45463440918 (commit 7646561); their pictures and the gallery sheets are its artifacts (gallery-macos.jpg: nsh test --target macos tour.test.tsx on an M3 Max).
+  macos    triangle and moving cube, gallery 44/44, tour
+  linux    triangle and moving cube, gallery 44/44, tour (Import External Texture: ERR_WEBGPU_UNSUPPORTED, as wgpu 29 has none on Vulkan)
+  windows  triangle and moving cube, gallery 43/44 (Context Edge Cases failed, and its 16bits Textures picture shows the float canvas too bright: both fixed after it; the On screen run of the last commit on this branch has them), tour
+ios (simulator, iOS 27) and android (emulator, GLES): nsh run --target in examples/canvas-apple on this Mac, commit 970c37c's code. android: NDK 28.2.
+web: nsh run --target web of the README's app, installed with nsh add --path, no crate of its own; Chromium.
+A new app (nsh init --template ts, nsh add github:SuperNSH/webgpu --rev 970c37c, no crate of its own): nsh check, build and test pass; with --path it also runs on macOS and the web.
+Windows: the sheet's Import External Texture draws (DX12). Pictures were looked at, each of them.

@@ -117,6 +117,35 @@ struct Config {
     alpha_mode: wgpu::CompositeAlphaMode,
     width: u32,
     height: u32,
+    /// What shows the frames on a surface that cannot show `format` as a
+    /// canvas means it ([`shown_as`]); `None`: the surface is of `format`.
+    shown: Option<Shown>,
+}
+
+/// Frames rendered offscreen in the canvas's format and drawn onto a
+/// surface of another.
+#[derive(Clone)]
+struct Shown {
+    format: wgpu::TextureFormat,
+    blitter: Arc<wgpu::util::TextureBlitter>,
+}
+
+/// The surface's format for a canvas of `format` that the platform would
+/// show wrongly. Windows takes a 16-bit float swap chain's values as linear
+/// light (scRGB), and a canvas's are sRGB-encoded: such a canvas shows in 10
+/// bits, or in 8 when it is transparent (10 bits leave 2 for alpha).
+fn shown_as(
+    format: wgpu::TextureFormat,
+    alpha_mode: wgpu::CompositeAlphaMode,
+) -> Option<wgpu::TextureFormat> {
+    if !cfg!(windows) || format != wgpu::TextureFormat::Rgba16Float {
+        return None;
+    }
+    Some(if alpha_mode == wgpu::CompositeAlphaMode::Opaque {
+        wgpu::TextureFormat::Rgb10a2Unorm
+    } else {
+        wgpu::TextureFormat::Bgra8Unorm
+    })
 }
 
 impl Config {
@@ -135,6 +164,18 @@ impl Config {
             .as_ref()
             .map(|c| c.alpha_modes.clone())
             .unwrap_or_default();
+        if let Some(shown) = &self.shown {
+            return wgpu::SurfaceConfiguration {
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT,
+                format: shown.format,
+                width: self.width,
+                height: self.height,
+                present_mode: wgpu::PresentMode::Fifo,
+                desired_maximum_frame_latency: 2,
+                alpha_mode: alpha_mode(self.alpha_mode, &offered),
+                view_formats: Vec::new(),
+            };
+        }
         let mut usage = self.usage | extra;
         // A usage the spec allows a canvas but this surface lacks (Android's
         // GL surfaces: render attachment only) is dropped, with a validation
@@ -180,8 +221,15 @@ impl Config {
             sample_count: 1,
             dimension: wgpu::TextureDimension::D2,
             format: self.format,
-            // COPY_SRC for the blit onto a surface that attaches later.
-            usage: self.usage | wgpu::TextureUsages::COPY_SRC,
+            // COPY_SRC for the blit onto a surface that attaches later,
+            // TEXTURE_BINDING for the one that converts.
+            usage: self.usage
+                | wgpu::TextureUsages::COPY_SRC
+                | if self.shown.is_some() {
+                    wgpu::TextureUsages::TEXTURE_BINDING
+                } else {
+                    wgpu::TextureUsages::empty()
+                },
             view_formats: &self.view_formats,
         })
     }
@@ -347,7 +395,7 @@ pub fn surface_attached(context_id: u32) {
         ctx.offscreen_presented = false;
         drop(all);
         if let Some(offscreen) = blit {
-            blit_and_present(&view.surface, &config, &offscreen);
+            blit_and_present(context_id, &view.surface, &config, &offscreen);
         }
         Ok(())
     });
@@ -429,14 +477,21 @@ fn configure_view(
     crate::surface::windows::buffer_size(context_id, config.width, config.height);
 }
 
-fn blit_and_present(surface: &wgpu::Surface<'static>, config: &Config, offscreen: &wgpu::Texture) {
-    let texture = match surface.get_current_texture() {
-        wgpu::CurrentSurfaceTexture::Success(t) | wgpu::CurrentSurfaceTexture::Suboptimal(t) => t,
-        _ => return,
+fn blit_and_present(
+    context_id: u32,
+    surface: &wgpu::Surface<'static>,
+    config: &Config,
+    offscreen: &wgpu::Texture,
+) {
+    let Some(texture) = acquire(context_id, surface, config) else {
+        return;
     };
+    if texture.texture.size() != offscreen.size() {
+        return;
+    }
     // The surface may lack COPY_DST (Android's GL surfaces): nothing to show then.
-    if texture.texture.size() != offscreen.size()
-        || !texture
+    if config.shown.is_none()
+        && !texture
             .texture
             .usage()
             .contains(wgpu::TextureUsages::COPY_DST)
@@ -446,15 +501,41 @@ fn blit_and_present(surface: &wgpu::Surface<'static>, config: &Config, offscreen
     let mut encoder = config
         .device
         .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-            label: Some("canvas blit on attach"),
+            label: Some("canvas blit"),
         });
-    encoder.copy_texture_to_texture(
-        offscreen.as_image_copy(),
-        texture.texture.as_image_copy(),
-        offscreen.size(),
-    );
+    match &config.shown {
+        Some(shown) => show(
+            shown,
+            &config.device,
+            &mut encoder,
+            offscreen,
+            &texture.texture,
+        ),
+        None => encoder.copy_texture_to_texture(
+            offscreen.as_image_copy(),
+            texture.texture.as_image_copy(),
+            offscreen.size(),
+        ),
+    }
     config.queue.submit([encoder.finish()]);
     texture.present();
+}
+
+/// Draws `frame` onto `target`, of `shown`'s format.
+fn show(
+    shown: &Shown,
+    device: &wgpu::Device,
+    encoder: &mut wgpu::CommandEncoder,
+    frame: &wgpu::Texture,
+    target: &wgpu::Texture,
+) {
+    let view = wgpu::TextureViewDescriptor::default();
+    shown.blitter.copy(
+        device,
+        encoder,
+        &frame.create_view(&view),
+        &target.create_view(&view),
+    );
 }
 
 /// The texture usages the spec allows a canvas, minus what the surface
@@ -610,6 +691,10 @@ impl WgpuCanvasContext {
             }
             let entry = DeviceEntry::get(c.device)?;
             let usage = checked_usage(&entry, c.usage);
+            let shown = shown_as(c.format, alpha_mode).map(|format| Shown {
+                format,
+                blitter: Arc::new(wgpu::util::TextureBlitter::new(&entry.device, format)),
+            });
             let config = Config {
                 device_id: c.device,
                 device: entry.device.clone(),
@@ -621,6 +706,7 @@ impl WgpuCanvasContext {
                 alpha_mode,
                 width: c.width.max(1),
                 height: c.height.max(1),
+                shown,
             };
             let view = views::get(context);
             let ended = {
@@ -705,6 +791,13 @@ impl WgpuCanvasContext {
                 drop(surface);
             }
             if let Some((texture, config)) = offscreen {
+                // A frame that never goes to its surface as it is.
+                if config.shown.is_some()
+                    && let Some(view) = views::get(context)
+                {
+                    blit_and_present(context, &view.surface, &config, &texture);
+                    return Ok(());
+                }
                 let device = DeviceEntry::get(config.device_id)?;
                 offscreen::deliver(
                     context,
@@ -773,12 +866,15 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
     if let (Some(surface), true) = (&surface, configure_surface) {
         configure_view(context, surface, &config, wgpu::TextureUsages::empty());
     }
-    let acquired = surface.as_ref().and_then(|s| {
-        acquire(context, s, &config).map(|texture| SurfaceFrame {
-            texture,
-            surface: Arc::clone(s),
-        })
-    });
+    let acquired = surface
+        .as_ref()
+        .filter(|_| config.shown.is_none())
+        .and_then(|s| {
+            acquire(context, s, &config).map(|texture| SurfaceFrame {
+                texture,
+                surface: Arc::clone(s),
+            })
+        });
     let mut all = contexts();
     // The view may have gone while the texture was acquired (the UI thread
     // tears it down without waiting for the JS thread): then the texture is
@@ -850,8 +946,112 @@ pub fn context_count() -> usize {
 
 #[cfg(test)]
 mod tests {
-    use super::alpha_mode;
+    use std::sync::Arc;
+
+    use super::{Shown, alpha_mode, show, shown_as};
     use wgpu::CompositeAlphaMode as A;
+
+    /// A 16-bit float canvas's values are sRGB-encoded, as any canvas's:
+    /// they show as they are, not as linear light (Windows showed 55 as 128).
+    #[test]
+    fn a_float_canvas_shows_its_values_as_they_are() {
+        use wgpu::TextureFormat as F;
+
+        assert_eq!(shown_as(F::Bgra8Unorm, A::Opaque), None);
+        let windows = |format| cfg!(windows).then_some(format);
+        assert_eq!(
+            shown_as(F::Rgba16Float, A::Opaque),
+            windows(F::Rgb10a2Unorm)
+        );
+        assert_eq!(
+            shown_as(F::Rgba16Float, A::PreMultiplied),
+            windows(F::Bgra8Unorm)
+        );
+
+        let adapter = crate::instance::request_adapter(&Default::default()).expect("an adapter");
+        let (device, queue) =
+            pollster::block_on(adapter.request_device(&wgpu::DeviceDescriptor::default()))
+                .expect("a device");
+        let texture = |format, usage| {
+            device.create_texture(&wgpu::TextureDescriptor {
+                label: None,
+                size: wgpu::Extent3d {
+                    width: 1,
+                    height: 1,
+                    depth_or_array_layers: 1,
+                },
+                mip_level_count: 1,
+                sample_count: 1,
+                dimension: wgpu::TextureDimension::D2,
+                format,
+                usage,
+                view_formats: &[],
+            })
+        };
+        let target_format = F::Rgba8Unorm;
+        let shown = Shown {
+            format: target_format,
+            blitter: Arc::new(wgpu::util::TextureBlitter::new(&device, target_format)),
+        };
+        let frame = texture(
+            F::Rgba16Float,
+            wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
+        );
+        let target = texture(
+            target_format,
+            wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_SRC,
+        );
+        let readback = device.create_buffer(&wgpu::BufferDescriptor {
+            label: None,
+            size: 256,
+            usage: wgpu::BufferUsages::COPY_DST | wgpu::BufferUsages::MAP_READ,
+            mapped_at_creation: false,
+        });
+        let mut encoder = device.create_command_encoder(&wgpu::CommandEncoderDescriptor::default());
+        let view = frame.create_view(&wgpu::TextureViewDescriptor::default());
+        drop(encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                view: &view,
+                depth_slice: None,
+                resolve_target: None,
+                ops: wgpu::Operations {
+                    load: wgpu::LoadOp::Clear(wgpu::Color {
+                        r: 55.0 / 255.0,
+                        g: 0.5,
+                        b: 2.0,
+                        a: 0.25,
+                    }),
+                    store: wgpu::StoreOp::Store,
+                },
+            })],
+            ..Default::default()
+        }));
+        show(&shown, &device, &mut encoder, &frame, &target);
+        encoder.copy_texture_to_buffer(
+            target.as_image_copy(),
+            wgpu::TexelCopyBufferInfo {
+                buffer: &readback,
+                layout: wgpu::TexelCopyBufferLayout {
+                    offset: 0,
+                    bytes_per_row: Some(256),
+                    rows_per_image: None,
+                },
+            },
+            target.size(),
+        );
+        queue.submit([encoder.finish()]);
+        readback.slice(..).map_async(wgpu::MapMode::Read, |_| ());
+        device
+            .poll(wgpu::PollType::wait_indefinitely())
+            .expect("the frame");
+        let pixel: Vec<i32> = readback.slice(..4).get_mapped_range()[..]
+            .iter()
+            .map(|b| i32::from(*b))
+            .collect();
+        for (got, want) in pixel.iter().zip([55, 128, 255, 64]) {
+            assert!((got - want).abs() <= 1, "{pixel:?}");
+        }
+    }
 
     #[test]
     fn an_alpha_mode_the_surface_lacks_falls_back() {

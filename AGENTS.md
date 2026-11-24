@@ -7,15 +7,15 @@ log are in [docs/PLAN.md](docs/PLAN.md); the area owners are in its "Ownership" 
 
 ## Toolchain
 
-- NSH is the **nightly** built from [`longbridge/nsh` at `589a60f`](https://github.com/longbridge/nsh/tree/589a60f7569c14023c262c126f50279f27ddf470)
-  (`nsh 0.6.0 (589a60f nightly 2026-11-23)`), kept inside the checkout at `./.nsh-nightly/nsh/bin/nsh` (ignored by
-  git). Put it there from the nightly release asset while that release is still `589a60f`, or build it from that
-  commit (`cargo build --release --locked -p nsh-cli` in a clone of `longbridge/nsh` checked out at `589a60f`), as
+- NSH is the **nightly** built from [`longbridge/nsh` at `2964346`](https://github.com/longbridge/nsh/tree/2964346c285f57004f2531fb768cc9840b8d7ff5)
+  (`nsh 0.6.0 (2964346 nightly 2026-11-24)`), kept inside the checkout at `./.nsh-nightly/nsh/bin/nsh` (ignored by
+  git). Put it there from the nightly release asset while that release is still `2964346`, or build it from that
+  commit (`cargo build --release --locked -p nsh-cli` in a clone of `longbridge/nsh` checked out at `2964346`), as
   `.github/workflows/ci.yml` does. Do not use another `nsh` on `PATH`, and do not run `nsh update`.
 - Export `NSH_HOME="$PWD/.nsh-home"` before every `nsh` command so installs and build caches stay in the checkout
   (the `justfile` does).
 - Rust crates take NSH from Git at that commit:
-  `nsh-core = { git = "https://github.com/longbridge/nsh", rev = "589a60f7569c14023c262c126f50279f27ddf470" }`
+  `nsh-core = { git = "https://github.com/longbridge/nsh", rev = "2964346c285f57004f2531fb768cc9840b8d7ff5" }`
   (and the same `git`/`rev` for every other `nsh-*` crate). Read NSH's source at that commit on GitHub, or in Cargo's
   Git checkout of it (`cargo metadata --format-version 1` gives the path).
 - GPU backend: `wgpu` 29 (the version NSH itself uses), standing in for Dawn. WebGPU in Rust, so the JS API maps

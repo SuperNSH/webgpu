@@ -1,7 +1,7 @@
 # Parity with react-native-webgpu
 
 Every export of react-native-webgpu (commit `06599f9`, `packages/webgpu/src`; the list is `docs/inventory.md` §1–2)
-and what nsh-webgpu does with it, on wgpu 29.0.4 and the NSH nightly `589a60f`. One table per area. Status:
+and what nsh-webgpu does with it, on wgpu 29.0.4 and the NSH nightly `2964346`. One table per area. Status:
 
 - **done**: the reference's name, signature, defaults and errors.
 - **partial**: works, with the difference given.
@@ -72,7 +72,7 @@ Linux (Vulkan on lavapipe) (the platform table in `docs/architecture.md`).
 | `GPUQueue.copyExternalImageToTexture` (`ImageBitmap`, `ImageData`) | done | bit-exact alpha conversion, every spec destination format |
 | `copyExternalImageToTexture` / `importExternalTexture` with a `NativeBuffer`, video, canvas or image element | unsupported | NSH has no DOM; wgpu cannot import platform buffers without HAL interop |
 | `GPUQueue.drawElementImageToTexture` | unsupported | NSH has no hook that draws a view subtree into pixels |
-| `device.importExternalTexture` (`GPUTexture` source), `GPUExternalTexture` (`destroy`) | partial | one RGBA plane through wgpu 29's `ExternalTexture`; crop, `mirrored`, `rotation`, `colorSpace: "display-p3"` applied; binds in a bind group and renders (phase 3). Without wgpu's `EXTERNAL_TEXTURE` on the device: unsupported |
+| `device.importExternalTexture` (`GPUTexture` source), `GPUExternalTexture` (`destroy`) | partial | one RGBA plane through wgpu 29's `ExternalTexture`; crop, `mirrored`, `rotation`, `colorSpace: "display-p3"` applied; binds in a bind group and renders (phase 3). Without wgpu's `EXTERNAL_TEXTURE` on the device: unsupported. Metal and DX12 only: wgpu 29 has no `EXTERNAL_TEXTURE` on Vulkan or GL, so on Linux and Android it throws `ERR_WEBGPU_UNSUPPORTED` |
 | `createImageBitmap`, `ImageBitmap` | done | PNG/JPEG/WebP bytes, `ImageData`, `ImageBitmap`, Blob-like; crop, resize and `flipY`, which the reference's native decoder ignores; declared globally with the bytes overloads (`tsx/types/dom.d.ts`) |
 | `createImageBitmap` `colorSpaceConversion`, `imageOrientation: "from-image"` | partial | accepted; no ICC, no EXIF orientation |
 | A `null` hole in `vertex.buffers` before a used slot | partial (wrong slot) | wgpu-core 29 bug, fixed in wgpu 30 (#9351): repro and draft in `docs/upstream/wgpu-null-vertex-slot/` |

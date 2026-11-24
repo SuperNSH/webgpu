@@ -35,6 +35,17 @@ The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for
 - `createTestVideoFrame(width, height)` has the reference export's signature.
 - Overflow-checked buffer ranges, the Android window released after its surface is replaced, a replaced surface dropped outside the views lock, `Wgpu.release` guarded, a ticket dropped when its wait gives up; Cargo metadata.
 
+### NSH nightly `2964346`
+
+- An app needs no Rust crate of its own any more: `nsh add github:SuperNSH/webgpu` is enough with that nightly.
+- The gallery runs in a real window on macOS, Windows and Linux in CI (`.github/workflows/onscreen.yml`: its tests with `nsh test --target`, and a picture of each page).
+
+### Fixed (the gallery in desktop windows)
+
+- Windows: reconfiguring or resizing a canvas no longer fails (`ResizeBuffers`, "window is in use") while JS still holds a past frame's texture or view; they expire, as the spec says.
+- Windows: an `rgba16float` canvas shows its colors as they are (a float swap chain takes them as linear light: 55 showed as 128).
+- Windows: the crate feature `static-dxc` compiles shaders with DXC; the system's FXC refuses some valid WGSL (the gallery's Wireframe).
+
 ### Fixed (every platform on screen)
 
 - NSH nightly `589a60f`: on Linux, `requestAnimationFrame` fires (it never did on `f577c51`).

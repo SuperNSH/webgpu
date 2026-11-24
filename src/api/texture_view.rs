@@ -66,34 +66,51 @@ impl TextureViewEntry {
     }
 }
 
-/// Lets go of the views of context `context`'s past frames, which JS may
-/// hold until it collects them: each becomes a view of a destroyed texture,
-/// so using it stays the validation error an expired canvas texture is. A
-/// DX12 swap chain cannot be resized while a view of one of its buffers
-/// lives (`ResizeBuffers`: `DXGI_ERROR_INVALID_CALL`).
+/// Lets go of context `context`'s past frames, the textures and the views JS
+/// may hold until it collects them: each becomes a destroyed texture or a
+/// view of one, so using it stays the validation error an expired canvas
+/// texture is. A DX12 swap chain cannot be resized while anything holds one
+/// of its buffers (`ResizeBuffers`: `DXGI_ERROR_INVALID_CALL`), and a
+/// surface's texture holds one past its present (wgpu-core's clear view).
 pub(crate) fn expire_frames(context: u32) {
-    let held = registry::find(|v: &TextureViewEntry| {
-        (v.frame_of == Some(context)).then(|| (v.device, v.view.texture().format()))
+    let textures = registry::find(|t: &TextureEntry| {
+        (t.frame_of == Some(context)).then(|| {
+            let texture = &t.texture;
+            let size = texture.size();
+            (t.device, size, texture.format(), texture.usage())
+        })
     });
-    for (id, (device, format)) in held {
+    for (id, (device, size, format, usage)) in textures {
         let Ok(entry) = DeviceEntry::get(device) else {
             registry::release(id);
             continue;
         };
-        let texture = entry.device.create_texture(&wgpu::TextureDescriptor {
-            label: Some("an expired canvas frame"),
-            size: wgpu::Extent3d {
-                width: 1,
-                height: 1,
-                depth_or_array_layers: 1,
+        let texture = expired(&entry.device, size, format, usage);
+        texture.destroy();
+        registry::replace(
+            id,
+            TextureEntry {
+                texture,
+                device,
+                frame_of: None,
             },
-            mip_level_count: 1,
-            sample_count: 1,
-            dimension: wgpu::TextureDimension::D2,
-            format,
-            usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING,
-            view_formats: &[],
-        });
+        );
+    }
+    let views = registry::find(|v: &TextureViewEntry| {
+        (v.frame_of == Some(context)).then(|| (v.device, v.view.texture().format()))
+    });
+    for (id, (device, format)) in views {
+        let Ok(entry) = DeviceEntry::get(device) else {
+            registry::release(id);
+            continue;
+        };
+        let size = wgpu::Extent3d {
+            width: 1,
+            height: 1,
+            depth_or_array_layers: 1,
+        };
+        let usage = wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::TEXTURE_BINDING;
+        let texture = expired(&entry.device, size, format, usage);
         let view = texture.create_view(&wgpu::TextureViewDescriptor::default());
         texture.destroy();
         registry::replace(
@@ -105,6 +122,25 @@ pub(crate) fn expire_frames(context: u32) {
             },
         );
     }
+}
+
+/// What stands in for an expired frame.
+fn expired(
+    device: &wgpu::Device,
+    size: wgpu::Extent3d,
+    format: wgpu::TextureFormat,
+    usage: wgpu::TextureUsages,
+) -> wgpu::Texture {
+    device.create_texture(&wgpu::TextureDescriptor {
+        label: Some("an expired canvas frame"),
+        size,
+        mip_level_count: 1,
+        sample_count: 1,
+        dimension: wgpu::TextureDimension::D2,
+        format,
+        usage,
+        view_formats: &[],
+    })
 }
 
 /// The native half of `GPUTextureView`.

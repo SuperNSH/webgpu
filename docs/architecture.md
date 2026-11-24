@@ -10,7 +10,7 @@ verified" for where it runs.
 ```text
 Cargo.toml                         the nshm's crate `nsh-webgpu` (keywords = ["nshm"], MIT) and its workspace
                                    (members = ["."]; examples/ and docs/upstream/ excluded); nsh crates from Git
-                                   at 589a60f, wgpu 29
+                                   at 2964346, wgpu 29
 nsh.json                           { "exports": { "nsh-webgpu": "tsx/index.tsx" } }
 src/lib.rs                         #[native_module("nsh-webgpu/native")]: the module list
 src/registry.rs                    the handle registry
@@ -203,19 +203,18 @@ else GL (emulators), unless `WGPU_BACKEND` is set (`android_backends`, tested on
 
 ## Blockers and limits in the nightly
 
-- **A TSX app whose only Rust is a Git-pinned nshm gets hosts built against crates.io's nsh.** `nsh-cli/src/
-  rust_app.rs` `of()`: `let nsh = if crates.is_empty() { crate::runtime::cli_checkout().map_or(Nsh::Registry, ...) }`;
-  `Nsh::Registry` writes `nsh-core = { version = "=0.6.0" }`, so the generated `describe` crate links two
-  `nsh-core`s and fails with E0308 (`expected Registry, found nsh_core::element::component::Registry`). Workaround:
-  the app has a crate of its own pinned at the same revision (`examples/headless/native`, `nsh.json` `"rust":
-  "native"`); `Nsh::of` then takes the Git checkout and patches the nshm to it. Apps using nsh-webgpu before it is on
-  crates.io need the same. Once nsh-webgpu depends on crates.io `nsh-core`, this goes away.
+- **The app's NSH and this crate's have to be one commit.** An installed nightly builds an app whose only Rust is an
+  nshm against its own commit (longbridge/nsh#2980, since 2026-11-24), so with the nightly this crate is pinned to the
+  app needs no crate. A released CLI takes crates.io's `nsh-core`, and one built in a checkout takes that checkout by
+  path: two `nsh-core`s, E0308 (`expected Registry, found nsh_core::element::component::Registry`). Then the app has a
+  crate of its own pinned at the same revision (`examples/headless/native`, `nsh.json` `"rust": "native"`), and nsh
+  takes the Git checkout for everything. Once nsh-webgpu depends on crates.io `nsh-core`, this goes away.
 - `nsh add --path` reads the version with a line parser (`nshm/manifest.rs` `package_version`): `version.workspace =
   true` is "Cargo.toml has no [package] version", so the crate states its version.
 - `#[module]` recognizes `Result` by name: a type alias returning `Result` fails to compile with "`Result<..>: Ret`
   is not satisfied".
 - Cargo resolves newer patch versions than NSH tested (rolldown_std_utils 1.3.3 broke nsh-bundler 1.2.13): the
-  workspace's `Cargo.lock` was seeded from NSH's own at 589a60f; keep it, and seed `examples/headless/native` the same.
+  workspace's `Cargo.lock` was seeded from NSH's own and moves with the pin; keep it, and seed `examples/headless/native` the same.
 - **The web player runs a TSX app's modules in a same-origin iframe realm** (`nsh-platform-web/web/browser/realm.js`)
   while the views are elements of the page: `globalThis.document` is the iframe's, empty; `tsx/surface/web.tsx` uses
   `parent.document` / `parent.navigator.gpu`. The first `onLayout` comes before the DOM runtime inserted the view's
@@ -267,7 +266,7 @@ Rules that keep the sets disjoint:
 
 ## What is verified
 
-On macOS 27.2, Apple Silicon, Metal, nightly `nsh 0.6.0 (589a60f nightly 2026-11-23)`, rustc 1.99.1, after phase 3
+On macOS 27.2, Apple Silicon, Metal, nightly `nsh 0.6.0 (2964346 nightly 2026-11-24)`, rustc 1.99.1, after phase 3
 (`docs/evidence/integration/`): `cargo fmt`, `cargo clippy --workspace --all-targets -D warnings`, `cargo test
 --workspace`; clippy `-D warnings` for `wasm32-unknown-unknown`, `aarch64-linux-android`, `x86_64-pc-windows-gnu`,
 `aarch64-apple-ios-sim` and (GTK faked) `x86_64-unknown-linux-gnu`; `nsh check` / `nsh build` / `nsh test` in
