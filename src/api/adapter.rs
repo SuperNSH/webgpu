@@ -72,6 +72,17 @@ fn vendor_name(info: &wgpu::AdapterInfo) -> String {
 #[module]
 pub struct WgpuAdapter;
 
+/// Memory blocks that start small and grow, as Dawn's do. wgpu's default
+/// takes 256 MB of device memory and 64 MB of host memory at a device's
+/// first allocation (every device's zero buffer) on DX12 and Vulkan: some
+/// thirty devices on a software adapter are a machine's whole memory.
+fn memory_hints() -> wgpu::MemoryHints {
+    const MIB: u64 = 1 << 20;
+    wgpu::MemoryHints::Manual {
+        suballocated_device_memory_block_size: 8 * MIB..256 * MIB,
+    }
+}
+
 #[module]
 impl WgpuAdapter {
     /// `adapter.info`: `{ vendor, architecture, device, description,
@@ -155,6 +166,7 @@ impl WgpuAdapter {
                 label: Some(label.as_str()).filter(|l| !l.is_empty()),
                 required_features,
                 required_limits,
+                memory_hints: memory_hints(),
                 ..Default::default()
             };
             pollster::block_on(adapter_handle.request_device(&desc))

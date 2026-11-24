@@ -164,7 +164,14 @@ fn adapter_info_fields() {
     ] {
         assert!(info.get(key).is_some(), "{key}");
     }
-    let software = ["swiftshader", "llvmpipe", "lavapipe"].iter().any(|s| {
+    let software = [
+        "swiftshader",
+        "llvmpipe",
+        "lavapipe",
+        "microsoft basic render",
+    ]
+    .iter()
+    .any(|s| {
         info["description"]
             .as_str()
             .unwrap()
