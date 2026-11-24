@@ -267,9 +267,7 @@ mod tests {
     use super::*;
 
     fn device() -> Option<(Id, wgpu::Device, wgpu::Queue)> {
-        let adapter =
-            pollster::block_on(crate::instance::instance().request_adapter(&Default::default()))
-                .ok()?;
+        let adapter = crate::instance::request_adapter(&Default::default())?;
         if !adapter
             .features()
             .contains(wgpu::Features::EXTERNAL_TEXTURE)

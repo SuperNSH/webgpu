@@ -1,0 +1,91 @@
+name: On screen
+
+# `<Canvas>` in a real window: examples/canvas-apple (the reference's Triangle
+# and rotating Cube) with `nsh run` on each desktop, checked by screenshot
+# (scripts/onscreen.py). Software GPUs on Linux (lavapipe) and Windows (WARP),
+# the runner's paravirtualized one on macOS. The screenshots are the artifacts.
+
+on:
+  push:
+    branches: [master, "ci/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: onscreen-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+env:
+  CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
+  NSH_COMMIT: f577c51901a2857956f8ba0580da4db9ce3a3311
+
+jobs:
+  desktop:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { target: macos, os: macos-latest }
+          - { target: linux, os: ubuntu-24.04 }
+          - { target: windows, os: windows-latest }
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install GTK 4, Mesa's software drivers and an X server
+        if: matrix.target == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang pkg-config libgtk-4-dev libwebkitgtk-6.0-dev \
+            libvulkan1 mesa-vulkan-drivers libegl1 libgl1-mesa-dri xvfb openbox adwaita-icon-theme
+      - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
+        with:
+          toolchain: stable
+      - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
+        with:
+          workspaces: examples/canvas-apple/native
+          key: onscreen
+      - run: echo "NSH_HOME=$(cd "$RUNNER_TEMP" && pwd)/nsh-home" >> "$GITHUB_ENV"
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ runner.temp }}/nsh-src
+          key: nsh-src-onscreen-${{ runner.os }}-${{ env.NSH_COMMIT }}
+      - name: Build the CLI at NSH_COMMIT
+        run: |
+          src="$(cd "$RUNNER_TEMP" && pwd)/nsh-src"
+          if [ ! -x "$src/target/release/nsh" ] && [ ! -x "$src/target/release/nsh.exe" ]; then
+            rm -rf "$src"
+            git -c core.longpaths=true clone --filter=blob:none https://github.com/longbridge/nsh "$src"
+            git -C "$src" checkout --detach "$NSH_COMMIT"
+            cargo build --release --locked -p nsh-cli --manifest-path "$src/Cargo.toml"
+          fi
+          echo "$src/target/release" >> "$GITHUB_PATH"
+          if [ "$RUNNER_OS" = Windows ]; then
+            cygpath -w "$src/target/release" >> "$GITHUB_PATH"
+            echo "NSH_HOME=$(cygpath -w "$RUNNER_TEMP")\\nsh-home" >> "$GITHUB_ENV"
+          fi
+      - run: nsh --version
+      - run: python3 -m pip install --break-system-packages pillow || python -m pip install pillow
+      - name: macOS and Windows
+        if: matrix.target != 'linux'
+        run: |
+          py=python3; [ "$RUNNER_OS" = Windows ] && py=python
+          $py scripts/onscreen.py ${{ matrix.target }} examples/canvas-apple out
+      - name: Linux, under Xvfb
+        if: matrix.target == 'linux'
+        run: |
+          xvfb-run -a -s "-screen 0 1280x800x24" bash -c \
+            'openbox & sleep 1; GDK_BACKEND=x11 dbus-run-session python3 scripts/onscreen.py linux examples/canvas-apple out'
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: onscreen-${{ matrix.target }}
+          path: out

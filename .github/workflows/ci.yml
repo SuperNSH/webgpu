@@ -1,7 +1,7 @@
 name: CI
 
 # The gates of AGENTS.md on GitHub's runners: format, Clippy and the tests on
-# macOS (Metal), Linux (Mesa's software Vulkan) and Windows (build only), Clippy
+# macOS (Metal), Linux (Mesa's software Vulkan) and Windows (DX12 on WARP), Clippy
 # for the cross targets, and the TSX gates in examples/headless with the NSH
 # nightly the crate is pinned to (f577c51).
 #
@@ -10,7 +10,7 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: [master, "ci/**"]
   pull_request:
   workflow_dispatch:
 
@@ -81,7 +81,7 @@ jobs:
       - run: cargo test --workspace --no-fail-fast
 
   rust-windows:
-    # Build and Clippy only: nothing on Windows has been run (README "Status").
+    # DX12 on WARP, the software adapter of a runner without a GPU.
     runs-on: windows-latest
     timeout-minutes: 60
     steps:
@@ -92,7 +92,7 @@ jobs:
           components: clippy
       - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2.9.3
       - run: cargo clippy --workspace --all-targets -- -D warnings
-      - run: cargo build --workspace --all-targets
+      - run: cargo test --workspace --no-fail-fast
 
   cross:
     name: clippy (${{ matrix.target }})

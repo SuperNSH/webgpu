@@ -522,9 +522,12 @@ describe("GPU.spec: features, limits, info", () => {
     const adapter = (await navigator.gpu.requestAdapter())!;
     const features = Array.from(adapter.features);
     expect(adapter.features instanceof GPUSupportedFeatures).toBe(true);
-    for (const name of ["depth-clip-control", "rg11b10ufloat-renderable", "texture-compression-etc2", "core-features-and-limits"]) {
+    for (const name of ["depth-clip-control", "rg11b10ufloat-renderable", "core-features-and-limits"]) {
       expect(features).toContain(name);
     }
+    // The reference asserts ETC2; the spec asks for BC, or both ETC2 and ASTC (a virtualised Mac has no ETC2).
+    const has = (name: string) => features.includes(name);
+    expect(has("texture-compression-bc") || (has("texture-compression-etc2") && has("texture-compression-astc"))).toBe(true);
     expect(features).not.toContain("");
     expect(adapter.features.size).toBe(features.length);
     const d = await adapter.requestDevice({ requiredFeatures: features as GPUFeatureName[] });

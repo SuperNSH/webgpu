@@ -9,7 +9,6 @@ repository.workspace = true
 keywords = ["nshm", "webgpu", "wgpu", "gpu", "nsh"]
 categories = ["graphics", "rendering::graphics-api", "gui"]
 readme = "README.md"
-homepage = "https://github.com/SuperNSH/webgpu"
 documentation = "https://github.com/SuperNSH/webgpu/tree/master/docs/guide"
 # Not on crates.io yet: the NSH crates are Git dependencies (pinned to a
 # commit), which `cargo package` refuses. Install with `nsh add github:SuperNSH/webgpu`.
@@ -28,7 +27,6 @@ members = ["."]
 exclude = ["examples", "docs/upstream"]
 
 [workspace.package]
-version = "0.1.0"
 edition = "2024"
 rust-version = "1.97"
 license = "MIT"

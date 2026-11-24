@@ -8,7 +8,7 @@ use crate::{
     api::adapter::AdapterEntry,
     convert::parse,
     error::{NativeError, guard},
-    instance::instance,
+    instance::{RequestAdapter, instance, request_adapter},
     pending,
     registry::{self, Id},
 };
@@ -47,16 +47,14 @@ impl Wgpu {
     pub async fn request_adapter(options: JsonValue) -> Result<Option<u32>, String> {
         let options: RequestAdapterOptions =
             parse("GPURequestAdapterOptions", options).map_err(String::from)?;
-        let wgpu_options = wgpu::RequestAdapterOptions {
+        let request = RequestAdapter {
             power_preference: options.power_preference.unwrap_or_default(),
             force_fallback_adapter: options.force_fallback_adapter,
-            compatible_surface: None,
         };
-        let adapter =
-            blocking(move || pollster::block_on(instance().request_adapter(&wgpu_options)))
-                .await
-                .map_err(|e| NativeError::operation(format!("requestAdapter: {e}")))?;
-        Ok(adapter.ok().map(|adapter| {
+        let adapter = blocking(move || request_adapter(&request))
+            .await
+            .map_err(|e| NativeError::operation(format!("requestAdapter: {e}")))?;
+        Ok(adapter.map(|adapter| {
             registry::insert(AdapterEntry {
                 adapter,
                 fallback: options.force_fallback_adapter,
@@ -95,10 +93,13 @@ impl Wgpu {
                 Ok(outcome) => return outcome.map_err(String::from),
                 Err(device) => device,
             };
-            let polled = blocking(move || device.poll(wgpu::PollType::wait_indefinitely()))
-                .await
-                .map_err(|e| e.to_string())
-                .and_then(|polled| polled.map(drop).map_err(|e| e.to_string()));
+            let polled =
+                match blocking(move || device.poll(wgpu::PollType::wait_indefinitely())).await {
+                    Ok(polled) => polled.map(drop).map_err(|e| e.to_string()),
+                    // Never on wasm, whose `blocking` cannot fail.
+                    #[allow(unreachable_code, unused_variables)]
+                    Err(e) => Err(e.to_string()),
+                };
             if let Err(e) = polled {
                 // Nobody waits for it any more: the ticket goes.
                 pending::forget(ticket);

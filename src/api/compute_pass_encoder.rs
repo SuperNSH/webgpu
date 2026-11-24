@@ -252,9 +252,7 @@ mod tests {
 
     /// A device in the registry, and its wgpu device.
     fn device() -> (Id, wgpu::Device) {
-        let adapter =
-            pollster::block_on(crate::instance::instance().request_adapter(&Default::default()))
-                .expect("an adapter");
+        let adapter = crate::instance::request_adapter(&Default::default()).expect("an adapter");
         let (device, queue) =
             pollster::block_on(adapter.request_device(&Default::default())).expect("a device");
         (DeviceEntry::register(device.clone(), queue, None), device)

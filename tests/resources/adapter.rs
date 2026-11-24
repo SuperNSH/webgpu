@@ -55,11 +55,18 @@ fn adapter_features_are_spec_names_and_all_of_them_can_be_required() {
     for name in [
         "depth-clip-control",
         "rg11b10ufloat-renderable",
-        "texture-compression-etc2",
         "core-features-and-limits",
     ] {
         assert!(features.contains(&name.to_owned()), "{name}");
     }
+    // The reference asserts ETC2 (its Mac's GPU). The spec asks for BC, or
+    // both ETC2 and ASTC: a virtualised Mac or a desktop GPU has only BC.
+    let has = |name: &str| features.iter().any(|f| f == name);
+    assert!(
+        has("texture-compression-bc")
+            || (has("texture-compression-etc2") && has("texture-compression-astc")),
+        "{features:?}"
+    );
     assert!(features.iter().all(|f| !f.is_empty()));
     // FeatureNames.spec: every advertised feature is accepted.
     let device = block(WgpuAdapter::request_device(
