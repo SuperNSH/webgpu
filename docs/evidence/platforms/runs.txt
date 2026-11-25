@@ -13,3 +13,7 @@ On an M3 Max (macOS 27.2):
 ios-canvas.png, android-canvas.png: nsh run --target in examples/canvas-apple, commit 970c37c's code. {macos,linux,windows}-canvas.png: earlier On screen runs.
 A new app (nsh init --template ts, nsh add github:SuperNSH/webgpu --rev 970c37c, no crate of its own): nsh check, build and test pass; with --path it also runs on macOS and the web.
 A macOS run may fail now and then with "the host did not take the step in 30 s": NSH's test channel (docs/upstream/nsh-test-host-lost-step).
+
+# NSH 0.7.1 (crates.io), commit 63a2715, a check of the upgrade only
+cargo test (128) and Clippy; nsh test headless 89, canvas-apple 1, gallery 45 (M3 Max); gallery pages HelloTriangle and ComputeBoids with --target web and ios: pass.
+A new app (nsh init --template ts, nsh add --path, no crate of its own) builds with the 0.7.0 and the 0.7.1 CLI, and draws on macOS with the 0.7.1 one. Android was not run again.

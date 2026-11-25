@@ -22,7 +22,7 @@ The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for
 
 - `GPUDevice.importSharedTextureMemory`, `GPUDevice.importSharedFence` and `GPUQueue.drawElementImageToTexture` exist and throw (reject) `ERR_WEBGPU_UNSUPPORTED`.
 - Android: run on an emulator (GLES) only; no physical device.
-- webgpu-samples' licence text is still to be pasted into `NOTICE.md`, and the Stanford dragon mesh's terms are not established (`NOTICE.md`).
+- The Stanford dragon mesh, demo data of the gallery only, has no licence beyond Stanford's acknowledgement (`NOTICE.md`).
 
 ### Fixed (phase 4c, after the audit in `docs/audit/REPORT.md`)
 

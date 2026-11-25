@@ -137,8 +137,7 @@ Linux (Vulkan on lavapipe) (the platform table in `docs/architecture.md`).
 
 ## NSH blockers found
 
-Listed with the evidence in `docs/architecture.md` "Blockers and limits in NSH"; in short: a TSX-only app on a
-Git-pinned nshm links two `nsh-core`s; `nsh add --path` cannot read `version.workspace`; `#[module]` needs the literal
+Listed with the evidence in `docs/architecture.md` "Blockers and limits in NSH"; in short: `nsh add --path` cannot read `version.workspace`; `#[module]` needs the literal
 `Result`; the web player's realm is an iframe (`parent.document`); no Java in an nshm (Android surface lifecycle by
 `AChoreographer`, no `HardwareBufferView`); GTK 4 widgets have no native surface (Linux reads frames back).
 
