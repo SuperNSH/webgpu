@@ -2,7 +2,7 @@
 
 ## 0.1.0 (unreleased)
 
-The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for the NSH nightly `f577c51`.
+The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for NSH 0.7.
 
 ### Added
 
@@ -23,7 +23,6 @@ The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for
 - `GPUDevice.importSharedTextureMemory`, `GPUDevice.importSharedFence` and `GPUQueue.drawElementImageToTexture` exist and throw (reject) `ERR_WEBGPU_UNSUPPORTED`.
 - Android: run on an emulator (GLES) only; no physical device.
 - webgpu-samples' licence text is still to be pasted into `NOTICE.md`, and the Stanford dragon mesh's terms are not established (`NOTICE.md`).
-- Apps need a Rust crate of their own pinned to `f577c51` (README, "Status").
 
 ### Fixed (phase 4c, after the audit in `docs/audit/REPORT.md`)
 
@@ -35,9 +34,9 @@ The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for
 - `createTestVideoFrame(width, height)` has the reference export's signature.
 - Overflow-checked buffer ranges, the Android window released after its surface is replaced, a replaced surface dropped outside the views lock, `Wgpu.release` guarded, a ticket dropped when its wait gives up; Cargo metadata.
 
-### NSH nightly `2964346`
+### NSH 0.7
 
-- An app needs no Rust crate of its own any more: `nsh add github:SuperNSH/webgpu` is enough with that nightly.
+- NSH comes from crates.io, its release 0.7, instead of a nightly's commit. An app needs no Rust crate of its own: `nsh add github:SuperNSH/webgpu` is enough.
 - The gallery runs in a real window on macOS, Windows and Linux in CI (`.github/workflows/onscreen.yml`: its tests with `nsh test --target`, and a picture of each page).
 - A canvas drawn once is always shown: a frame whose view attached as it was drawn, or whose window was occluded when it was presented, never was (Storage Buffer Vertices was blank in one run in CI). The On screen workflow fails on a blank page (`scripts/blank.py`).
 - The UI thread (a view attaching) and the JS thread configure and acquire a canvas's surface in turn. At once, the second got "Surface image is already acquired" (Android, the gallery's Surface Churn under load) or waited for a drawable forever (Metal, in a test).

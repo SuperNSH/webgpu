@@ -4,9 +4,9 @@
 
 ## Toolchain
 
-- The NSH nightly built from [`longbridge/nsh` at `2964346`](https://github.com/longbridge/nsh/tree/2964346c285f57004f2531fb768cc9840b8d7ff5), kept in the checkout at `.nsh-nightly/nsh/bin/nsh` (`nsh 0.6.0 (2964346 nightly 2026-11-24)`; the directory is ignored by git). Unpack the nightly release asset there while the nightly is still `2964346`, or build the CLI from that commit (`cargo build --release --locked -p nsh-cli`), as CI does. Do not use another `nsh` on `PATH`, and do not run `nsh update`.
+- The CLI of the NSH release 0.7.1, kept in the checkout at `.nsh-cli/bin/nsh` (ignored by git): `cargo install --locked nsh-cli --version 0.7.1 --root .nsh-cli`. Do not use another `nsh` on `PATH`, and do not run `nsh update`.
 - `NSH_HOME="$PWD/.nsh-home"` for every `nsh` command, so installs and build caches stay in the checkout. The `justfile` sets it.
-- Every `nsh-*` crate comes from Git at `rev = "2964346c285f57004f2531fb768cc9840b8d7ff5"`, in the crate and in each example's `native/` crate. Keep the `Cargo.lock` files: they were seeded from NSH's own lock and move with the pin.
+- Every `nsh-*` crate comes from crates.io, `0.7.0` or a later 0.7, in the crate and in each example's `native/` crate. Keep the `Cargo.lock` files.
 - Rust stable, with the targets you check: `wasm32-unknown-unknown`, `aarch64-linux-android` (and an NDK), `aarch64-apple-ios-sim`.
 
 ## Areas and worktrees

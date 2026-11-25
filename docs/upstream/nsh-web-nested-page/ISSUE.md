@@ -1,10 +1,72 @@
-# NSH (web): a pushed `NavStack` page from a component within the route's component is never laid out
+> Filed 2026-11-25 as longbridge/nsh#3268, fixed by the draft PR longbridge/nsh#3270.
 
-Draft, not filed. Found with the nightly `2964346` (`nsh 0.6.0`, 2026-11-24), `nsh run --target web`, Chromium.
+## Description
 
-[`App.tsx`](App.tsx): a `NavStack` whose second route renders `<Screen />`, a component that returns `<Page />`, whose
-root is the `NavPage`. Press Open: the page's elements are in the DOM, at 0x0 (its text one letter a line), and stay so;
-no error in the console. With `<Page />` in place of `<Screen />` the page is laid out. Each is so every time.
+On the web, a pushed `NavStack` page stays at 0x0 when its route renders a component that returns another component,
+whose root is the `NavPage`. The page's elements are in the DOM; no error is logged.
 
-`nsh test --target web` lays the same page out (the gallery's tests found its size), so it seems a pass that only the
-test agent's steps bring on. macOS, iOS, Android, Windows and Linux lay it out.
+## Environment
+
+- NSH: `nsh 0.7.0 (3f8ecd8)`, and the nightly `2964346` (2026-11-24)
+- Platform: web, headless Chromium on macOS 27.2
+- How it runs: `nsh run --target web`
+
+## Steps to Reproduce
+
+`App.tsx`:
+
+```tsx
+import { mount, Text, View } from "nsh";
+import { Button, createNavStack, NavPage, NavStack } from "nsh/base";
+
+type Route = { name: "home" } | { name: "page" };
+const nav = createNavStack<Route>([{ name: "home" }]);
+
+function Home() {
+  return (
+    <NavPage title="Home">
+      <Button testID="open" onPress={() => nav.push({ name: "page" })}>
+        <Text>Open</Text>
+      </Button>
+    </NavPage>
+  );
+}
+
+function Page() {
+  return (
+    <NavPage title="Page">
+      <View class="flex-1">
+        <Text>The page, laid out</Text>
+      </View>
+    </NavPage>
+  );
+}
+
+// <Page /> in place of <Screen /> below is laid out.
+function Screen() {
+  return <Page />;
+}
+
+mount(() => (
+  <NavStack state={nav} class="flex-1">
+    {(route) => (route.name === "home" ? <Home /> : <Screen />)}
+  </NavStack>
+));
+```
+
+1. Press "Open"
+
+Each time (3 of 3 on each of the two versions). With `<Page />` in place of `<Screen />` the page is laid out
+(3 of 3 on 0.7.0).
+
+## Expected
+
+The page fills the window.
+
+## Actual
+
+The page's views are 0x0 and its text is one letter a line.
+
+`nsh test --target web` laid out a page built this way in a larger app, so only `nsh run` was seen to fail.
+
+_Drafted with Claude Code; the reproduction was run on both versions._

@@ -6,9 +6,9 @@ nsh-webgpu brings the [WebGPU API](https://www.w3.org/TR/webgpu/) to NSH apps on
 
 | | Needed |
 |---|---|
-| NSH | the nightly built from `2964346` (`nsh 0.6.0 (2964346 nightly 2026-11-24)`). The 0.6.0 release does not work: the crate takes NSH from Git at that commit |
+| NSH | 0.7 |
 | Rust | stable; the workspace declares `rust-version = "1.97"`. Every app using the package builds Rust |
-| App | any TSX app; a crate of its own only with a CLI built from source (below) |
+| App | any TSX app; no Rust crate of its own |
 
 The backend per platform is the one wgpu picks there:
 
@@ -26,11 +26,9 @@ The evidence for each row is in the README's "Status".
 ## Install NSH
 
 ```sh
-curl -fsSL https://nsh.dev/install.sh | sh -s -- --nightly
-nsh --version
+curl -fsSL https://nsh.dev/install.sh | sh
+nsh --version   # nsh 0.7.0 or a later 0.7
 ```
-
-The nightly release is rebuilt from `main` every night it changes and keeps no older builds. If `nsh --version` names another commit than `2964346`, build the CLI from that commit instead: clone `https://github.com/longbridge/nsh`, check out `2964346c285f57004f2531fb768cc9840b8d7ff5`, run `cargo build --release --locked -p nsh-cli`, and use `target/release/nsh`. A CLI built in a checkout builds its hosts from that checkout. CI does the same when the nightly has moved (`.github/workflows/ci.yml`, job `typescript`).
 
 ## Add the package
 
@@ -48,55 +46,6 @@ nsh add --path ../webgpu
 ```
 
 `nsh add` writes the dependency into `nsh.json` and pins it in `nsh.lock`. nsh reads an nshm at the root of what it gets, a directory or a Git commit unpacked whole, and the repository's root is the `nsh-webgpu` crate with its `nsh.json` (`docs/evidence/fixes/nsh-add-root.txt`: `nsh add --path` on the root). Both forms were run on an app with no crate (`nsh check`, `build`, `test`; `docs/evidence/platforms/runs.txt`).
-
-## A crate of the app's own (CLI built from source)
-
-With the nightly's own CLI the app needs no crate: nsh builds it against the nightly's commit ([longbridge/nsh#2980](https://github.com/longbridge/nsh/pull/2980)), the one nsh-webgpu is pinned to. A CLI built from a checkout takes NSH from that checkout instead, and the app then needs a crate pinned to `2964346`, so that nsh takes every NSH crate from there ([docs/architecture.md](../../architecture.md), "Blockers"). Copy `examples/headless/native` and rename it:
-
-`nsh.json`:
-
-```json
-{
-  "name": "My App",
-  "id": "com.example.myapp",
-  "version": "1.0.0",
-  "build": 1,
-  "dependencies": {
-    "nsh-webgpu": {
-      "path": "../webgpu"
-    }
-  },
-  "rust": "native"
-}
-```
-
-`native/Cargo.toml`:
-
-```toml
-[package]
-name = "my-app-native"
-version = "0.1.0"
-edition = "2024"
-publish = false
-
-[dependencies]
-nsh-core = { git = "https://github.com/longbridge/nsh", rev = "2964346c285f57004f2531fb768cc9840b8d7ff5" }
-
-[workspace]
-```
-
-`native/src/lib.rs`:
-
-```rust
-use nsh_core::prelude::*;
-
-#[native_module("my-app/native")]
-fn native(_registry: &mut Registry) {}
-```
-
-Keep `examples/headless/native/Cargo.lock` beside it. It was seeded from NSH's own lock and moves with the pin; newer patch releases of NSH's dependencies have broken the build before (`rolldown_std_utils` 1.3.3).
-
-The samples app in `examples/headless/samples/` is set up this way and passes `nsh check`, `nsh build` and `nsh test`.
 
 ## Windows: the shader compiler
 
@@ -130,6 +79,6 @@ On a machine without a GPU, wgpu may offer a software adapter (lavapipe, WARP) o
 ## Troubleshooting
 
 - **`no [package] name` from `nsh add`**: the path is not the repository's root (an older checkout kept the crate in `crates/nsh-webgpu`; pass that directory there).
-- **E0308 `expected Registry, found ...Registry` while building hosts**: the CLI is not the nightly `2964346`, and the app has no crate of its own pinned to it. See above.
+- **E0308 `expected Registry, found ...Registry` while building hosts**: the CLI and nsh-webgpu use two versions of `nsh-core`. Use an NSH 0.7 CLI.
 - **Android emulators**: wgpu found no Vulkan adapter on the emulator used here and ran on GLES. `warnIfNotHardwareAccelerated` warns when the adapter is a software fallback.
 - **`nsh run --target android` hangs in `zstd-sys`'s build script**: seen with NDK 29.0.14206865's `llvm-ar` on one Mac; `ANDROID_NDK_HOME` pointing at NDK 28.2 worked (`docs/parity/surfaces-other.md`).

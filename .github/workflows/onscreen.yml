@@ -25,7 +25,7 @@ defaults:
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
-  NSH_COMMIT: 2964346c285f57004f2531fb768cc9840b8d7ff5
+  NSH_VERSION: 0.7.1
 
 jobs:
   desktop:
@@ -60,20 +60,17 @@ jobs:
       - run: echo "NSH_HOME=$(cd "$RUNNER_TEMP" && pwd)/nsh-home" >> "$GITHUB_ENV"
       - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ${{ runner.temp }}/nsh-src
-          key: nsh-src-onscreen-${{ runner.os }}-${{ env.NSH_COMMIT }}
-      - name: Build the CLI at NSH_COMMIT
+          path: ${{ runner.temp }}/nsh-cli/bin
+          key: nsh-cli-${{ runner.os }}-${{ runner.arch }}-${{ env.NSH_VERSION }}
+      - name: Install the CLI of NSH_VERSION
         run: |
-          src="$(cd "$RUNNER_TEMP" && pwd)/nsh-src"
-          if [ ! -x "$src/target/release/nsh" ] && [ ! -x "$src/target/release/nsh.exe" ]; then
-            rm -rf "$src"
-            git -c core.longpaths=true clone --filter=blob:none https://github.com/longbridge/nsh "$src"
-            git -C "$src" checkout --detach "$NSH_COMMIT"
-            cargo build --release --locked -p nsh-cli --manifest-path "$src/Cargo.toml"
+          root="$(cd "$RUNNER_TEMP" && pwd)/nsh-cli"
+          if [ ! -x "$root/bin/nsh" ] && [ ! -x "$root/bin/nsh.exe" ]; then
+            cargo install --locked nsh-cli --version "$NSH_VERSION" --root "$root"
           fi
-          echo "$src/target/release" >> "$GITHUB_PATH"
+          echo "$root/bin" >> "$GITHUB_PATH"
           if [ "$RUNNER_OS" = Windows ]; then
-            cygpath -w "$src/target/release" >> "$GITHUB_PATH"
+            cygpath -w "$root/bin" >> "$GITHUB_PATH"
             echo "NSH_HOME=$(cygpath -w "$RUNNER_TEMP")\\nsh-home" >> "$GITHUB_ENV"
           fi
       - run: nsh --version

@@ -50,7 +50,7 @@ the contract of `src/surface/views.rs`: make a `wgpu::Surface<'static>` from `cr
   again every 16 ms (up to a second); `<Canvas>` sets its ref then, not at the layout.
 - On the web, a manual test clock moves with `app.wait`, not with `app.waitUntil`; and with `nsh run` a `NavStack` page
   whose route renders a component that returns the page's component (and not the `NavPage` itself) is never laid out.
-  Both are NSH's (`2964346`), seen with no WebGPU in the app; `docs/upstream/nsh-web-nested-page` has the second.
+  Both are NSH's (0.7.1), seen with no WebGPU in the app; the second is fixed after it (longbridge/nsh#3270).
 - Android: `vkCreateAndroidSurfaceKHR` connects the `ANativeWindow` (API EGL); a `wgpu::Surface` made for Vulkan
   *and* GL then fails GL's `eglCreateWindowSurface` (`EGL_BAD_ALLOC`, "already connected"), and `configure` on a GL
   device reports "Invalid surface". The emulator has a Vulkan driver (gfxstream), which wgpu hides (it declares no

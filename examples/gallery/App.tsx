@@ -91,7 +91,8 @@ function Body(props: { entry: Entry }) {
 }
 
 // The route's component is the NavPage, not one that returns a component
-// that is: NSH's nightly 2964346 never lays such a page out on the web.
+// that is: NSH 0.7.1 never lays such a page out on the web with `nsh run`
+// (longbridge/nsh#3270, merged after it).
 function Screen(props: { screen: string }) {
   const entry = byScreen.get(props.screen);
   return (

@@ -1,6 +1,9 @@
 # NSH (macOS): `nsh test --target macos` now and then loses a step: "the host did not take the step in 30 s"
 
-Draft, not filed. NSH nightly `2964346` (2026-11-24), GitHub's `macos-latest` (macOS 26.7.2, arm64), in this repository's
+> Filed 2026-11-25 as longbridge/nsh#3269, fixed by the draft PR longbridge/nsh#3271: the host's answer was dropped
+> (`Tester` cloned an empty `OnceLock`), not the step.
+
+First report: NSH nightly `2964346` (2026-11-24), GitHub's `macos-latest` (macOS 26.7.2, arm64), in this repository's
 gallery: 4 of 2,464 tests (44 tests, 14 times on 4 runners; run 45535377025 of the branch `ci/macos-stall`, since
 deleted), each a different test, plus one in the On screen run 45519539574. Never on an Apple M3 Max (macOS 27.2).
 

@@ -37,8 +37,8 @@ missing_docs = "warn"
 unreachable_pub = "deny"
 
 [workspace.dependencies]
-# NSH from Git at the nightly's commit (AGENTS.md "Toolchain").
-nsh-core = { git = "https://github.com/longbridge/nsh", rev = "2964346c285f57004f2531fb768cc9840b8d7ff5" }
+# NSH's release (AGENTS.md "Toolchain").
+nsh-core = { version = "0.7.0" }
 # The GPU: the wgpu NSH itself uses (its workspace's features: each OS's own API, GL as fallback).
 wgpu = { version = "29", default-features = false, features = ["serde", "std", "parking_lot", "wgsl", "dx12", "metal", "vulkan", "gles"] }
 pollster = "0.4"
@@ -80,7 +80,7 @@ image = { version = "0.25", default-features = false, features = ["png", "jpeg",
 # ---- area (c) surfaces-apple: [target.'cfg(...)'.dependencies] for macOS/iOS go between these lines ----
 # The canvas view: a CAMetalLayer in an NSView (macOS) or UIView (iOS),
 # registered with `#[native_components]` on the platform crate's
-# `Components` (same Git revision as nsh-core: the CLI checks they match).
+# `Components` (same version as nsh-core).
 [target.'cfg(any(target_os = "macos", target_os = "ios"))'.dependencies]
 objc2 = "0.6.5"
 objc2-foundation = { version = "0.3.2", default-features = false, features = ["std", "NSGeometry", "NSObject"] }
@@ -89,30 +89,30 @@ objc2-core-graphics = { version = "0.3.2", default-features = false, features = 
 objc2-quartz-core = { version = "0.3.2", default-features = false, features = ["std", "CALayer", "CAMetalLayer", "objc2-core-foundation", "objc2-core-graphics", "objc2-metal"] }
 
 [target.'cfg(target_os = "macos")'.dependencies]
-nsh-platform-macos = { git = "https://github.com/longbridge/nsh", rev = "2964346c285f57004f2531fb768cc9840b8d7ff5", default-features = false }
+nsh-platform-macos = { version = "0.7.0", default-features = false }
 objc2-app-kit = { version = "0.3.2", default-features = false, features = ["std", "NSResponder", "NSView", "NSWindow", "NSScreen", "objc2-core-foundation", "objc2-quartz-core"] }
 
 [target.'cfg(target_os = "ios")'.dependencies]
-nsh-platform-ios = { git = "https://github.com/longbridge/nsh", rev = "2964346c285f57004f2531fb768cc9840b8d7ff5", default-features = false }
+nsh-platform-ios = { version = "0.7.0", default-features = false }
 objc2-ui-kit = { version = "0.3.2", default-features = false, features = ["std", "UIResponder", "UIView", "UIScreen", "UITraitCollection", "objc2-core-foundation", "objc2-quartz-core"] }
 # ---- end (c) ----
 
 # ---- area (d) surfaces-other: [target.'cfg(...)'.dependencies] for Windows/Linux/Android/wasm go between these lines ----
 # The platform crates whose `Components` the canvas registers on (`src/surface/{windows,linux,android}.rs`),
-# from the same Git revision as nsh-core (the CLI checks they match). Each only on its own target.
+# of the same version as nsh-core. Each only on its own target.
 [target.'cfg(windows)'.dependencies]
-nsh-platform-windows = { git = "https://github.com/longbridge/nsh", rev = "2964346c285f57004f2531fb768cc9840b8d7ff5", default-features = false }
+nsh-platform-windows = { version = "0.7.0", default-features = false }
 log = "0.4"
 # The versions nsh-platform-windows re-exports: the composition surface handle needs Win32_Security.
 windows = { version = "0.62", features = ["Win32_Foundation", "Win32_Security", "Win32_Graphics_Direct2D_Common", "Win32_Graphics_DirectComposition", "Win32_Graphics_Dxgi_Common"] }
 windows-numerics = "0.3"
 
 [target.'cfg(target_os = "linux")'.dependencies]
-nsh-platform-linux = { git = "https://github.com/longbridge/nsh", rev = "2964346c285f57004f2531fb768cc9840b8d7ff5", default-features = false }
+nsh-platform-linux = { version = "0.7.0", default-features = false }
 log = "0.4"
 
 [target.'cfg(target_os = "android")'.dependencies]
-nsh-platform-android = { git = "https://github.com/longbridge/nsh", rev = "2964346c285f57004f2531fb768cc9840b8d7ff5", default-features = false }
+nsh-platform-android = { version = "0.7.0", default-features = false }
 log = "0.4"
 
 # wasm: wgpu's objects are !Send there unless this feature says the build is single-threaded (it is: no atomics),

@@ -1,9 +1,9 @@
 # The gates of AGENTS.md. `just check`, `just test`, `just test-tsx`; `just gates` runs all three.
-# nsh is the nightly kept in this repository, never the one on PATH.
+# nsh is the one kept in this repository, never the one on PATH.
 
 set shell := ["bash", "-euo", "pipefail", "-c"]
 
-nsh := justfile_directory() / ".nsh-nightly/nsh/bin/nsh"
+nsh := justfile_directory() / ".nsh-cli/bin/nsh"
 export NSH_HOME := justfile_directory() / ".nsh-home"
 
 # List the recipes.

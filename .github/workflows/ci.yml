@@ -3,7 +3,7 @@ name: CI
 # The gates of AGENTS.md on GitHub's runners: format, Clippy and the tests on
 # macOS (Metal), Linux (Mesa's software Vulkan) and Windows (DX12 on WARP), Clippy
 # for the cross targets, and the TSX gates in examples/headless with the NSH
-# nightly the crate is pinned to (2964346).
+# release the crate depends on (NSH_VERSION).
 #
 # Actions are pinned by commit; the comment after each SHA names the tag or
 # branch it was resolved from (`gh api repos/<owner>/<repo>/commits/<ref>`).
@@ -29,8 +29,8 @@ defaults:
 env:
   CARGO_TERM_COLOR: always
   CARGO_INCREMENTAL: 0
-  # The NSH build the crates' `rev` and examples/*/native are pinned to.
-  NSH_COMMIT: 2964346c285f57004f2531fb768cc9840b8d7ff5
+  # The NSH release the crates depend on (Cargo.toml, examples/*/native).
+  NSH_VERSION: 0.7.1
 
 jobs:
   format:
@@ -139,10 +139,6 @@ jobs:
     # render on the GPU (Metal), as on a developer's Mac.
     runs-on: macos-latest
     timeout-minutes: 75
-    env:
-      # The nightly asset built from NSH_COMMIT (`.sha256` of the release on 2026-11-24).
-      NSH_ASSET: nsh-macos-arm64.tar.gz
-      NSH_ASSET_SHA256: 7a981424b4f64b5185281a03d8103f643b983ce376900bd8e4a96426108729ac
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: dtolnay/rust-toolchain@df2a88e9fe4098bad09cb42c3dec7187f15861fc # master
@@ -154,43 +150,17 @@ jobs:
       # nsh's installs and caches, outside the checkout (the `runner` context
       # is not available in a job's `env`).
       - run: echo "NSH_HOME=$RUNNER_TEMP/nsh-home" >> "$GITHUB_ENV"
-      - name: Is the nightly release still NSH_COMMIT?
-        id: nightly
-        run: |
-          base=https://github.com/longbridge/nsh/releases/download/nightly
-          commit=$(curl -fsSL "$base/nsh-release.json" | jq -r .commit)
-          echo "commit=$commit" >> "$GITHUB_OUTPUT"
-          if [ "$commit" != "$NSH_COMMIT" ]; then
-            echo "::warning::The nsh nightly release is now $commit, not $NSH_COMMIT: building the CLI from source at $NSH_COMMIT."
-          fi
-      - name: Install the nightly asset of NSH_COMMIT
-        if: steps.nightly.outputs.commit == env.NSH_COMMIT
-        run: |
-          cd "$RUNNER_TEMP"
-          curl -fsSL "https://github.com/longbridge/nsh/releases/download/nightly/$NSH_ASSET" -o "$NSH_ASSET"
-          echo "$NSH_ASSET_SHA256  $NSH_ASSET" | shasum -a 256 -c
-          tar -xzf "$NSH_ASSET"
-          echo "$RUNNER_TEMP/nsh/bin" >> "$GITHUB_PATH"
-      # The nightly tag moves every night main changes and keeps no older
-      # builds: past that, the same commit from source (the CLI finds the
-      # checkout it was built in and builds its hosts from it).
-      - name: Cache the CLI built from source
-        if: steps.nightly.outputs.commit != env.NSH_COMMIT
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
-          path: ${{ runner.temp }}/nsh-src
-          key: nsh-src-${{ runner.os }}-${{ env.NSH_COMMIT }}
-      - name: Build the CLI at NSH_COMMIT
-        if: steps.nightly.outputs.commit != env.NSH_COMMIT
+          path: ${{ runner.temp }}/nsh-cli/bin
+          key: nsh-cli-${{ runner.os }}-${{ runner.arch }}-${{ env.NSH_VERSION }}
+      - name: Install the CLI of NSH_VERSION
         run: |
-          src="$RUNNER_TEMP/nsh-src"
-          if [ ! -x "$src/target/release/nsh" ]; then
-            rm -rf "$src"
-            git clone --filter=blob:none https://github.com/longbridge/nsh "$src"
-            git -C "$src" checkout --detach "$NSH_COMMIT"
-            cargo build --release --locked -p nsh-cli --manifest-path "$src/Cargo.toml"
+          root="$(cd "$RUNNER_TEMP" && pwd)/nsh-cli"
+          if [ ! -x "$root/bin/nsh" ] && [ ! -x "$root/bin/nsh.exe" ]; then
+            cargo install --locked nsh-cli --version "$NSH_VERSION" --root "$root"
           fi
-          echo "$src/target/release" >> "$GITHUB_PATH"
+          echo "$root/bin" >> "$GITHUB_PATH"
       - run: nsh --version
       - name: Check
         working-directory: examples/headless

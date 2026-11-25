@@ -8,7 +8,7 @@ Part of the SuperNSH capability set. Guides in [docs/guide/](docs/guide/README.m
 
 ## Status
 
-**0.1.0, on GitHub (not on crates.io). `<Canvas>` runs on screen on macOS, the iOS simulator, Mac Catalyst, an Android emulator, Windows, Linux and the web.** It needs the NSH nightly `2964346`, not the 0.6.0 release.
+**0.1.0, on GitHub (not on crates.io). `<Canvas>` runs on screen on macOS, the iOS simulator, Mac Catalyst, an Android emulator, Windows, Linux and the web.** It needs NSH 0.7.
 
 | Platform | GPU it ran on | What was checked | Evidence |
 |---|---|---|---|
@@ -28,17 +28,15 @@ On Android the canvases clear to black rather than showing the views under them:
 
 The gallery (`examples/gallery`) ports the reference's example app: its demos and diagnostics, with the differences listed in `examples/gallery/KNOWN_ISSUES.md`; its tests pass headless, in the macOS, Windows and Linux hosts, on the iOS simulator and on the web.
 
-With that nightly an app needs no Rust crate of its own: `nsh` builds an app whose only Rust is an nshm against the nightly's own commit ([longbridge/nsh#2980](https://github.com/longbridge/nsh/pull/2980)), the commit nsh-webgpu is pinned to. The CLI and the pin have to be the same commit.
-
 The crate is the repository's root (its `Cargo.toml` and `nsh.json`), which is where `nsh add` reads an nshm, from a path or from Git: `nsh add github:SuperNSH/webgpu --rev master` installs it.
 
 ## Install
 
-You need Rust and the NSH nightly built from `2964346` (`nsh 0.6.0 (2964346 nightly 2026-11-24)`). The nightly release on GitHub is rebuilt from `main` every night, so it only matches while `main` has not moved: check `nsh --version`, or build the CLI from that commit (`cargo build --release --locked -p nsh-cli` in a checkout of `longbridge/nsh` at `2964346`).
+You need Rust and NSH 0.7:
 
 ```sh
-curl -fsSL https://nsh.dev/install.sh | sh -s -- --nightly
-nsh --version   # nsh 0.6.0 (2964346 nightly ...)
+curl -fsSL https://nsh.dev/install.sh | sh
+nsh --version   # nsh 0.7.0 or a later 0.7
 ```
 
 Add the package, in the app's directory, from GitHub or from a clone:
@@ -51,8 +49,6 @@ nsh add --path ../webgpu
 ```
 
 That is all: import from `nsh-webgpu` and `nsh run`.
-
-**With a CLI built from source** (once the nightly has moved), nsh takes its crates from that checkout, so the app needs a crate of its own pinned to the commit, for both to share one `nsh-core`: copy `examples/headless/native` (its `Cargo.lock` too) into the app as `native/`, and add `"rust": "native"` to `nsh.json` ([installation guide](docs/guide/getting-started/installation.md)). The examples here and CI are set up that way.
 
 On the web NSH builds the app's crate for wasm, and one of NSH's dependencies (zstd) is C: `llvm-ar` and a clang that targets wasm must be found (macOS: `brew install llvm`, then `PATH="/opt/homebrew/opt/llvm/bin:$PATH"` and `CC_wasm32_unknown_unknown=/opt/homebrew/opt/llvm/bin/clang`). On Linux the development host also needs GStreamer (`libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev`), beside GTK 4 and WebKitGTK; `.github/workflows/onscreen.yml` has the whole list.
 
@@ -139,7 +135,7 @@ The ref is set once the canvas is mounted and laid out (and set to `null` when i
 
 ## Layout
 
-- The root is the nshm: `Cargo.toml` (the `nsh-webgpu` package and its workspace; NSH crates from Git at `2964346`, `wgpu` 29) and `nsh.json` (its TSX exports). `src/` is the Rust module `nsh-webgpu/native` (one `#[module]` per spec interface, the handle registry, the canvas views per platform in `src/surface/`); `tsx/` is the TSX package `nsh-webgpu` (the spec classes in `tsx/api/`, react-native-webgpu's own exports beside them, the vendored `@webgpu/types` in `tsx/types/`); `tests/` holds the cargo tests.
+- The root is the nshm: `Cargo.toml` (the `nsh-webgpu` package and its workspace; NSH crates 0.7, `wgpu` 29) and `nsh.json` (its TSX exports). `src/` is the Rust module `nsh-webgpu/native` (one `#[module]` per spec interface, the handle registry, the canvas views per platform in `src/surface/`); `tsx/` is the TSX package `nsh-webgpu` (the spec classes in `tsx/api/`, react-native-webgpu's own exports beside them, the vendored `@webgpu/types` in `tsx/types/`); `tests/` holds the cargo tests.
 - `examples/headless/`: the TSX tests (`nsh test`), using the package as an app does.
 - `examples/canvas-apple/`, `examples/canvas-native/`, `examples/canvas-web/`: the canvas on screen on Apple platforms, Android/Windows/Linux, and the web.
 - `examples/gallery/`: the reference's example app (its demos and diagnostics), tested headless and in the macOS host; differences in its `KNOWN_ISSUES.md`, licences in its `LICENSES.md`.
@@ -154,11 +150,11 @@ The ref is set once the canvas is mounted and laid out (and set to `null` when i
 - **rust-linux**: the same on Ubuntu 24.04 with GTK 4 and Mesa's software Vulkan (lavapipe) and GL (llvmpipe).
 - **rust-windows**: Clippy and the tests, DX12 on WARP.
 - **cross**: Clippy for `wasm32-unknown-unknown`, `aarch64-linux-android` (with the runner's NDK) and `aarch64-apple-ios-sim`.
-- **typescript**, on macOS with the NSH nightly of `2964346` (its release asset checked by SHA-256, or the CLI built from that commit once the nightly has moved): `nsh check`, `nsh build` (a warning fails the job), `nsh test` in `examples/headless`.
+- **typescript**, on macOS with the NSH 0.7.1 CLI: `nsh check`, `nsh build` (a warning fails the job), `nsh test` in `examples/headless`.
 
 `.github/workflows/onscreen.yml` runs `<Canvas>` in a window on macOS, Linux and Windows (see Status).
 
-Locally, `just check`, `just test` and `just test-tsx` run the same gates with the repository's nightly (`.nsh-nightly/`); see [CONTRIBUTING.md](CONTRIBUTING.md).
+Locally, `just check`, `just test` and `just test-tsx` run the same gates with the repository's CLI (`.nsh-cli/`); see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Licence
 

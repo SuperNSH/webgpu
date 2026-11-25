@@ -1,11 +1,11 @@
 [package]
 name = "webgpu-canvas-native"
-description = "The canvas example's own crate: it pins nsh's crates at the nightly's revision, so the hosts nsh builds share one nsh-core with nsh-webgpu (see docs/architecture.md, \"Blockers\")."
+description = "The canvas example's own crate: it pins nsh's crates, so the hosts nsh builds share one nsh-core with nsh-webgpu (see docs/architecture.md, \"Blockers\")."
 version = "0.1.0"
 edition = "2024"
 publish = false
 
 [dependencies]
-nsh-core = { git = "https://github.com/longbridge/nsh", rev = "2964346c285f57004f2531fb768cc9840b8d7ff5" }
+nsh-core = { version = "0.7.0" }
 
 [workspace]

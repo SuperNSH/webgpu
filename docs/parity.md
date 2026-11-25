@@ -1,7 +1,7 @@
 # Parity with react-native-webgpu
 
 Every export of react-native-webgpu (commit `06599f9`, `packages/webgpu/src`; the list is `docs/inventory.md` §1–2)
-and what nsh-webgpu does with it, on wgpu 29.0.4 and the NSH nightly `2964346`. One table per area. Status:
+and what nsh-webgpu does with it, on wgpu 29.0.4 and NSH 0.7.1. One table per area. Status:
 
 - **done**: the reference's name, signature, defaults and errors.
 - **partial**: works, with the difference given.
@@ -135,9 +135,9 @@ Linux (Vulkan on lavapipe) (the platform table in `docs/architecture.md`).
 | `mock.ts` (Jest) | `nsh test` runs the real module headless on the GPU |
 | Dawn blob cache, Vulkan pipeline cache, Hermes memory pressure, iOS background submit hold | none (Dawn, Hermes and RN lifecycle specific) |
 
-## NSH nightly blockers found
+## NSH blockers found
 
-Listed with the evidence in `docs/architecture.md` "Blockers and limits in the nightly"; in short: a TSX-only app on a
+Listed with the evidence in `docs/architecture.md` "Blockers and limits in NSH"; in short: a TSX-only app on a
 Git-pinned nshm links two `nsh-core`s; `nsh add --path` cannot read `version.workspace`; `#[module]` needs the literal
 `Result`; the web player's realm is an iframe (`parent.document`); no Java in an nshm (Android surface lifecycle by
 `AChoreographer`, no `HardwareBufferView`); GTK 4 widgets have no native surface (Linux reads frames back).

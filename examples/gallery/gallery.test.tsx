@@ -281,7 +281,7 @@ class ProbeFailure extends Error {}
 
 /**
  * Waits until `done`, on the manual clock: `waitUntil` moves it on every host
- * but the web's (NSH's nightly 2964346), where only `wait` does.
+ * but the web's (NSH 0.7.1), where only `wait` does.
  */
 async function until(app: App, done: () => boolean, timeout: number): Promise<void> {
   const end = Date.now() + timeout;

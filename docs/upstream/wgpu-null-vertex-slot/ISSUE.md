@@ -1,5 +1,8 @@
 # Draft: wgpu 29: a vertex buffer layout with no attributes shifts the slots after it
 
+> **Do not file (checked 2026-11-25).** It is fixed in wgpu 30 (#9351), and wgpu's CONTRIBUTING ("LLMs (AI)") asks that
+> issue descriptions be written by the person filing them, so this AI-written text may not be posted there.
+
 Not filed. Found by nsh-webgpu's commands area while porting react-native-webgpu's `NullSlots.spec.ts`.
 
 **Check before filing.** The bug is fixed on wgpu trunk by [#9351](https://github.com/gfx-rs/wgpu/pull/9351)

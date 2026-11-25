@@ -10,7 +10,7 @@ verified" for where it runs.
 ```text
 Cargo.toml                         the nshm's crate `nsh-webgpu` (keywords = ["nshm"], MIT) and its workspace
                                    (members = ["."]; examples/ and docs/upstream/ excluded); nsh crates from Git
-                                   at 2964346, wgpu 29
+                                   0.7.1, wgpu 29
 nsh.json                           { "exports": { "nsh-webgpu": "tsx/index.tsx" } }
 src/lib.rs                         #[native_module("nsh-webgpu/native")]: the module list
 src/registry.rs                    the handle registry
@@ -44,7 +44,7 @@ version, a `#[native_module]` in `src/lib.rs`, and `nsh.json`'s `"exports"`, fil
 that is only a `[workspace]` fails with `no [package] name` (`docs/evidence/docs-ci/nsh-add-probe.txt`, before the
 move); this layout passes (`docs/evidence/fixes/nsh-add-root.txt`).
 
-The TSX lives inside the crate because the nightly refuses an nshm export outside the nshm's directory
+The TSX lives inside the crate because NSH refuses an nshm export outside the nshm's directory
 (`nsh-cli/src/nshm/manifest.rs`: `file.split(['/', '\\']).any(|p| p == "..")`), and an export may not share the
 Rust module's specifier (same file: "is its Rust module's specifier too"). Hence `nsh-webgpu` is the TSX entry and
 `nsh-webgpu/native` the Rust module. PLAN.md's `packages/nsh-webgpu/src` is `tsx/`.
@@ -203,20 +203,17 @@ or uses a GL device panicked (`EGL_BAD_ACCESS`).
 connects the window for Vulkan, so GL's EGL surface fails. The instance there has Vulkan when it yields an adapter,
 else GL (emulators), unless `WGPU_BACKEND` is set (`android_backends`, tested on the host).
 
-## Blockers and limits in the nightly
+## Blockers and limits in NSH
 
-- **The app's NSH and this crate's have to be one commit.** An installed nightly builds an app whose only Rust is an
-  nshm against its own commit (longbridge/nsh#2980, since 2026-11-24), so with the nightly this crate is pinned to the
-  app needs no crate. A released CLI takes crates.io's `nsh-core`, and one built in a checkout takes that checkout by
-  path: two `nsh-core`s, E0308 (`expected Registry, found nsh_core::element::component::Registry`). Then the app has a
-  crate of its own pinned at the same revision (`examples/headless/native`, `nsh.json` `"rust": "native"`), and nsh
-  takes the Git checkout for everything. Once nsh-webgpu depends on crates.io `nsh-core`, this goes away.
+- **The app's NSH and this crate's have to be compatible versions.** The CLI builds the app against crates.io's
+  `nsh-core` at its own version; nsh-webgpu depends on `0.7.0` or a later 0.7, so a 0.7 CLI
+  shares one `nsh-core` with it and the app needs no crate of its own (run with the 0.7.0 and the 0.7.1 CLI). Two versions are E0308 (`expected Registry, found ...Registry`).
 - `nsh add --path` reads the version with a line parser (`nshm/manifest.rs` `package_version`): `version.workspace =
   true` is "Cargo.toml has no [package] version", so the crate states its version.
 - `#[module]` recognizes `Result` by name: a type alias returning `Result` fails to compile with "`Result<..>: Ret`
   is not satisfied".
 - Cargo resolves newer patch versions than NSH tested (rolldown_std_utils 1.3.3 broke nsh-bundler 1.2.13): the
-  workspace's `Cargo.lock` was seeded from NSH's own and moves with the pin; keep it, and seed `examples/headless/native` the same.
+  workspace's `Cargo.lock` was seeded from NSH's own; keep it.
 - **The web player runs a TSX app's modules in a same-origin iframe realm** (`nsh-platform-web/web/browser/realm.js`)
   while the views are elements of the page: `globalThis.document` is the iframe's, empty; `tsx/surface/web.tsx` uses
   `parent.document` / `parent.navigator.gpu`. The first `onLayout` comes before the DOM runtime inserted the view's
