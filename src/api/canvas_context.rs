@@ -39,7 +39,7 @@
 use std::{
     collections::{BTreeMap, BTreeSet},
     sync::{
-        Arc, Mutex, MutexGuard,
+        Arc, Condvar, Mutex, MutexGuard,
         atomic::{AtomicU32, AtomicUsize, Ordering},
     },
 };
@@ -342,6 +342,10 @@ struct Context {
     /// Whether the offscreen texture holds a presented frame not shown on
     /// a surface yet.
     offscreen_presented: bool,
+    /// A thread configures or acquires its surface ([`Busy`]).
+    busy: bool,
+    /// The last frame got no texture of the surface: its window is occluded.
+    occluded: bool,
     /// `destroyContext` was called (the `<Canvas>` unmounted): the entry goes
     /// once its view went and no context object holds it.
     destroyed: bool,
@@ -356,6 +360,13 @@ impl Context {
     /// (wgpu discards it).
     fn end_frame(&mut self) -> Option<Frame> {
         self.frame.take()
+    }
+
+    /// Whether `surface` is the one it is configured on.
+    fn shows(&self, surface: &Arc<wgpu::Surface<'static>>) -> bool {
+        self.configured
+            .as_ref()
+            .is_some_and(|c| Arc::ptr_eq(c, surface))
     }
 
     /// Whether nothing needs it any more: its `<Canvas>` unmounted, no
@@ -382,6 +393,8 @@ static CONTEXTS: Mutex<BTreeMap<u32, Context>> = Mutex::new(BTreeMap::new());
 /// `make` of one is refused rather than re-creating state that nothing
 /// would retire. A few bytes per canvas mounted in the process.
 static DESTROYED: Mutex<BTreeSet<u32>> = Mutex::new(BTreeSet::new());
+/// A context's surface is free ([`Busy`]).
+static IDLE: Condvar = Condvar::new();
 static NATIVE: Mutex<BTreeMap<u32, Native>> = Mutex::new(BTreeMap::new());
 /// Context ids: unique for the process (the views outlive a JS reload).
 static NEXT_CONTEXT: AtomicU32 = AtomicU32::new(1);
@@ -390,6 +403,37 @@ static TEARDOWN_PANICS: AtomicUsize = AtomicUsize::new(0);
 
 fn contexts() -> MutexGuard<'static, BTreeMap<u32, Context>> {
     CONTEXTS.lock().unwrap_or_else(|e| e.into_inner())
+}
+
+/// [`contexts`], once no thread is at work on the surface of `context_id`.
+/// Not the UI thread's: it does not wait ([`surface_attached`]).
+fn idle_contexts(context_id: u32) -> MutexGuard<'static, BTreeMap<u32, Context>> {
+    let mut all = contexts();
+    while all.get(&context_id).is_some_and(|ctx| ctx.busy) {
+        all = IDLE.wait(all).unwrap_or_else(|e| e.into_inner());
+    }
+    all
+}
+
+/// This thread configures, or acquires a texture of, the surface of a
+/// context until it drops: the UI thread (a view attached) and the JS
+/// thread do so in turn, as a surface has one texture acquired at a time.
+struct Busy(u32);
+
+impl Busy {
+    fn new(context_id: u32, ctx: &mut Context) -> Self {
+        ctx.busy = true;
+        Self(context_id)
+    }
+}
+
+impl Drop for Busy {
+    fn drop(&mut self) {
+        if let Some(ctx) = contexts().get_mut(&self.0) {
+            ctx.busy = false;
+        }
+        IDLE.notify_all();
+    }
 }
 
 fn destroyed() -> MutexGuard<'static, BTreeSet<u32>> {
@@ -429,8 +473,12 @@ pub fn surface_attached(context_id: u32) {
         let Some(ctx) = all.get_mut(&context_id) else {
             return Ok(());
         };
-        if ctx.frame.is_some() {
-            // Adopted at the frame's end instead (getCurrentTexture).
+        if ctx.frame.is_some() || ctx.busy {
+            // Adopted at the frame's end instead (present, getCurrentTexture).
+            return Ok(());
+        }
+        if ctx.shows(&view.surface) {
+            // The JS thread saw the view first, and configures it.
             return Ok(());
         }
         let Some(config) = ctx.config.as_mut() else {
@@ -444,13 +492,17 @@ pub fn surface_attached(context_id: u32) {
         } else {
             wgpu::TextureUsages::empty()
         };
-        configure_view(context_id, &view.surface, &config, extra);
         ctx.configured = Some(Arc::clone(&view.surface));
-        ctx.offscreen_presented = false;
+        let busy = Busy::new(context_id, ctx);
         drop(all);
-        if let Some(offscreen) = blit {
-            blit_and_present(context_id, &view.surface, &config, &offscreen);
+        configure_view(context_id, &view.surface, &config, extra);
+        if let Some(offscreen) = blit
+            && blit_and_present(context_id, &view.surface, &config, &offscreen)
+        {
+            shown_frame(context_id, &offscreen);
         }
+        // Not shown (the window is occluded): `show_waiting` tries again.
+        drop(busy);
         Ok(())
     });
     if let Err(error) = result {
@@ -576,18 +628,74 @@ fn release_swap_chain(surface: &wgpu::Surface<'static>, device: &wgpu::Device) {
     let _ = (surface, device);
 }
 
+/// `offscreen`, the presented frame of `context_id`, is on its surface.
+fn shown_frame(context_id: u32, offscreen: &wgpu::Texture) {
+    if let Some(ctx) = contexts().get_mut(&context_id)
+        && ctx.offscreen.as_ref() == Some(offscreen)
+        && ctx.frame.is_none()
+    {
+        ctx.offscreen_presented = false;
+    }
+}
+
+/// Shows the presented offscreen frame of `context` on its view's surface,
+/// when it has both and the frame is not shown: the view attached while the
+/// frame was drawn, or its window was occluded. Whether it still waits (the
+/// window is occluded). JS thread.
+fn show_waiting(context: u32) -> bool {
+    let Some(view) = views::get(context) else {
+        // `surface_attached` shows it.
+        return false;
+    };
+    let (config, offscreen, new, busy) = {
+        let mut all = idle_contexts(context);
+        let Some(ctx) = all.get_mut(&context) else {
+            return false;
+        };
+        if ctx.frame.is_some() || !ctx.offscreen_presented {
+            return false;
+        }
+        let new = !ctx.shows(&view.surface);
+        let (Some(config), Some(offscreen)) = (ctx.config.as_mut(), ctx.offscreen.clone()) else {
+            return false;
+        };
+        if new {
+            config.fit(&view.surface);
+            ctx.configured = Some(Arc::clone(&view.surface));
+        }
+        let config = config.clone();
+        (config, offscreen, new, Busy::new(context, ctx))
+    };
+    if new {
+        configure_view(
+            context,
+            &view.surface,
+            &config,
+            wgpu::TextureUsages::COPY_DST,
+        );
+    }
+    let shown = blit_and_present(context, &view.surface, &config, &offscreen);
+    if shown {
+        shown_frame(context, &offscreen);
+    }
+    drop(busy);
+    !shown
+}
+
 /// Copies `offscreen` onto the surface's next texture and presents it.
+/// `false`: the window is occluded, so it has none.
 fn blit_and_present(
     context_id: u32,
     surface: &Arc<wgpu::Surface<'static>>,
     config: &Config,
     offscreen: &wgpu::Texture,
-) {
-    let Some(texture) = acquire(context_id, surface, config) else {
-        return;
+) -> bool {
+    let texture = match acquire(context_id, surface, config) {
+        Ok(texture) => texture,
+        Err(missed) => return missed != Missed::Occluded,
     };
     if texture.texture.size() != offscreen.size() {
-        return;
+        return true;
     }
     // Drawn when the surface is of another format, or lacks COPY_DST.
     let drawn = match &config.shown {
@@ -622,6 +730,7 @@ fn blit_and_present(
     }
     config.queue.submit([encoder.finish()]);
     texture.present();
+    true
 }
 
 /// Draws `frame` onto `target`, of `shown`'s format.
@@ -810,19 +919,19 @@ impl WgpuCanvasContext {
                 height: c.height.max(1),
                 shown: None,
             };
-            let view = views::get(context);
-            if let Some(view) = &view {
-                config.fit(&view.surface);
-            }
-            let ended = {
-                let mut all = contexts();
+            let (ended, view, busy) = {
+                let mut all = idle_contexts(context);
+                let view = views::get(context);
                 let ctx = all.entry(context).or_default();
                 let ended = (ctx.end_frame(), ctx.orphan.take());
+                if let Some(view) = &view {
+                    config.fit(&view.surface);
+                }
                 ctx.offscreen = None;
                 ctx.offscreen_presented = false;
                 ctx.config = Some(config.clone());
                 ctx.configured = view.as_ref().map(|v| Arc::clone(&v.surface));
-                ended
+                (ended, view, Busy::new(context, ctx))
             };
             drop(ended);
             if let Some(view) = view {
@@ -833,6 +942,7 @@ impl WgpuCanvasContext {
                     wgpu::TextureUsages::empty(),
                 );
             }
+            drop(busy);
             Ok(())
         })
     }
@@ -865,12 +975,14 @@ impl WgpuCanvasContext {
     /// frame goes to the context's presenting view when it has one
     /// (Linux: [`offscreen::deliver`]), and is kept for a surface that
     /// attaches later. Ends the frame.
-    pub fn present(context: u32) -> Result<(), String> {
+    ///
+    /// Whether the frame waits to be shown ([`Self::show_waiting`]).
+    pub fn present(context: u32) -> Result<bool, String> {
         guard(|| {
             let (frame, offscreen, orphan) = {
                 let mut all = contexts();
                 let Some(ctx) = all.get_mut(&context) else {
-                    return Ok(());
+                    return Ok(false);
                 };
                 let frame = ctx.end_frame();
                 let mut offscreen = None;
@@ -897,12 +1009,21 @@ impl WgpuCanvasContext {
                 drop(surface);
             }
             if let Some((texture, config)) = offscreen {
-                // A frame that never goes to its surface as it is.
-                if config.shown.is_some()
-                    && let Some(view) = views::get(context)
-                {
-                    blit_and_present(context, &view.surface, &config, &texture);
-                    return Ok(());
+                if let Some(view) = views::get(context) {
+                    let (new, occluded) = {
+                        let all = contexts();
+                        let ctx = all.get(&context);
+                        (
+                            !ctx.is_some_and(|c| c.shows(&view.surface)),
+                            ctx.is_some_and(|c| c.occluded),
+                        )
+                    };
+                    // One that never goes to its surface as it is, or whose
+                    // view attached as it was drawn.
+                    if config.shown.is_some() || new {
+                        return Ok(show_waiting(context));
+                    }
+                    return Ok(occluded);
                 }
                 let device = DeviceEntry::get(config.device_id)?;
                 offscreen::deliver(
@@ -912,8 +1033,15 @@ impl WgpuCanvasContext {
                     config.alpha_mode == wgpu::CompositeAlphaMode::Opaque,
                 )?;
             }
-            Ok(())
+            Ok(false)
         })
+    }
+
+    /// Shows the last presented frame if the view does not show it yet:
+    /// TSX calls it when a view attached, and while `true` (it waits for its
+    /// window to be visible).
+    pub fn show_waiting(context: u32) -> Result<bool, String> {
+        guard(|| Ok(show_waiting(context)))
     }
 
     /// Whether `context` presents to a surface now (tests and diagnostics).
@@ -923,10 +1051,10 @@ impl WgpuCanvasContext {
 }
 
 fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeError> {
-    let view = views::get(context);
     let orphan;
-    let (config, ended, configure_surface) = {
-        let mut all = contexts();
+    let (config, ended, view, configure_surface, busy) = {
+        let mut all = idle_contexts(context);
+        let view = views::get(context);
         let ctx = all.entry(context).or_default();
         let Some(config) = ctx.config.as_mut() else {
             return Err(NativeError::new(
@@ -971,21 +1099,27 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
             }
         };
         let config = ctx.config.clone().expect("checked above");
-        (config, ended, configure_surface)
+        let busy = Busy::new(context, ctx);
+        (config, ended, view, configure_surface, busy)
     };
     drop((ended, orphan));
     let surface = view.map(|v| v.surface);
     if let (Some(surface), true) = (&surface, configure_surface) {
         configure_view(context, surface, &config, wgpu::TextureUsages::empty());
     }
+    let mut occluded = false;
     let acquired = surface
         .as_ref()
         .filter(|_| config.shown.is_none())
-        .and_then(|s| {
-            acquire(context, s, &config).map(|texture| SurfaceFrame {
+        .and_then(|s| match acquire(context, s, &config) {
+            Ok(texture) => Some(SurfaceFrame {
                 texture,
                 surface: Arc::clone(s),
-            })
+            }),
+            Err(missed) => {
+                occluded = missed == Missed::Occluded;
+                None
+            }
         });
     let mut all = contexts();
     // The view may have gone while the texture was acquired (the UI thread
@@ -1006,6 +1140,7 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
             (texture, Source::Offscreen)
         }
     };
+    ctx.occluded = occluded;
     let frame_of = matches!(source, Source::Surface(_)).then_some(context);
     let id = registry::insert(TextureEntry {
         texture,
@@ -1013,32 +1148,44 @@ fn current_texture(context: u32, width: u32, height: u32) -> Result<u32, NativeE
         frame_of,
     });
     ctx.frame = Some(Frame { id, source });
+    drop(all);
+    drop(busy);
     Ok(id)
 }
 
+/// Why a surface gave no texture.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum Missed {
+    /// Its window is occluded (Metal).
+    Occluded,
+    /// It timed out, or is not valid.
+    Other,
+}
+
 /// The surface's next texture; once more after reconfiguring when it is
-/// outdated or lost; `None` (render offscreen) when it times out or the
+/// outdated or lost; none (render offscreen) when it times out or the
 /// window is occluded.
 fn acquire(
     context_id: u32,
     surface: &Arc<wgpu::Surface<'static>>,
     config: &Config,
-) -> Option<wgpu::SurfaceTexture> {
+) -> Result<wgpu::SurfaceTexture, Missed> {
     for attempt in 0..2 {
         match surface.get_current_texture() {
             wgpu::CurrentSurfaceTexture::Success(t)
             | wgpu::CurrentSurfaceTexture::Suboptimal(t) => {
-                return Some(t);
+                return Ok(t);
             }
             wgpu::CurrentSurfaceTexture::Outdated | wgpu::CurrentSurfaceTexture::Lost
                 if attempt == 0 =>
             {
                 reconfigure(context_id, surface, config, wgpu::TextureUsages::empty());
             }
-            _ => return None,
+            wgpu::CurrentSurfaceTexture::Occluded => return Err(Missed::Occluded),
+            _ => return Err(Missed::Other),
         }
     }
-    None
+    Err(Missed::Other)
 }
 
 /// How many view teardowns ([`view_gone`]) panicked and were caught

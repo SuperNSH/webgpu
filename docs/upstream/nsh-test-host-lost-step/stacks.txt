@@ -1,0 +1,62 @@
+nsh test --target macos, GitHub macos-latest (macOS 26.7.2, arm64), 14 s into the step; the last 6 frames of each thread
+
+1027 Thread_335367   DispatchQueue_1: com.apple.main-thread  (serial)
+    __CFRunLoopRun
+    __CFRunLoopServiceMachPort
+    mach_msg
+    mach_msg_overwrite
+    mach_msg2_internal
+    mach_msg2_trap
+
+1027 Thread_335375
+    start_wqthread
+    _pthread_wqthread
+    __workq_kernreturn
+
+1027 Thread_335399
+    start_wqthread
+    _pthread_wqthread
+    __workq_kernreturn
+
+1027 Thread_335402: com.apple.NSEventThread
+    __CFRunLoopRun
+    __CFRunLoopServiceMachPort
+    mach_msg
+    mach_msg_overwrite
+    mach_msg2_internal
+    mach_msg2_trap
+
+1027 Thread_335465: nsh-dev-client
+    nsh_platform_macos::starts::uEs_::EuEB
+    EINtNtNtB::function::FnOnceuE::call_onceB
+    IYTw_::nsh_platform_macos::starts::uEs_
+    startNCNvNtCsiai::IYTw_::nsh_platform_macos::starts
+    startNCNvNtCsiai::IYTw_::nsh_platform_macos::starts
+    IYTw_::nsh_platform_macos::starts::EBL_
+
+1027 Thread_335466: nsh-test-agent
+    TestStepEE::recvs_::CsnurQm::nsh_testing
+    contextNtB::Context::wait_untilCsnurQm::nsh_testing
+    thread::threadNtB::Thread::park
+    _dispatch_semaphore_wait_slow
+    _dispatch_sema4_wait
+    semaphore_wait_trap
+
+1027 Thread_335495: nsh-engine
+    MessageE::recvs_::CsnurQm::nsh_testing
+    contextNtB::Context::wait_untilCsnurQm::nsh_testing
+    nfKK_::thread::functions::park
+    _dispatch_semaphore_wait_slow
+    _dispatch_sema4_wait
+    semaphore_wait_trap
+
+1027 Thread_335499: nsh-tasks
+    multi_thread::workerNtB::Context::park_internal
+    multi_thread::parkNtB::Inner::park_driver
+    runtime::timeNtB::Driver::park_internal
+    runtime::driverNtB::Driver::turn
+    pollNtB::Poll::poll
+    kevent
+
+1027 Thread_335500: nsh-tasks
+

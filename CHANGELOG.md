@@ -39,6 +39,8 @@ The first version: react-native-webgpu (`06599f9`) ported to NSH on wgpu 29, for
 
 - An app needs no Rust crate of its own any more: `nsh add github:SuperNSH/webgpu` is enough with that nightly.
 - The gallery runs in a real window on macOS, Windows and Linux in CI (`.github/workflows/onscreen.yml`: its tests with `nsh test --target`, and a picture of each page).
+- A canvas drawn once is always shown: a frame whose view attached as it was drawn, or whose window was occluded when it was presented, never was (Storage Buffer Vertices was blank in one run in CI). The On screen workflow fails on a blank page (`scripts/blank.py`).
+- The UI thread (a view attaching) and the JS thread configure and acquire a canvas's surface in turn. At once, the second got "Surface image is already acquired" (Android, the gallery's Surface Churn under load) or waited for a drawable forever (Metal, in a test).
 - Web: `<Canvas>` sets its ref once the `<canvas>` is in the page. It came at the first layout, when `getContext()` still returned `null` (found by the gallery's Surface Churn).
 - Web: `createImageBitmap` reads encoded bytes (an `ArrayBuffer` or a view) too, as its types say; the browser's takes a `Blob` only.
 - Android (GLES): a buffer is read through a fresh copy each time it is mapped. The emulator's driver gave the first map's bytes again after a later copy into the buffer, with no error (found by the gallery's MNIST Inference).

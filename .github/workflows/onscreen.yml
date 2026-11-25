@@ -108,6 +108,8 @@ jobs:
             run nsh test --target ${{ matrix.target }} $file.test.tsx > tour/$file.log 2>&1 || code=1
             grep -v '^PNG' tour/$file.log | cut -c1-300 | tail -n 250
           done
+          py=python3; [ "$RUNNER_OS" = Windows ] && py=python
+          $py ../../scripts/blank.py tour || code=1
           exit $code
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()

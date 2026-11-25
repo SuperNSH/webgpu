@@ -17,6 +17,13 @@ use nsh_webgpu::api::{
 };
 use serde_json::{Value, json};
 
+/// The tests count the process's contexts and share its layers' state: one
+/// at a time.
+fn alone() -> std::sync::MutexGuard<'static, ()> {
+    static ALONE: std::sync::Mutex<()> = std::sync::Mutex::new(());
+    ALONE.lock().unwrap_or_else(|e| e.into_inner())
+}
+
 fn runtime() -> &'static tokio::runtime::Runtime {
     static RUNTIME: OnceLock<tokio::runtime::Runtime> = OnceLock::new();
     RUNTIME.get_or_init(|| {
@@ -109,6 +116,7 @@ fn error_name(result: Result<impl std::fmt::Debug, String>) -> String {
 
 #[test]
 fn context_ids_are_unique_and_destroy_drops_the_context() {
+    let _alone = alone();
     let a = WgpuCanvasContext::allocate_context_id();
     let b = WgpuCanvasContext::allocate_context_id();
     assert_ne!(a, b);
@@ -143,6 +151,7 @@ fn context_ids_are_unique_and_destroy_drops_the_context() {
 
 #[test]
 fn configure_rejects_what_the_spec_rejects() {
+    let _alone = alone();
     let device = device();
     let id = WgpuCanvasContext::allocate_context_id();
     WgpuCanvasContext::make(id).unwrap();
@@ -169,6 +178,7 @@ fn configure_rejects_what_the_spec_rejects() {
 
 #[test]
 fn frames_offscreen_until_a_view_attaches() {
+    let _alone = alone();
     let device = device();
     let id = WgpuCanvasContext::allocate_context_id();
     WgpuCanvasContext::make(id).unwrap();
@@ -210,6 +220,7 @@ fn frames_offscreen_until_a_view_attaches() {
 #[cfg(target_os = "macos")]
 #[test]
 fn frames_come_from_an_attached_metal_layer() {
+    let _alone = alone();
     use nsh_webgpu::surface::views;
     use objc2_core_foundation::{CGPoint, CGRect, CGSize};
     use objc2_quartz_core::CAMetalLayer;
@@ -310,6 +321,7 @@ fn attach_layer(id: u32) -> objc2::rc::Retained<objc2_quartz_core::CAMetalLayer>
 #[cfg(target_os = "macos")]
 #[test]
 fn a_past_frame_expires_when_the_canvas_is_reconfigured() {
+    let _alone = alone();
     use nsh_webgpu::api::{
         texture::TextureEntry,
         texture_view::{TextureViewEntry, WgpuTextureView},
@@ -367,6 +379,7 @@ fn a_past_frame_expires_when_the_canvas_is_reconfigured() {
 #[cfg(target_os = "macos")]
 #[test]
 fn a_view_going_with_an_unpresented_frame_does_not_panic() {
+    let _alone = alone();
     let device = device();
     for unmount_first in [true, false] {
         let id = WgpuCanvasContext::allocate_context_id();
@@ -413,6 +426,7 @@ fn a_view_going_with_an_unpresented_frame_does_not_panic() {
 #[cfg(target_os = "macos")]
 #[test]
 fn a_frame_in_flight_outlives_its_view() {
+    let _alone = alone();
     let device = device();
     let id = WgpuCanvasContext::allocate_context_id();
     WgpuCanvasContext::make(id).unwrap();
@@ -432,6 +446,162 @@ fn a_frame_in_flight_outlives_its_view() {
     drop(layer);
 }
 
+/// A view attaching (the UI thread, which shows the kept frame on it) as the
+/// JS thread draws the next one: a surface has one texture acquired at a
+/// time (Android's "Surface image is already acquired", in the gallery's
+/// Surface Churn).
+#[cfg(target_os = "macos")]
+#[test]
+fn a_view_attaches_as_frames_are_drawn() {
+    use nsh_webgpu::{api::device::WgpuDevice, surface::views};
+
+    let _alone = alone();
+    let device = device();
+    let id = WgpuCanvasContext::allocate_context_id();
+    WgpuCanvasContext::make(id).unwrap();
+    WgpuCanvasContext::configure(id, configuration(device, json!({}), 64, 64)).unwrap();
+    let draw = || {
+        let frame = WgpuCanvasContext::get_current_texture(id, 64, 64).unwrap();
+        WgpuTextureView::create(frame, json!(null)).unwrap();
+        WgpuCanvasContext::present(id).unwrap();
+    };
+    // Two threads that acquire at once may wait for a drawable forever.
+    let (done, waits) = std::sync::mpsc::channel::<()>();
+    std::thread::spawn(move || {
+        if waits.recv_timeout(std::time::Duration::from_secs(60))
+            == Err(std::sync::mpsc::RecvTimeoutError::Timeout)
+        {
+            eprintln!("a_view_attaches_as_frames_are_drawn: it hangs");
+            std::process::exit(1);
+        }
+    });
+    WgpuDevice::push_error_scope(device, "validation".into()).unwrap();
+    for i in 0..200 {
+        draw();
+        let step = std::sync::Barrier::new(2);
+        std::thread::scope(|scope| {
+            scope.spawn(|| {
+                step.wait();
+                let layer = attach_layer(id);
+                step.wait();
+                canvas_context::view_gone(id);
+                drop(layer);
+            });
+            step.wait();
+            // At one point or another of the attach.
+            while views::get(id).is_none() {
+                std::hint::spin_loop();
+            }
+            std::thread::sleep(std::time::Duration::from_micros(i * 10));
+            draw();
+            draw();
+            step.wait();
+        });
+        assert!(views::get(id).is_none());
+    }
+    drop(done);
+    let error = WgpuDevice::pop_error_scope(device).unwrap();
+    assert!(error.is_null(), "{error}");
+    WgpuCanvasContext::destroy_context(id);
+    WgpuCanvasContext::release(id);
+}
+
+/// A canvas drawn once has no next frame: one whose view attached as it was
+/// drawn is shown when it ends (the gallery's Storage Buffer Vertices was
+/// blank in a run in CI).
+#[cfg(target_os = "macos")]
+#[test]
+fn a_frame_drawn_as_its_view_attached_is_shown() {
+    let _alone = alone();
+    use objc2_core_foundation::CGSize;
+
+    let device = device();
+    let id = WgpuCanvasContext::allocate_context_id();
+    WgpuCanvasContext::make(id).unwrap();
+    WgpuCanvasContext::configure(id, configuration(device, json!({}), 64, 64)).unwrap();
+    let frame = WgpuCanvasContext::get_current_texture(id, 64, 64).unwrap();
+    let layer = attach_layer(id);
+    assert_eq!(layer.drawableSize(), CGSize::ZERO, "not for a frame's view");
+    clear_and_read(device, frame, 64, [1.0, 0.0, 0.0, 1.0], 0, 0);
+    let waits = WgpuCanvasContext::present(id).unwrap();
+    assert_eq!(layer.drawableSize(), CGSize::new(64.0, 64.0), "shown on it");
+    assert!(!waits);
+    // It is, so nothing is left to show.
+    assert!(!WgpuCanvasContext::show_waiting(id).unwrap());
+    canvas_context::view_gone(id);
+    WgpuCanvasContext::destroy_context(id);
+    WgpuCanvasContext::release(id);
+}
+
+#[cfg(target_os = "macos")]
+static VISIBLE: std::sync::atomic::AtomicBool = std::sync::atomic::AtomicBool::new(true);
+
+#[cfg(target_os = "macos")]
+objc2::define_class!(
+    /// A view and its window, as wgpu looks for them behind a layer (its
+    /// delegate's `window`, that one's `occlusionState`).
+    #[unsafe(super(objc2::runtime::NSObject))]
+    #[name = "NshWebGPUTestWindow"]
+    struct Window;
+
+    impl Window {
+        #[unsafe(method(window))]
+        fn window(&self) -> &Window {
+            self
+        }
+
+        #[unsafe(method(occlusionState))]
+        fn occlusion_state(&self) -> usize {
+            usize::from(VISIBLE.load(std::sync::atomic::Ordering::SeqCst)) << 1
+        }
+    }
+);
+
+/// A frame presented while its window is occluded is shown once it is not.
+#[cfg(target_os = "macos")]
+#[test]
+fn a_frame_of_an_occluded_window_is_shown_when_it_is_visible() {
+    let _alone = alone();
+    use objc2::{AnyThread, msg_send, rc::Retained};
+    use std::sync::atomic::Ordering;
+
+    let device = device();
+    let id = WgpuCanvasContext::allocate_context_id();
+    WgpuCanvasContext::make(id).unwrap();
+    WgpuCanvasContext::configure(id, configuration(device, json!({}), 64, 64)).unwrap();
+    let layer = attach_layer(id);
+    // SAFETY: NSObject's init; a layer does not retain its delegate, which
+    // goes last.
+    let window: Retained<Window> = unsafe { msg_send![Window::alloc(), init] };
+    let _: () = unsafe { msg_send![&*layer, setDelegate: &*window] };
+
+    VISIBLE.store(false, Ordering::SeqCst);
+    let draw = || {
+        let frame = WgpuCanvasContext::get_current_texture(id, 64, 64).unwrap();
+        clear_and_read(device, frame, 64, [1.0, 0.0, 0.0, 1.0], 0, 0);
+        WgpuCanvasContext::present(id).unwrap()
+    };
+    assert!(draw(), "it waits");
+    assert!(
+        WgpuCanvasContext::show_waiting(id).unwrap(),
+        "and still does"
+    );
+    VISIBLE.store(true, Ordering::SeqCst);
+    assert!(
+        !WgpuCanvasContext::show_waiting(id).unwrap(),
+        "until it shows"
+    );
+    assert!(!draw(), "a frame of a visible window does not wait");
+    // With no view there is nothing to wait for.
+    VISIBLE.store(false, Ordering::SeqCst);
+    assert!(draw());
+    canvas_context::view_gone(id);
+    assert!(!WgpuCanvasContext::show_waiting(id).unwrap());
+    let _: () = unsafe { msg_send![&*layer, setDelegate: std::ptr::null::<Window>()] };
+    WgpuCanvasContext::destroy_context(id);
+    WgpuCanvasContext::release(id);
+}
+
 /// A canvas configured with one device and then another: a swap chain is of
 /// one device's queue, and drawing into it from another's had Windows remove
 /// the GPU device (found by the gallery's Context Edge Cases, which asks for
@@ -440,6 +610,7 @@ fn a_frame_in_flight_outlives_its_view() {
 #[cfg(windows)]
 #[test]
 fn a_canvas_moves_from_one_device_to_another() {
+    let _alone = alone();
     use nsh_webgpu::surface::views;
     use windows::Win32::Graphics::DirectComposition::DCompositionCreateSurfaceHandle;
 

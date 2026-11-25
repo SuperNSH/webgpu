@@ -38,7 +38,7 @@ import {
   View,
   type ViewProps,
 } from "nsh";
-import { forgetContext, makeCanvasContext, nativeSurface, setMountedColorSpace } from "./api/GPUCanvasContext";
+import { forgetContext, makeCanvasContext, nativeSurface, setMountedColorSpace, showWaiting } from "./api/GPUCanvasContext";
 import { SURFACE_VERSION } from "./internal/canvasState";
 import { call, WgpuCanvasContext } from "./internal/native";
 import { allocateContextIdWeb, getNativeSurfaceWeb, isWeb, makeWebGPUCanvasContextWeb, hasPage, WebCanvasView } from "./surface/web";
@@ -358,8 +358,10 @@ export function Canvas(props: CanvasProps): JSX.Element {
     watch = globalThis.requestAnimationFrame(() => {
       watch = null;
       if (gone) return;
-      if (nativeSurface(contextId).surface !== "0") version.update((v) => v + 1);
-      else watchAttach(frames - 1);
+      if (nativeSurface(contextId).surface !== "0") {
+        showWaiting(contextId);
+        version.update((v) => v + 1);
+      } else watchAttach(frames - 1);
     });
   };
 

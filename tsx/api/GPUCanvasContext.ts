@@ -76,6 +76,31 @@ export function setMountedColorSpace(contextId: number, mounted: MountedColorSpa
  */
 export function forgetContext(contextId: number): void {
   shared.delete(contextId);
+  const retry = retries.get(contextId);
+  if (retry !== undefined) clearTimeout(retry);
+  retries.delete(contextId);
+}
+
+/** The retries of {@link showWaiting}, by context id. */
+const retries = new Map<number, ReturnType<typeof setTimeout>>();
+
+/** How long between looks at whether a window is visible again. */
+const RETRY_MS = 100;
+
+/**
+ * Shows the last presented frame of `contextId` if its view does not show
+ * it yet, and tries again while the window is occluded: a canvas drawn once
+ * has no next frame to show instead.
+ */
+export function showWaiting(contextId: number, waiting = call(() => WgpuCanvasContext.showWaiting(contextId))): void {
+  if (!waiting || retries.has(contextId)) return;
+  retries.set(
+    contextId,
+    setTimeout(() => {
+      retries.delete(contextId);
+      showWaiting(contextId);
+    }, RETRY_MS),
+  );
 }
 
 /** A canvas size as a `<canvas>` keeps it: a whole number of pixels, 0 for what is not a number. */
@@ -300,8 +325,9 @@ export class GPUCanvasContext implements SpecGPUCanvasContext {
    * shown when it does.
    */
   present(): void {
-    call(() => WgpuCanvasContext.present(this.#contextId));
+    const waiting = call(() => WgpuCanvasContext.present(this.#contextId));
     this.#state.current = null;
+    showWaiting(this.#contextId, waiting);
   }
 
   get [Symbol.toStringTag](): string {
