@@ -130,6 +130,26 @@ test(
       }
       await app.wait(3000);
       await shoot(`diag-${screen}`);
+      if (desktop && screen === "SurfaceChurn") {
+        // A canvas shows nothing from its remount (every 400ms) to its first
+        // frame: a single picture may fall there. Most do not, and the last
+        // one kept is of a canvas that draws.
+        let drawn = 0;
+        let last = false;
+        const shots = 20;
+        for (let i = 0; i < shots || (!last && i < 2 * shots); i++) {
+          await app.wait(90);
+          const picture = decodePng(await app.screenshot(`tour/diag-${screen}.png`));
+          const at = (Math.round(picture.height * 0.6) * picture.width + Math.round(picture.width * 0.5)) * 4;
+          // The page is white (or black, in the dark); the canvas is a hue.
+          const [r, g, b] = picture.rgba.slice(at, at + 3);
+          last = Math.max(r, g, b) - Math.min(r, g, b) > 60;
+          if (last && i < shots) drawn++;
+        }
+        console.log(`Surface Churn: drawn in ${drawn} of ${shots} pictures`);
+        expect(last).toBe(true);
+        expect(drawn).toBeGreaterThan(shots / 2);
+      }
       // A device the page destroys is lost as "destroyed"; any other loss is the GPU's.
       expect(app.texts().filter((t) => t.startsWith("[device lost] unknown"))).toEqual([]);
       await app.back();
