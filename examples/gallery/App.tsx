@@ -50,58 +50,55 @@ function Home() {
   );
 }
 
-function DemoPage(props: { entry: Extract<Entry, { kind: "demo" }> }) {
+function Demo(props: { entry: Extract<Entry, { kind: "demo" }> }) {
   const entry = props.entry;
   const probe = new Probe(entry.screen, entry.probe);
-  const Demo = entry.component;
+  const Component = entry.component;
   return (
-    <NavPage title={entry.title} header={<PageHeader title={entry.title} onBack={() => nav.pop()} />}>
-      <View class="flex-1 bg-background">
-        <ProbeContext.Provider value={probe}>
-          <View class="flex-1">
-            <Demo />
-          </View>
-        </ProbeContext.Provider>
-        <If when={!entry.diagnostic}>
-          <StatusLine testID={`probe-${entry.screen}`} text={probe.status()} />
-        </If>
-      </View>
-    </NavPage>
+    <View class="flex-1 bg-background">
+      <ProbeContext.Provider value={probe}>
+        <View class="flex-1">
+          <Component />
+        </View>
+      </ProbeContext.Provider>
+      <If when={!entry.diagnostic}>
+        <StatusLine testID={`probe-${entry.screen}`} text={probe.status()} />
+      </If>
+    </View>
   );
 }
 
-function SkipPage(props: { entry: Extract<Entry, { kind: "skip" }> }) {
+function Skipped(props: { entry: Extract<Entry, { kind: "skip" }> }) {
   const entry = props.entry;
   return (
-    <NavPage title={entry.title} header={<PageHeader title={entry.title} onBack={() => nav.pop()} />}>
-      <Scroll class="flex-1 bg-background">
-        <Notice title="Not ported">
-          <Paragraph testID={`skip-${entry.screen}`}>{entry.reason}</Paragraph>
-          <Paragraph>
-            What nsh-webgpu does not do, and why, is listed in docs/parity.md; every demo's verdict is in
-            docs/inventory.md, table 4.
-          </Paragraph>
-        </Notice>
-      </Scroll>
-    </NavPage>
+    <Scroll class="flex-1 bg-background">
+      <Notice title="Not ported">
+        <Paragraph testID={`skip-${entry.screen}`}>{entry.reason}</Paragraph>
+        <Paragraph>
+          What nsh-webgpu does not do, and why, is listed in docs/parity.md; every demo's verdict is in
+          docs/inventory.md, table 4.
+        </Paragraph>
+      </Notice>
+    </Scroll>
   );
 }
 
-function ListPage(props: { entry: Extract<Entry, { kind: "list" }> }) {
+function Body(props: { entry: Entry }) {
   const entry = props.entry;
-  return (
-    <NavPage title={entry.title} header={<PageHeader title={entry.title} onBack={() => nav.pop()} />}>
-      <EntryList entries={entry.entries} />
-    </NavPage>
-  );
+  if (entry.kind === "demo") return <Demo entry={entry} />;
+  if (entry.kind === "list") return <EntryList entries={entry.entries} />;
+  return <Skipped entry={entry} />;
 }
 
+// The route's component is the NavPage, not one that returns a component
+// that is: NSH's nightly 2964346 never lays such a page out on the web.
 function Screen(props: { screen: string }) {
   const entry = byScreen.get(props.screen);
-  if (!entry) return <Text>Unknown screen {props.screen}</Text>;
-  if (entry.kind === "demo") return <DemoPage entry={entry} />;
-  if (entry.kind === "list") return <ListPage entry={entry} />;
-  return <SkipPage entry={entry} />;
+  return (
+    <NavPage title={entry?.title ?? props.screen} header={<PageHeader title={entry?.title ?? props.screen} onBack={() => nav.pop()} />}>
+      {entry ? <Body entry={entry} /> : <Text>Unknown screen {props.screen}</Text>}
+    </NavPage>
+  );
 }
 
 function App() {

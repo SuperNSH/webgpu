@@ -7,7 +7,7 @@
 // reference's own test frame), written into a GPUTexture, which is the
 // source nsh-webgpu's importExternalTexture takes (docs/parity/commands.md).
 
-import { pixelRatio, signal, Text, View } from "nsh";
+import { cleanup, pixelRatio, platform, signal, Text, View } from "nsh";
 import { Canvas, createTestVideoFrame, type NativeBuffer } from "nsh-webgpu";
 import { StyleSheet } from "../../components/StyleSheet";
 import { useWebGPU } from "../../harness/useWebGPU";
@@ -75,6 +75,8 @@ const FRAME_HEIGHT = 360;
 
 export const ImportExternalTexture = () => {
   const error = signal<string | null>(null);
+  let closeFrame = () => {};
+  cleanup(() => closeFrame());
 
   const ref = useWebGPU(({ context, device, presentationFormat, canvas }) => {
     canvas.width = canvas.clientWidth * PixelRatio.get();
@@ -95,6 +97,22 @@ export const ImportExternalTexture = () => {
       { bytesPerRow: frame.width * 4 },
       [frame.width, frame.height],
     );
+
+    // The browser's importExternalTexture takes a VideoFrame or a <video>, no texture.
+    let source: unknown = frameTexture;
+    if (platform.os === "web") {
+      const { VideoFrame } = globalThis as unknown as {
+        VideoFrame: new (data: Uint8Array, init: object) => { close(): void };
+      };
+      const video = new VideoFrame(frame.plane(0), {
+        format: "BGRX",
+        codedWidth: frame.width,
+        codedHeight: frame.height,
+        timestamp: 0,
+      });
+      closeFrame = () => video.close();
+      source = video;
+    }
 
     const module = device.createShaderModule({ code: SHADER });
     const pipeline = device.createRenderPipeline({
@@ -148,8 +166,8 @@ export const ImportExternalTexture = () => {
       if (currentFrame) {
         try {
           externalTex = device.importExternalTexture({
-            // nsh-webgpu's importExternalTexture source: a GPUTexture.
-            source: frameTexture as unknown as GPUExternalTextureDescriptor["source"],
+            // nsh-webgpu's importExternalTexture source: a GPUTexture (a VideoFrame on the web).
+            source: source as GPUExternalTextureDescriptor["source"],
             label: "video-frame",
           });
         } catch (e) {

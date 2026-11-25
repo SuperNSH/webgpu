@@ -35,7 +35,7 @@ the contract of `src/surface/views.rs`: make a `wgpu::Surface<'static>` from `cr
 | Linux canvas | offscreen render + one GPU→CPU→GPU copy per presented frame; a frame presented while the previous readback is in flight is dropped | a GTK 4 widget has no native window / `wl_surface` of its own; wgpu 29 cannot export a texture as dmabuf (`GdkDmabufTextureBuilder` would make it zero-copy) |
 | Windows `rgba16float` canvas | rendered offscreen in 16 bits and drawn onto a 10-bit swap chain (8-bit when transparent) with wgpu's `TextureBlitter`; clipped to SDR, no `toneMapping: "extended"` | DXGI takes a float swap chain's values as linear scRGB, a canvas's are sRGB-encoded |
 | Linux `alphaMode` | `"opaque"` shown as `X8` memory formats, `"premultiplied"` as premultiplied | |
-| Web: `navigator.gpu`, `GPU*` classes | the browser's (`browserGPU()` reads it at module evaluation) | as the reference's web entry; `installWebGPU()` is a no-op on the web (phase 3), and `<Canvas>` renders `WebCanvasView` there |
+| Web: `navigator.gpu`, `GPU*` classes | the browser's (`browserGPU()` reads it at module evaluation) | as the reference's web entry; `installWebGPU()` only makes `createImageBitmap` read encoded bytes on the web, and `<Canvas>` renders `WebCanvasView` there |
 | Web: `getContext("webgpu")` | the browser's context with a no-op `present()`; drawing buffer = layout size × `devicePixelRatio` | as `WebPolyfillGPUModule.ts` |
 | Web: `CanvasRef.getNativeSurface()` | `{surface: BigInt(id), width, height, clientWidth, clientHeight}` + the DOM canvas's event methods | as the reference |
 | Web: canvas DOM id | `rnwgpu-canvas-<id>`; the host view carries it as `data-testid` | NSH has no `<canvas>` element and shows no native component on the web; a `testID` passed to `<Canvas>` on the web is replaced |
@@ -47,14 +47,22 @@ the contract of `src/surface/views.rs`: make a `wgpu::Surface<'static>` from `cr
   while the views are elements of the page: `globalThis.document` is the iframe's, empty. `web.tsx` uses
   `parent.document` / `parent.navigator.gpu`.
 - The first `onLayout` of a view comes before the DOM runtime has inserted its element, so `web.tsx` looks for it
-  again every 16 ms (up to a second).
+  again every 16 ms (up to a second); `<Canvas>` sets its ref then, not at the layout.
+- On the web, a manual test clock moves with `app.wait`, not with `app.waitUntil`; and with `nsh run` a `NavStack` page
+  whose route renders a component that returns the page's component (and not the `NavPage` itself) is never laid out.
+  Both are NSH's (`2964346`), seen with no WebGPU in the app; `docs/upstream/nsh-web-nested-page` has the second.
 - Android: `vkCreateAndroidSurfaceKHR` connects the `ANativeWindow` (API EGL); a `wgpu::Surface` made for Vulkan
   *and* GL then fails GL's `eglCreateWindowSurface` (`EGL_BAD_ALLOC`, "already connected"), and `configure` on a GL
   device reports "Invalid surface". The emulator has a Vulkan driver (gfxstream), which wgpu hides (it declares no
   conformance version) and which crashes in `vkQueueSubmit` when used anyway, with no surface too, so GL is
   the only adapter while the Vulkan surface still connects the window. Fix: one backend per instance on Android.
-- The emulator's GLES 3.0 has no compute shaders, storage buffers, `textureLoad` from depth textures or texture view
-  formats: the gallery's demos that use them report validation errors there (15 of its 44 tests). Phones have Vulkan.
+- The emulator's GLES 3.1 (ANGLE on lavapipe) and wgpu's GLSL have no `textureLoad` from depth textures (Reversed Z,
+  Shadow Mapping, Deferred Rendering), no `textureNumLevels` in compute (Particles), no buffer bindings whose size is
+  not a multiple of 16 (A-Buffer) and no texture view formats (viewFormats Use-After-Free): those 6 of the gallery's
+  44 tests report validation errors there. Phones have Vulkan.
+- The emulator's GL driver keeps the bytes it read when a buffer is first mapped, and does not see a later
+  `glCopyBufferSubData` into that buffer: every later map gave the first one's bytes. `WgpuBuffer` reads `MAP_READ`
+  buffers through a fresh copy on Android's GLES (`reads_copies`).
 - NDK 29.0.14206865's `llvm-ar` on this Mac is a shell script that execs itself (dated Nov 9, not ours): `nsh run
   --target android` hangs in `zstd-sys`'s build script with it. `ANDROID_NDK_HOME=.../ndk/28.2.13676358` works.
 - `cargo clippy --target aarch64-linux-android` failed `-D warnings` in `api/device.rs:39` and `error.rs:199`

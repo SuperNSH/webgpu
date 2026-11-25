@@ -1,8 +1,9 @@
 // installWebGPU(): `navigator.gpu`, the GPU* classes and the flag constants
 // as globals, as react-native-webgpu's native module installs them. The
 // package's entry calls it when it is imported; call it again in a
-// runtime that started without them. On the web it does nothing: the
-// browser's own WebGPU stays (the reference's web entry installs no `gpu`).
+// runtime that started without them. On the web the browser's own WebGPU
+// stays (the reference's web entry installs no `gpu`); only its
+// createImageBitmap learns to read encoded bytes, as the types say it does.
 
 import { platform } from "nsh";
 
@@ -89,12 +90,29 @@ const GLOBALS: Record<string, unknown> = {
   GPUColorWrite,
 };
 
+/** The web: the browser's createImageBitmap takes a Blob, and no bytes. */
+const installWebImageBitmap = (global: Record<PropertyKey, unknown>): void => {
+  const BYTES = Symbol.for("nsh-webgpu.createImageBitmap.bytes");
+  const browser = global.createImageBitmap as ((...args: unknown[]) => Promise<unknown>) | undefined;
+  if (typeof browser !== "function" || BYTES in browser) return;
+  const value = (image: unknown, ...rest: unknown[]) => {
+    const bytes = image instanceof ArrayBuffer || ArrayBuffer.isView(image);
+    return browser.call(global, bytes ? new Blob([image as ArrayBuffer]) : image, ...rest);
+  };
+  Object.defineProperty(value, BYTES, { value: true });
+  Object.defineProperty(global, "createImageBitmap", { value, writable: true, configurable: true, enumerable: true });
+};
+
 /**
  * Puts `navigator.gpu`, the GPU* classes and the flag constants on
- * `globalThis`. A no-op on the web, where the browser's are kept.
+ * `globalThis`. On the web the browser's are kept, and createImageBitmap
+ * reads encoded bytes (an ArrayBuffer or a view) too.
  */
 export const installWebGPU = (): void => {
-  if (platform.os === "web") return;
+  if (platform.os === "web") {
+    installWebImageBitmap(globalThis as unknown as Record<PropertyKey, unknown>);
+    return;
+  }
   const global = globalThis as unknown as Record<string, unknown> & { navigator?: Record<string, unknown> };
   for (const [name, value] of Object.entries(GLOBALS)) {
     Object.defineProperty(global, name, { value, writable: true, configurable: true, enumerable: false });

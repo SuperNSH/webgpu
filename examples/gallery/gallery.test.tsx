@@ -48,13 +48,21 @@ fn main_image(@builtin(global_invocation_id) id: vec3u) {
     textureStore(screen, id.xy, vec4f(uv.x, uv.y, custom.blue, 1.0));
 }
 `;
-const TOY_NETWORK: OpenOptions["network"] = {
-  "GET https://compute.toys/view/2349/wgsl": { status: 200, body: TOY_SHADER },
-  "GET https://compute.toys/view/2349/json": {
+const TOY_REPLIES = {
+  wgsl: { status: 200, body: TOY_SHADER },
+  json: {
     status: 200,
     headers: { "content-type": "application/json" },
     body: JSON.stringify({ body: { uniforms: [{ name: "blue", value: 0.5 }] } }),
   },
+};
+// On the web the demo asks through the reference's CORS proxy.
+const proxied = (url: string) => `GET https://corsproxy.io/?${encodeURIComponent(url)}`;
+const TOY_NETWORK: OpenOptions["network"] = {
+  "GET https://compute.toys/view/2349/wgsl": TOY_REPLIES.wgsl,
+  "GET https://compute.toys/view/2349/json": TOY_REPLIES.json,
+  [proxied("https://compute.toys/view/2349/wgsl")]: TOY_REPLIES.wgsl,
+  [proxied("https://compute.toys/view/2349/json")]: TOY_REPLIES.json,
 };
 
 // A stub's body is a string (UTF-8 on the wire) or JSON, so the .npy files
@@ -271,12 +279,32 @@ function near(a: string, b: string, tolerance: number): boolean {
 
 class ProbeFailure extends Error {}
 
+/**
+ * Waits until `done`, on the manual clock: `waitUntil` moves it on every host
+ * but the web's (NSH's nightly 2964346), where only `wait` does.
+ */
+async function until(app: App, done: () => boolean, timeout: number): Promise<void> {
+  const end = Date.now() + timeout;
+  for (;;) {
+    try {
+      await app.waitUntil(done, { timeout: 1000 });
+      return;
+    } catch (error) {
+      if (Date.now() > end || done()) {
+        if (done()) return;
+        throw error;
+      }
+    }
+    await app.wait(100);
+  }
+}
+
 async function probe(app: App, screen: string, before?: (app: App) => Promise<void>): Promise<Report> {
   await app.press(`id:open-${screen}`);
   await before?.(app);
   const prefix = `probe ${screen}: `;
   const current = () => app.texts().find((t) => t.startsWith(prefix)) ?? "";
-  await app.waitUntil(() => / frame=| failed/.test(current()), { timeout: 120_000 });
+  await until(app, () => / frame=| failed/.test(current()), 120_000);
   const line = current();
   console.log(line);
   await app.back();
@@ -361,10 +389,10 @@ test("MNISTInference: a stroke drawn on the pad runs the network", async () => {
   const app = await open("./App.tsx", { clock: {}, network: MNIST_NETWORK });
   await app.press("id:open-MNISTInference");
   const status = () => app.texts().find((t) => t === "Draw a digit" || t.startsWith("The network did not load")) ?? "";
-  await app.waitUntil(() => status() !== "", { timeout: 60_000 });
+  await until(app, () => status() !== "", 60_000);
   expect(status()).toBe("Draw a digit");
   await app.drag("id:mnist-pad", { x: 0, y: 200 });
-  await app.waitUntil(() => app.texts().includes("7"), { timeout: 60_000 });
+  await until(app, () => app.texts().includes("7"), 60_000);
   await app.press("id:mnist-reset");
   expect(app.texts().includes("7")).toBe(false);
 }, TIMEOUT);
@@ -375,7 +403,10 @@ test("MNISTInference: a stroke drawn on the pad runs the network", async () => {
 // requestAnimationFrame chains within one another's stack until it overflows
 // (about 2,200 frames: "Maximum call stack size exceeded"), which is the test
 // clock's doing, not the app's.
-const DIAGNOSTICS: Record<string, { press?: string[]; ready?: RegExp; expect: RegExp; never?: RegExp }> = {
+const DIAGNOSTICS: Record<
+  string,
+  { press?: string[]; ready?: RegExp; expect: RegExp; never?: RegExp; uncaptured?: RegExp }
+> = {
   // Its timers and frames run while the pipeline compiles, off the JS
   // thread. A pipeline the driver has compiled before (a second run) is
   // ready within a millisecond or two, before a timer or a frame is due (at
@@ -389,6 +420,8 @@ const DIAGNOSTICS: Record<string, { press?: string[]; ready?: RegExp; expect: Re
   ContextEdgeCases: {
     press: ["edge-unconfigured", "edge-zero", "edge-unconfigure"],
     expect: /after unconfigure\(\)|threw \(correct per spec\).*InvalidStateError/,
+    // Chrome's own, for a 0x0 canvas (the crate's is 1x1, as the reference's).
+    uncaptured: /texture size \(\[Extent3D width:0, height:0.* is empty|swapchain texture of size 0|\[Invalid Texture/,
   },
   ViewFormatsUseAfterFree: { ready: /^configured /, press: ["viewformats-resize"], expect: /canvas.width -> \d+/ },
   // The loop keeps rendering after the canvas unmounts: the context keeps
@@ -402,7 +435,7 @@ const DIAGNOSTICS: Record<string, { press?: string[]; ready?: RegExp; expect: Re
     never: /^frame \d+: /,
   },
   BackgroundDetach: { expect: /rendering, background the app/ },
-  SurfaceChurn: { press: ["churn-toggle"], expect: /epoch 10/ },
+  SurfaceChurn: { press: ["churn-toggle"], expect: /^epoch 10$/, never: /^epoch \d+( frame \d+)?: / },
   DeviceDestroyBeforeDetach: { press: ["destroy-toggle"], expect: /\[device lost\] destroyed/ },
 };
 
@@ -412,16 +445,17 @@ for (const [screen, diagnostic] of Object.entries(DIAGNOSTICS)) {
     await app.press("id:open-Diagnostics");
     await app.press(`id:open-${screen}`);
     const ready = diagnostic.ready;
-    if (ready) await app.waitUntil(() => app.texts().some((t) => ready.test(t)), { timeout: 60_000 });
+    if (ready) await until(app, () => app.texts().some((t) => ready.test(t)), 60_000);
     await app.wait(500);
     for (const id of diagnostic.press ?? []) {
       await app.press(`id:${id}`);
       await app.wait(300);
     }
-    await app.waitUntil(() => app.texts().some((t) => diagnostic.expect.test(t)), { timeout: 60_000 });
+    await until(app, () => app.texts().some((t) => diagnostic.expect.test(t)), 60_000);
     const lines = app.texts().filter((t) => t.startsWith("[") || /threw|frame|epoch|cleanup|device/.test(t));
     console.log(`${screen}: ${lines.join(" | ")}`);
-    expect(app.texts().some((t) => t.startsWith("[uncaptured]"))).toBe(false);
+    const uncaptured = app.texts().filter((t) => t.startsWith("[uncaptured]"));
+    expect(uncaptured.filter((t) => !diagnostic.uncaptured?.test(t))).toEqual([]);
     // A device the page destroys is lost as "destroyed"; any other loss is the GPU's.
     expect(app.texts().filter((t) => t.startsWith("[device lost] unknown"))).toEqual([]);
     const never = diagnostic.never;

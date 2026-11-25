@@ -41,7 +41,7 @@ import {
 import { forgetContext, makeCanvasContext, nativeSurface, setMountedColorSpace } from "./api/GPUCanvasContext";
 import { SURFACE_VERSION } from "./internal/canvasState";
 import { call, WgpuCanvasContext } from "./internal/native";
-import { allocateContextIdWeb, getNativeSurfaceWeb, isWeb, makeWebGPUCanvasContextWeb, WebCanvasView } from "./surface/web";
+import { allocateContextIdWeb, getNativeSurfaceWeb, isWeb, makeWebGPUCanvasContextWeb, hasPage, WebCanvasView } from "./surface/web";
 import type { CanvasRef, NativeCanvas, RNCanvasContext } from "./types";
 
 export type { CanvasRef, NativeCanvas, RNCanvasContext } from "./types";
@@ -397,8 +397,8 @@ export function Canvas(props: CanvasProps): JSX.Element {
  * the polyfill's counter, a `<canvas>` in the view, the browser's context
  * sized to the view's layout (CSS pixels × `devicePixelRatio`), and
  * `getNativeSurface()` with the DOM canvas's own event methods. The ref is
- * set after the first layout and cleared on unmount, as natively; nothing
- * to destroy (the `<canvas>` goes with its view).
+ * set once the `<canvas>` is in the page (after the first layout) and
+ * cleared on unmount, as natively; nothing to destroy (the `<canvas>` goes with its view).
  */
 function WebCanvas(props: CanvasProps): JSX.Element {
   const contextId = allocateContextIdWeb();
@@ -426,20 +426,32 @@ function WebCanvas(props: CanvasProps): JSX.Element {
     mounted = false;
     setRef(untracked(() => own.ref), null, canvasRef);
   });
+  // The layout comes before the page has the view's element, so the ref waits
+  // for the `<canvas>`: `getContext()` in it has one to give a context of.
+  const mount = () => {
+    if (mounted) return;
+    mounted = true;
+    setRef(untracked(() => own.ref), canvasRef, canvasRef);
+  };
   return (
     <View {...rest}>
       <View
         style={{ flex: 1 }}
         onLayout={() => {
           if (gone) return;
-          if (!mounted) {
-            mounted = true;
-            setRef(untracked(() => own.ref), canvasRef, canvasRef);
-          }
+          // No page (headless): nothing to wait for.
+          if (!hasPage()) mount();
           version.update((v) => v + 1);
         }}
       >
-        <WebCanvasView contextId={contextId} />
+        <WebCanvasView
+          contextId={contextId}
+          onCanvas={() => {
+            if (gone) return;
+            mount();
+            version.update((v) => v + 1);
+          }}
+        />
       </View>
     </View>
   );

@@ -29,6 +29,8 @@ or two, before any timer or frame is due. The test accepts that only for a time 
 | Resize | the width animates with a signal driven by requestAnimationFrame (same 4 s inOut(ease) curve, repeat-reverse) | react-native-reanimated |
 | Compute Toys | `async-mutex` replaced by `engine/mutex.ts` (same `acquire`/`isLocked`); the pan gesture is touch events | npm packages, gesture-handler |
 | Import External Texture | `createTestVideoFrame`'s BGRA pattern in a GPUTexture instead of a decoded video | `createVideoPlayer` throws `ERR_WEBGPU_UNSUPPORTED` (no platform decoder, no IOSurface/AHardwareBuffer import in wgpu) |
+| Import External Texture on the web | the same frame as a `VideoFrame` | the browser's `importExternalTexture` takes no texture |
+| Compute Toys on the web | stays at "Loading" when run live | compute.toys allows no cross-origin request, and the reference's CORS proxy (corsproxy.io), which the demo asks as the reference does, refuses it; the test answers it itself |
 | Sampler Parameters | no controls, as in the reference | the reference's `GUI` (`components/GUI.ts`) is a stub that draws nothing; it is kept as is |
 | Diagnostics › Async Runner Starvation | a zero-delay timeout stands in for `requestIdleCallback` | NSH has no `requestIdleCallback` |
 | Diagnostics › Device Lost Hang | reports "forceLossForTesting is unavailable" | Dawn's test helper has no wgpu equivalent; the reference says the same without it |

@@ -102,6 +102,11 @@ function page(): DomGlobals {
 // The page's, so the device and the page's `<canvas>` share a realm.
 const BROWSER_GPU: GPU | null = isWeb() ? (page().navigator?.gpu ?? globals.navigator?.gpu ?? null) : null;
 
+/** Whether there is a page to put a `<canvas>` in (headless runs have none). */
+export function hasPage(): boolean {
+  return page().document !== undefined;
+}
+
 /** The browser's `navigator.gpu`, or `null` (no browser, or no WebGPU in it). */
 export function browserGPU(): GPU | null {
   return BROWSER_GPU;

@@ -6,7 +6,10 @@
 //! (`tsx/api/GPUBuffer.ts`). wgpu's mapped memory never leaves Rust, so no
 //! JS object points into memory wgpu may unmap.
 
-use std::sync::{Arc, Mutex};
+use std::sync::{
+    Arc, Mutex,
+    atomic::{AtomicBool, Ordering},
+};
 
 use nsh_core::{JsonValue, prelude::*};
 use serde::Deserialize;
@@ -46,6 +49,26 @@ pub struct BufferEntry {
     pub device: Id,
     /// Its mapping.
     pub(crate) map: Arc<Mutex<MapState>>,
+    /// `Some`: it is read through copies of it ([`reads_copies`]); the copy
+    /// mapped now.
+    copy: Option<Arc<Mutex<Option<wgpu::Buffer>>>>,
+    /// `destroy()` was called.
+    destroyed: Arc<AtomicBool>,
+}
+
+/// Whether a buffer is mapped for reading through a fresh copy of it each
+/// time. The Android emulator's GLES driver keeps what it read the first
+/// time a buffer is mapped, and does not see a later copy into that buffer:
+/// each map after the first gives the first one's bytes, with no error. (A
+/// driver cannot be told apart from here, so it is every GLES one there.)
+fn reads_copies(device: &DeviceEntry, usage: wgpu::BufferUsages, mapped: bool) -> bool {
+    cfg!(target_os = "android")
+        && !mapped
+        && usage == wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST
+        && device
+            .adapter
+            .as_ref()
+            .is_some_and(|a| a.get_info().backend == wgpu::Backend::Gl)
 }
 
 /// The wgpu device and queue of device `device`, for Rust callers that
@@ -67,6 +90,46 @@ impl BufferEntry {
 
     fn set_map_state(&self, state: MapState) {
         *self.map.lock().unwrap_or_else(|e| e.into_inner()) = state;
+    }
+
+    /// The buffer wgpu maps for it: itself, or a copy made now.
+    fn to_map(&self, device: &DeviceEntry, offset: u64, size: u64) -> wgpu::Buffer {
+        let Some(copy) = &self.copy else {
+            return self.buffer.clone();
+        };
+        let fresh = device.device.create_buffer(&wgpu::BufferDescriptor {
+            label: Some("readback copy"),
+            size: self.buffer.size(),
+            usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+            mapped_at_creation: false,
+        });
+        if size > 0 {
+            let mut encoder = device.device.create_command_encoder(&Default::default());
+            encoder.copy_buffer_to_buffer(&self.buffer, offset, &fresh, offset, size);
+            device.queue.submit([encoder.finish()]);
+        }
+        *copy.lock().unwrap_or_else(|e| e.into_inner()) = Some(fresh.clone());
+        fresh
+    }
+
+    /// The buffer wgpu has mapped for it.
+    fn mapped(&self) -> wgpu::Buffer {
+        self.copy
+            .as_ref()
+            .and_then(|c| c.lock().unwrap_or_else(|e| e.into_inner()).clone())
+            .unwrap_or_else(|| self.buffer.clone())
+    }
+
+    /// Ends wgpu's mapping.
+    fn end_map(&self) {
+        let copy = self
+            .copy
+            .as_ref()
+            .and_then(|c| c.lock().unwrap_or_else(|e| e.into_inner()).take());
+        match copy {
+            Some(copy) => copy.unmap(),
+            None => self.buffer.unmap(),
+        }
     }
 }
 
@@ -151,10 +214,15 @@ impl WgpuBuffer {
             } else {
                 wgpu::BufferUsages::from_bits_truncate(desc.usage)
             };
+            let copied = reads_copies(&entry, usage, desc.mapped_at_creation);
             let buffer = entry.device.create_buffer(&wgpu::BufferDescriptor {
                 label: Some(desc.label.as_str()).filter(|l| !l.is_empty()),
                 size: desc.size,
-                usage,
+                usage: if copied {
+                    wgpu::BufferUsages::COPY_SRC | wgpu::BufferUsages::COPY_DST
+                } else {
+                    usage
+                },
                 mapped_at_creation: desc.mapped_at_creation,
             });
             let map = if desc.mapped_at_creation {
@@ -170,6 +238,8 @@ impl WgpuBuffer {
                 buffer,
                 device,
                 map: Arc::new(Mutex::new(map)),
+                copy: copied.then(Arc::default),
+                destroyed: Arc::default(),
             }))
         })
     }
@@ -205,9 +275,17 @@ impl WgpuBuffer {
                     )),
                 ));
             }
+            // wgpu says so of a buffer it maps; a copy is not destroyed.
+            if entry.copy.is_some() && entry.destroyed.load(Ordering::Relaxed) {
+                return fail("mapAsync: the buffer was destroyed".into());
+            }
             let usage = entry.buffer.usage();
             let wgpu_mode = match mode {
-                MAP_READ if usage.contains(wgpu::BufferUsages::MAP_READ) => wgpu::MapMode::Read,
+                MAP_READ
+                    if entry.copy.is_some() || usage.contains(wgpu::BufferUsages::MAP_READ) =>
+                {
+                    wgpu::MapMode::Read
+                }
                 MAP_WRITE if usage.contains(wgpu::BufferUsages::MAP_WRITE) => wgpu::MapMode::Write,
                 _ => {
                     return fail(format!(
@@ -231,9 +309,10 @@ impl WgpuBuffer {
             entry.set_map_state(MapState::Pending(Arc::clone(&slot)));
             let map = Arc::clone(&entry.map);
             let write = wgpu_mode == wgpu::MapMode::Write;
-            entry
-                .buffer
-                .map_async(wgpu_mode, offset..offset + size, move |result| {
+            entry.to_map(&device, offset, size).map_async(
+                wgpu_mode,
+                offset..offset + size,
+                move |result| {
                     let mut state = map.lock().unwrap_or_else(|e| e.into_inner());
                     // Still ours: not unmapped or destroyed meanwhile.
                     if matches!(&*state, MapState::Pending(s) if Arc::ptr_eq(s, &slot)) {
@@ -255,7 +334,8 @@ impl WgpuBuffer {
                             }
                         }
                     }
-                });
+                },
+            );
             Ok(ticket)
         })
     }
@@ -275,7 +355,8 @@ impl WgpuBuffer {
             if size == 0 {
                 return Ok(Vec::new());
             }
-            let view = entry.buffer.slice(offset..offset + size).get_mapped_range();
+            let mapped = entry.mapped();
+            let view = mapped.slice(offset..offset + size).get_mapped_range();
             Ok(view.to_vec())
         })
     }
@@ -317,11 +398,11 @@ impl WgpuBuffer {
                             "mapAsync: the buffer was unmapped before the mapping finished",
                         )),
                     );
-                    entry.buffer.unmap();
+                    entry.end_map();
                 }
                 MapState::Mapped { .. } => {
                     entry.set_map_state(MapState::Unmapped);
-                    entry.buffer.unmap();
+                    entry.end_map();
                 }
             }
             Ok(())
@@ -346,8 +427,61 @@ impl WgpuBuffer {
     pub fn destroy(buffer: u32) -> Result<(), String> {
         Self::unmap(buffer)?;
         guard(|| {
-            registry::get::<BufferEntry>(buffer)?.buffer.destroy();
+            let entry = registry::get::<BufferEntry>(buffer)?;
+            entry.destroyed.store(true, Ordering::Relaxed);
+            entry.buffer.destroy();
             Ok(())
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::*;
+    use crate::api::{gpu::Wgpu, queue::WgpuQueue};
+
+    /// `BufferEntry::copy` (Android's GLES): each map reads what the buffer
+    /// holds then, and mapping, unmapping and destroying go as without it.
+    #[test]
+    fn a_buffer_read_through_copies_reads_what_it_holds() {
+        let adapter = crate::instance::request_adapter(&Default::default()).expect("an adapter");
+        let (device, queue) =
+            pollster::block_on(adapter.request_device(&Default::default())).expect("a device");
+        let device = DeviceEntry::register(device, queue, None);
+        // COPY_SRC | COPY_DST, as such a buffer is made.
+        let plain = WgpuBuffer::create(device, json!({ "size": 16, "usage": 0x0c })).unwrap();
+        let buffer = registry::insert(BufferEntry {
+            copy: Some(Arc::default()),
+            ..registry::get::<BufferEntry>(plain).unwrap()
+        });
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .build()
+            .expect("a runtime");
+        let wait = |ticket| runtime.block_on(Wgpu::wait(ticket));
+        for value in 1..=3u8 {
+            WgpuQueue::write_buffer(device, buffer, 0.0, Bytes(vec![value; 16])).unwrap();
+            wait(WgpuBuffer::map_async(buffer, MAP_READ, None, None).unwrap()).unwrap();
+            assert_eq!(WgpuBuffer::map_state(buffer).unwrap(), "mapped");
+            let bytes = WgpuBuffer::get_mapped_range(buffer, Some(8.0), Some(4.0)).unwrap();
+            assert_eq!(bytes, [value; 4]);
+            WgpuBuffer::unmap(buffer).unwrap();
+            assert_eq!(WgpuBuffer::map_state(buffer).unwrap(), "unmapped");
+            WgpuBuffer::get_mapped_range(buffer, None, None).unwrap_err();
+        }
+        // A part of it; then an unmap that comes first; then no buffer.
+        wait(WgpuBuffer::map_async(buffer, MAP_READ, Some(8.0), Some(8.0)).unwrap()).unwrap();
+        assert_eq!(
+            WgpuBuffer::get_mapped_range(buffer, Some(8.0), None).unwrap(),
+            [3; 8]
+        );
+        WgpuBuffer::unmap(buffer).unwrap();
+        let ticket = WgpuBuffer::map_async(buffer, MAP_READ, None, None).unwrap();
+        WgpuBuffer::unmap(buffer).unwrap();
+        assert!(wait(ticket).unwrap_err().contains("AbortError"));
+        WgpuBuffer::destroy(buffer).unwrap();
+        let ticket = WgpuBuffer::map_async(buffer, MAP_READ, None, None).unwrap();
+        assert!(wait(ticket).unwrap_err().contains("OperationError"));
     }
 }

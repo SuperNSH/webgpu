@@ -8,24 +8,25 @@ Part of the SuperNSH capability set. Guides in [docs/guide/](docs/guide/README.m
 
 ## Status
 
-**0.1.0, on GitHub (not on crates.io). `<Canvas>` runs on screen on macOS, the iOS simulator, an Android emulator, Windows, Linux and the web.** It needs the NSH nightly `2964346`, not the 0.6.0 release.
+**0.1.0, on GitHub (not on crates.io). `<Canvas>` runs on screen on macOS, the iOS simulator, Mac Catalyst, an Android emulator, Windows, Linux and the web.** It needs the NSH nightly `2964346`, not the 0.6.0 release.
 
 | Platform | GPU it ran on | What was checked | Evidence |
 |---|---|---|---|
 | macOS | Apple Silicon (Metal) | `cargo test`; `nsh test` in `examples/headless` (89), `examples/canvas-apple` (1) and `examples/gallery` (45); the Triangle and the rotating Cube, and the whole gallery (44 tests), in a window, in CI | `docs/evidence/platforms/macos-canvas.png`, `gallery-macos.jpg` |
 | iOS 27 simulator | Metal | the Triangle and the rotating Cube on screen; the whole gallery (44 tests) | `docs/evidence/platforms/ios-canvas.png` |
-| Android emulator | GLES | the Triangle and the rotating Cube; 29 of the gallery's 44 tests (the emulator's GLES has no compute shaders, storage buffers, depth `textureLoad` or texture view formats, which the other 15 use) | `docs/evidence/platforms/android-canvas.png` |
+| Android emulator | GLES | the Triangle and the rotating Cube; 38 of the gallery's 44 tests (the other 6 use what GLES 3.1 or wgpu's GLSL has not: depth `textureLoad`, `textureNumLevels` in compute, buffer bindings that are no multiple of 16 bytes, texture view formats) | `docs/evidence/platforms/android-canvas.png` |
 | Windows | DX12 on WARP (software) | `cargo test`; the same in a window, in CI, with DXC (`static-dxc`) | `docs/evidence/platforms/windows-canvas.png`, `gallery-windows.jpg` |
 | Linux | Vulkan on lavapipe (software) | `cargo test`, in CI and in an arm64 container; the same in a window, in CI (not Import External Texture: wgpu 29 has none on Vulkan) | `docs/evidence/platforms/linux-canvas.png`, `gallery-linux.jpg` |
-| Web | the browser's WebGPU | the README's example as an app that uses the package, in Chromium | `docs/evidence/platforms/web-readme-app.jpg` |
+| Mac Catalyst | Metal | the Triangle and the rotating Cube on screen | `docs/evidence/platforms/catalyst-canvas.jpg` |
+| Web | the browser's WebGPU | the whole gallery (44 tests) and its tour in Chromium; the README's example as an app that uses the package | `docs/evidence/platforms/web-readme-app.jpg`, `gallery-web.jpg` |
 
 The desktops are checked by `.github/workflows/onscreen.yml` on every push: it runs `examples/canvas-apple`, takes two screenshots and looks for the triangle and for a cube that moved (`scripts/onscreen.py`), then runs the gallery's tests in the platform's own host and takes a picture of each page (`nsh test --target`, `examples/gallery/tour.test.tsx`).
 
-Not verified: a hardware GPU on Windows, Linux or Android, a physical iPhone or Android device, and Mac Catalyst.
+Not verified: a hardware GPU on Windows, Linux or Android, and a physical iPhone or Android device.
 
 On Android the canvases clear to black rather than showing the views under them: the emulator's GL surfaces offer only opaque compositing, so `alphaMode: "premultiplied"` falls back to opaque there (`docs/architecture.md`, "The contract"). The earlier screenshot `docs/evidence/integration/android-canvas-apple.png` also shows an empty Triangle canvas: the example's capture copied out of the surface texture, which Android's GL surfaces cannot do (no `COPY_SRC`), so that frame's submit was invalid; the example now skips the capture on Android, and `docs/evidence/fixes/android-canvas-apple.png` shows the triangle (the explanation is in `docs/evidence/fixes/android-canvas-apple.txt`).
 
-The gallery (`examples/gallery`) ports the reference's example app: its demos and diagnostics, with the differences listed in `examples/gallery/KNOWN_ISSUES.md`; its tests pass headless and in the macOS, Windows and Linux hosts.
+The gallery (`examples/gallery`) ports the reference's example app: its demos and diagnostics, with the differences listed in `examples/gallery/KNOWN_ISSUES.md`; its tests pass headless, in the macOS, Windows and Linux hosts, on the iOS simulator and on the web.
 
 With that nightly an app needs no Rust crate of its own: `nsh` builds an app whose only Rust is an nshm against the nightly's own commit ([longbridge/nsh#2980](https://github.com/longbridge/nsh/pull/2980)), the commit nsh-webgpu is pinned to. The CLI and the pin have to be the same commit.
 

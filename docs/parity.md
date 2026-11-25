@@ -34,7 +34,7 @@ Linux (Vulkan on lavapipe) (the platform table in `docs/architecture.md`).
 | `GPUDevice.forceLossForTesting` | unsupported | Dawn's testing hook; wgpu cannot lose a device on request |
 | `GPUError`, `GPUValidationError`, `GPUOutOfMemoryError`, `GPUInternalError`, `GPUPipelineError`, `GPUDeviceLostInfo` | done | `instanceof` hierarchy as the reference (Constants.spec) |
 | `GPUBufferUsage`, `GPUTextureUsage`, `GPUShaderStage`, `GPUColorWrite`, `GPUMapMode` | done | |
-| `installWebGPU` | done | puts `navigator.gpu`, the classes and the constants on `globalThis`, idempotent; a no-op on the web, as the reference's web entry (the browser's WebGPU stays) |
+| `installWebGPU` | done | puts `navigator.gpu`, the classes and the constants on `globalThis`, idempotent; on the web only `createImageBitmap` learns encoded bytes, as the reference's web entry (the browser's WebGPU stays) |
 | `WebGPUModule` (`install()`) | done | calls `installWebGPU()`, returns `true` |
 | `__brand` on every class | done | |
 | `requestAnimationFrame` / `cancelAnimationFrame` | done | NSH's globals, paced by NSH's frame clock |
