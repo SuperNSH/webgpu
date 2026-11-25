@@ -8,7 +8,7 @@ Part of the SuperNSH capability set. Guides in [docs/guide/](docs/guide/README.m
 
 ## Status
 
-**0.1.0, on GitHub (not on crates.io). `<Canvas>` runs on screen on macOS, the iOS simulator, Mac Catalyst, an Android emulator, Windows, Linux and the web.** It needs NSH 0.7.
+**0.1.0, on GitHub (not on crates.io). `<Canvas>` runs on screen on macOS, the iOS simulator, Mac Catalyst, an Android emulator, Windows, Linux and the web.** It needs NSH 0.7.1 or a later 0.7.
 
 | Platform | GPU it ran on | What was checked | Evidence |
 |---|---|---|---|

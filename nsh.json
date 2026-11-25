@@ -1,4 +1,4 @@
 {
-  "nsh": ">=0.6",
+  "nsh": ">=0.7.1",
   "exports": { "nsh-webgpu": "tsx/index.tsx" }
 }
