@@ -27,7 +27,7 @@ The evidence for each row is in the README's "Status".
 
 ```sh
 curl -fsSL https://nsh.dev/install.sh | sh
-nsh --version   # nsh 0.7.0 or a later 0.7
+nsh --version   # nsh 0.7.1 or a later 0.7
 ```
 
 ## Add the package

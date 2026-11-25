@@ -206,7 +206,7 @@ else GL (emulators), unless `WGPU_BACKEND` is set (`android_backends`, tested on
 ## Blockers and limits in NSH
 
 - **The app's NSH and this crate's have to be compatible versions.** The CLI builds the app against crates.io's
-  `nsh-core` at its own version; nsh-webgpu depends on `0.7.0` or a later 0.7, so a 0.7 CLI
+  `nsh-core` at its own version; nsh-webgpu depends on `0.7.1` or a later 0.7, so a 0.7 CLI
   shares one `nsh-core` with it and the app needs no crate of its own (run with the 0.7.0 and the 0.7.1 CLI). Two versions are E0308 (`expected Registry, found ...Registry`).
 - `nsh add --path` reads the version with a line parser (`nshm/manifest.rs` `package_version`): `version.workspace =
   true` is "Cargo.toml has no [package] version", so the crate states its version.

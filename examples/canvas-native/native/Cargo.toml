@@ -6,7 +6,7 @@ edition = "2024"
 publish = false
 
 [dependencies]
-nsh-core = { version = "0.7.0" }
+nsh-core = { version = "0.7.1" }
 nsh-webgpu = { path = "../../.." }
 wgpu = { version = "29", default-features = false, features = ["std", "wgsl", "dx12", "metal", "vulkan", "gles"] }
 pollster = "0.4"

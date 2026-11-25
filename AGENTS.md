@@ -12,7 +12,7 @@ log are in [docs/PLAN.md](docs/PLAN.md); the area owners are in its "Ownership" 
   another `nsh` on `PATH`, and do not run `nsh update`.
 - Export `NSH_HOME="$PWD/.nsh-home"` before every `nsh` command so installs and build caches stay in the checkout
   (the `justfile` does).
-- Rust crates take NSH from crates.io: `nsh-core = { version = "0.7.0" }` (and every other `nsh-*` crate; the `Cargo.lock`s have 0.7.1). Read NSH's
+- Rust crates take NSH from crates.io: `nsh-core = { version = "0.7.1" }` (and every other `nsh-*` crate; the `Cargo.lock`s have 0.7.1). Read NSH's
   source on GitHub at the tag `v0.7.1`, or in Cargo's registry (`cargo metadata --format-version 1` gives the path).
 - GPU backend: `wgpu` 29 (the version NSH itself uses), standing in for Dawn. WebGPU in Rust, so the JS API maps
   onto wgpu calls almost one to one.

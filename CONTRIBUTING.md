@@ -6,7 +6,7 @@
 
 - The CLI of the NSH release 0.7.1, kept in the checkout at `.nsh-cli/bin/nsh` (ignored by git): `cargo install --locked nsh-cli --version 0.7.1 --root .nsh-cli`. Do not use another `nsh` on `PATH`, and do not run `nsh update`.
 - `NSH_HOME="$PWD/.nsh-home"` for every `nsh` command, so installs and build caches stay in the checkout. The `justfile` sets it.
-- Every `nsh-*` crate comes from crates.io, `0.7.0` or a later 0.7, in the crate and in each example's `native/` crate. Keep the `Cargo.lock` files.
+- Every `nsh-*` crate comes from crates.io, `0.7.1` or a later 0.7, in the crate and in each example's `native/` crate. Keep the `Cargo.lock` files.
 - Rust stable, with the targets you check: `wasm32-unknown-unknown`, `aarch64-linux-android` (and an NDK), `aarch64-apple-ios-sim`.
 
 ## Areas and worktrees

@@ -36,7 +36,7 @@ You need Rust and NSH 0.7:
 
 ```sh
 curl -fsSL https://nsh.dev/install.sh | sh
-nsh --version   # nsh 0.7.0 or a later 0.7
+nsh --version   # nsh 0.7.1 or a later 0.7
 ```
 
 Add the package, in the app's directory, from GitHub or from a clone:
