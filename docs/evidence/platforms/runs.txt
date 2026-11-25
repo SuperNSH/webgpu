@@ -1,9 +1,15 @@
-# NSH nightly 2964346 (nsh 0.6.0, 2026-11-24)
-macos, linux, windows: GitHub runners, On screen run 45463440918 (commit 7646561); their pictures and the gallery sheets are its artifacts (gallery-macos.jpg: nsh test --target macos tour.test.tsx on an M3 Max).
+# NSH nightly 2964346 (nsh 0.6.0, 2026-11-24); code of commit 6557e75 unless said otherwise
+macos, linux, windows: GitHub runners, On screen run 45557264318; gallery-{macos,linux,windows}.jpg are its tour's pictures, each looked at (scripts/blank.py finds no blank page). CI run 45557264325: 8/8.
   macos    triangle and moving cube, gallery 44/44, tour
   linux    triangle and moving cube, gallery 44/44, tour (Import External Texture: ERR_WEBGPU_UNSUPPORTED, as wgpu 29 has none on Vulkan)
-  windows  triangle and moving cube, gallery 43/44 (Context Edge Cases failed, and its 16bits Textures picture shows the float canvas too bright: both fixed after it; the On screen run of the last commit on this branch has them), tour
-ios (simulator, iOS 27) and android (emulator, GLES): nsh run --target in examples/canvas-apple on this Mac, commit 970c37c's code. android: NDK 28.2.
-web: nsh run --target web of the README's app, installed with nsh add --path, no crate of its own; Chromium.
+  windows  triangle and moving cube, gallery 44/44, tour (Import External Texture draws, DX12)
+On an M3 Max (macOS 27.2):
+  macos    nsh test --target macos gallery.test.tsx: 44/44
+  ios      nsh test --target ios, simulator (iOS 27): 44/44
+  web      nsh test --target web, Chromium: 44/44, and the tour (gallery-web.jpg: of 6c217a1's web code before its commit; Compute Toys waits for a site that answers no browser)
+  android  nsh test --target android, emulator (GLES 3.1), NDK 28.2: 38/44. Not: Particles, ReversedZ, ShadowMapping, DeferedRendering, ABuffer, ViewFormatsUseAfterFree (docs/parity/surfaces-other.md)
+  catalyst nsh run --target catalyst in examples/canvas-apple: triangle and moving cube (catalyst-canvas.jpg), 3cf6a4b
+  A one-frame canvas (StorageBufferVertices) in a window covered by another: blank while covered, shown once it is not (2 of 2); without the retry it stays blank (2 of 2).
+ios-canvas.png, android-canvas.png: nsh run --target in examples/canvas-apple, commit 970c37c's code. {macos,linux,windows}-canvas.png: earlier On screen runs.
 A new app (nsh init --template ts, nsh add github:SuperNSH/webgpu --rev 970c37c, no crate of its own): nsh check, build and test pass; with --path it also runs on macOS and the web.
-Windows: the sheet's Import External Texture draws (DX12). Pictures were looked at, each of them.
+A macOS run may fail now and then with "the host did not take the step in 30 s": NSH's test channel (docs/upstream/nsh-test-host-lost-step).
